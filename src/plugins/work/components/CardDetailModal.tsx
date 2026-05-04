@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import type { Card, CardPriority, ChecklistItem } from '../types'
 import { useWorkStore } from '../store'
 import { eventBus } from '@core/events/EventBus'
@@ -115,13 +116,16 @@ export function CardDetailModal({ card, onClose }: Props) {
     onClose()
   }
 
-  return (
+  // Renderizamos en un portal sobre `document.body` para evitar que un
+  // contexto de stacking de un ancestro (transform/filter/will-change/etc.)
+  // recorte o solape al modal con elementos hermanos posicionados.
+  return createPortal(
     <div
       ref={overlayRef}
       role="dialog"
       aria-modal="true"
       aria-label="Detalle de tarea"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in"
       onClick={(e) => e.target === overlayRef.current && onClose()}
     >
       <div className="w-full max-w-lg rounded-2xl border border-border bg-surface shadow-2xl flex flex-col max-h-[80vh]">
@@ -384,6 +388,7 @@ export function CardDetailModal({ card, onClose }: Props) {
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }

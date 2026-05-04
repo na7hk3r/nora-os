@@ -542,7 +542,7 @@ export function CorePlannerPage() {
             </select>
           </label>
 
-          <div className="rounded-lg border border-border bg-surface px-3 py-2 text-xs text-muted flex items-center">
+          <div className="rounded-md border border-border bg-surface px-2 py-1 text-[11px] leading-tight text-muted flex items-center">
             Arrastra tareas al calendario para reprogramarlas
           </div>
         </div>
