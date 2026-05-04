@@ -1,12 +1,8 @@
 import { useEffect, useState } from 'react'
-import { Download, ExternalLink } from 'lucide-react'
+import { Download } from 'lucide-react'
 import { Button } from './Button'
 import { detectOS, osLabel, type DetectedOS } from '../hooks/useDetectOS'
-import {
-  FALLBACK_RELEASES_URL,
-  useLatestRelease,
-  type LatestRelease,
-} from '../hooks/useLatestRelease'
+import { useLatestRelease, type LatestRelease } from '../hooks/useLatestRelease'
 
 interface DownloadButtonProps {
   size?: 'md' | 'lg'
@@ -14,18 +10,24 @@ interface DownloadButtonProps {
   forceOS?: DetectedOS
 }
 
-function pickAsset(os: DetectedOS, release: LatestRelease | null): string | null {
-  if (!release) return null
+/**
+ * Selecciona el asset adecuado para el OS detectado. Si no hay match exacto
+ * (por ejemplo OS desconocido o assets faltantes), cae al instalador Windows
+ * NSIS — siempre presente en cada release — para garantizar que el botón
+ * dispare una descarga directa y nunca redirija a la página de releases.
+ */
+function pickAsset(os: DetectedOS, release: LatestRelease): string | null {
   const a = release.assets
+  const winFallback = a.windows?.url ?? a.windowsPortable?.url
   switch (os) {
     case 'windows':
       return a.windows?.url ?? a.windowsPortable?.url ?? null
     case 'mac':
-      return a.macDmg?.url ?? null
+      return a.macDmg?.url ?? winFallback ?? null
     case 'linux':
-      return a.linuxAppImage?.url ?? a.linuxDeb?.url ?? null
+      return a.linuxAppImage?.url ?? a.linuxDeb?.url ?? winFallback ?? null
     default:
-      return null
+      return winFallback ?? a.all[0]?.url ?? null
   }
 }
 
@@ -41,24 +43,26 @@ export function DownloadButton({ size = 'lg', forceOS }: DownloadButtonProps) {
     setOS(detectOS())
   }, [forceOS])
 
-  const assetUrl = pickAsset(os, release)
+  const assetUrl = release ? pickAsset(os, release) : null
   const label = `Descargar para ${osLabel(os)}`
-  const href = assetUrl ?? FALLBACK_RELEASES_URL
-  const isFallback = !assetUrl
+  const isLoading = loading && !release
+  const disabled = !assetUrl
 
   return (
     <Button
       as="a"
-      href={href}
+      href={assetUrl ?? '#'}
       variant="primary"
       size={size}
       leftIcon={<Download className="w-5 h-5" aria-hidden="true" />}
-      rightIcon={isFallback ? <ExternalLink className="w-4 h-4" aria-hidden="true" /> : undefined}
-      aria-label={loading ? 'Cargando última versión' : label}
-      target={isFallback ? '_blank' : undefined}
-      rel={isFallback ? 'noopener noreferrer' : undefined}
+      aria-label={isLoading ? 'Cargando última versión' : label}
+      aria-disabled={disabled || undefined}
+      onClick={disabled ? (e) => e.preventDefault() : undefined}
+      // Forzamos descarga (Content-Disposition lo respeta GitHub Releases) en
+      // lugar de navegar al binario, evitando que el browser intente renderizarlo.
+      {...(assetUrl ? { download: '' } : {})}
     >
-      {loading && !release ? 'Cargando…' : label}
+      {isLoading ? 'Cargando…' : label}
     </Button>
   )
 }

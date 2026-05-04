@@ -2,34 +2,47 @@
 # para Nora OS. Usa System.Drawing (Windows nativo, sin dependencias npm extra).
 #
 # Diseno:
-#   - Fondo gradiente diagonal grafito -> negro (paleta de la app)
-#   - Borde redondeado con halo color acento (#F97316 naranja)
-#   - Monograma "PO" centrado, blanco, con sombra sutil
+#   - Fondo gradiente diagonal cosmic-purple (paleta oficial Nora OS)
+#   - Borde redondeado con halo color acento violeta
+#   - Isotipo Nora oficial (identidadVisual-noraOS/nora-isotipo-original.png)
+#     centrado, con sombra sutil para tamaños grandes.
 #
 # Uso: pwsh ./scripts/build-icon.ps1
 # Salida: buildResources/icon.png + buildResources/icon.ico
 
 [CmdletBinding()]
 param(
-    [string]$OutDir
+    [string]$OutDir,
+    [string]$IsotipoPath
 )
 
 Add-Type -AssemblyName System.Drawing
 
 $ErrorActionPreference = 'Stop'
+$root = if ($PSScriptRoot -and $PSScriptRoot.Trim() -ne '') { $PSScriptRoot } else { (Get-Location).Path }
 if (-not $OutDir -or $OutDir.Trim() -eq '') {
-    $root = if ($PSScriptRoot -and $PSScriptRoot.Trim() -ne '') { $PSScriptRoot } else { (Get-Location).Path }
     $OutDir = Join-Path $root '..\buildResources'
 }
 if (-not (Test-Path $OutDir)) { New-Item -ItemType Directory -Force -Path $OutDir | Out-Null }
 $OutDir = (Resolve-Path $OutDir).Path
 
-# Paleta
-$bgTop    = [System.Drawing.Color]::FromArgb(255,  24,  24,  27)   # zinc-900
-$bgBot    = [System.Drawing.Color]::FromArgb(255,   9,   9,  11)   # zinc-950
-$accent   = [System.Drawing.Color]::FromArgb(255, 249, 115,  22)   # orange-500
-$accentSo = [System.Drawing.Color]::FromArgb(120, 249, 115,  22)
-$fg       = [System.Drawing.Color]::White
+# Fuente del isotipo: kit de identidad oficial.
+if (-not $IsotipoPath -or $IsotipoPath.Trim() -eq '') {
+    $IsotipoPath = Join-Path $root '..\identidadVisual-noraOS\nora-isotipo-original.png'
+}
+if (-not (Test-Path $IsotipoPath)) {
+    throw "No se encontró el isotipo Nora en: $IsotipoPath"
+}
+$IsotipoPath = (Resolve-Path $IsotipoPath).Path
+
+# Paleta cosmic-purple (coherente con AuthScreen y splash).
+$bgTop    = [System.Drawing.Color]::FromArgb(255,  29,  14,  61)   # #1d0e3d
+$bgBot    = [System.Drawing.Color]::FromArgb(255,   7,   6,  13)   # #07060d
+$accent   = [System.Drawing.Color]::FromArgb(140, 138,  92, 246)   # violet-500 alpha
+$accentSo = [System.Drawing.Color]::FromArgb(120, 138,  92, 246)
+
+# Cargar isotipo una sola vez en memoria.
+$isotipoBmp = [System.Drawing.Image]::FromFile($IsotipoPath)
 
 function New-IconBitmap {
     param([int]$Size)
@@ -38,7 +51,7 @@ function New-IconBitmap {
     $g   = [System.Drawing.Graphics]::FromImage($bmp)
     $g.SmoothingMode      = [System.Drawing.Drawing2D.SmoothingMode]::AntiAlias
     $g.InterpolationMode  = [System.Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic
-    $g.TextRenderingHint  = [System.Drawing.Text.TextRenderingHint]::AntiAliasGridFit
+    $g.PixelOffsetMode    = [System.Drawing.Drawing2D.PixelOffsetMode]::HighQuality
     $g.Clear([System.Drawing.Color]::Transparent)
 
     # Path con esquinas redondeadas
@@ -60,7 +73,7 @@ function New-IconBitmap {
     $g.FillPath($grad, $path)
     $grad.Dispose()
 
-    # Halo acento (rectangulo interno con borde naranja semi)
+    # Halo acento (rectangulo interno con borde violeta semi)
     $haloPad = [Math]::Max(2, [int]($Size * 0.06))
     $haloRect = New-Object System.Drawing.Rectangle $haloPad, $haloPad, ($Size - 2*$haloPad), ($Size - 2*$haloPad)
     $haloR   = [int]($radius * 0.85)
@@ -74,43 +87,41 @@ function New-IconBitmap {
     $haloPen = New-Object System.Drawing.Pen $accentSo, ([Math]::Max(1, $Size / 64))
     $g.DrawPath($haloPen, $haloPath)
     $haloPen.Dispose()
+    $haloPath.Dispose()
 
-    # Monograma "PO"
-    $fontSize = [single]([Math]::Max(8, $Size * 0.46))
-    $font     = New-Object System.Drawing.Font 'Segoe UI', $fontSize, ([System.Drawing.FontStyle]::Bold), ([System.Drawing.GraphicsUnit]::Pixel)
-    $sf       = New-Object System.Drawing.StringFormat
-    $sf.Alignment     = [System.Drawing.StringAlignment]::Center
-    $sf.LineAlignment = [System.Drawing.StringAlignment]::Center
+    # Isotipo centrado: ocupa ~62% del canvas, conservando aspect ratio.
+    $targetSize = [int]($Size * 0.62)
+    $srcW = [single]$isotipoBmp.Width
+    $srcH = [single]$isotipoBmp.Height
+    $scale = [single]$targetSize / [single]([Math]::Max($srcW, $srcH))
+    $drawW = [int]($srcW * $scale)
+    $drawH = [int]($srcH * $scale)
+    $drawX = [int](($Size - $drawW) / 2)
+    $drawY = [int](($Size - $drawH) / 2)
+    $destRect = New-Object System.Drawing.Rectangle $drawX, $drawY, $drawW, $drawH
 
-    # Sombra
-    if ($Size -ge 48) {
-        $shadow = New-Object System.Drawing.SolidBrush ([System.Drawing.Color]::FromArgb(140, 0, 0, 0))
-        $shRect = New-Object System.Drawing.RectangleF 0, ([single]([Math]::Max(1, $Size * 0.012))), ([single]$Size), ([single]$Size)
-        $g.DrawString('PO', $font, $shadow, $shRect, $sf)
-        $shadow.Dispose()
+    # Sombra sutil sólo en tamaños grandes (apenas perceptible).
+    if ($Size -ge 64) {
+        $shadowOffset = [Math]::Max(1, [int]($Size * 0.012))
+        $shadowRect = New-Object System.Drawing.Rectangle ($drawX + $shadowOffset), ($drawY + $shadowOffset), $drawW, $drawH
+        # Atributos para teñir la sombra (alpha 30%) reusando la misma imagen.
+        $matrix = New-Object 'single[][]' 5
+        for ($i = 0; $i -lt 5; $i++) { $matrix[$i] = New-Object 'single[]' 5 }
+        # Anula RGB y deja alpha al 30%.
+        $matrix[3][3] = 0.30
+        $colorMatrix = New-Object System.Drawing.Imaging.ColorMatrix (,$matrix)
+        $attrs = New-Object System.Drawing.Imaging.ImageAttributes
+        $attrs.SetColorMatrix($colorMatrix)
+        $g.DrawImage($isotipoBmp, $shadowRect, 0, 0, [int]$srcW, [int]$srcH,
+            [System.Drawing.GraphicsUnit]::Pixel, $attrs)
+        $attrs.Dispose()
     }
 
-    # Texto principal
-    $brush = New-Object System.Drawing.SolidBrush $fg
-    $textRect = New-Object System.Drawing.RectangleF 0, 0, ([single]$Size), ([single]$Size)
-    $g.DrawString('PO', $font, $brush, $textRect, $sf)
-    $brush.Dispose()
-    $font.Dispose()
-    $sf.Dispose()
-
-    # Acento decorativo: barra inferior en color naranja
-    $barH = [Math]::Max(2, [int]($Size * 0.06))
-    $barW = [int]($Size * 0.32)
-    $barX = [int](($Size - $barW) / 2)
-    $barY = [int]($Size * 0.82)
-    $barBrush = New-Object System.Drawing.SolidBrush $accent
-    $barRect  = New-Object System.Drawing.Rectangle $barX, $barY, $barW, $barH
-    $g.FillRectangle($barBrush, $barRect)
-    $barBrush.Dispose()
+    # Isotipo principal
+    $g.DrawImage($isotipoBmp, $destRect)
 
     $g.Dispose()
     $path.Dispose()
-    $haloPath.Dispose()
     return $bmp
 }
 
@@ -171,6 +182,7 @@ try {
     $fs.Dispose()
 }
 foreach ($b in $bitmaps) { $b.Dispose() }
+$isotipoBmp.Dispose()
 Write-Host "ICO  -> $icoPath"
 
 Write-Host "Done."

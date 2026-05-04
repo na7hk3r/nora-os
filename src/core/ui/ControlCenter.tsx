@@ -15,6 +15,7 @@ import { NotificationsSection } from './control/NotificationsSection'
 import { TagsSection } from './control/TagsSection'
 import { CollapsibleSection } from './control/CollapsibleSection'
 import { BrandIcon } from './components/BrandIcon'
+import { NoraLogoMark } from './components/NoraLogo'
 import { AuditPanel } from './AuditPanel'
 import { useAuditStore } from '@core/audit/store'
 import {
@@ -237,14 +238,16 @@ export function ControlCenter() {
               Administra identidad, preferencias, módulos y salud general de la plataforma desde un único panel.
             </p>
           </div>
-          <img
-            src="./ntkr-logo-alt.png"
-            alt="Marca NTKR"
-            className="h-14 w-auto shrink-0 self-start rounded-md border border-border/80 bg-surface p-2"
+          <NoraLogoMark
+            size={56}
+            glow
+            className="shrink-0 self-start rounded-md border border-border/80 bg-surface p-2"
           />
         </div>
         <div className="mt-4 flex items-center gap-3 rounded-xl border border-border/80 bg-surface px-4 py-2">
-          <img src="./gif-mano.gif" alt="Activity" className="h-9 w-9 shrink-0 rounded-md" />
+          <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-accent/15">
+            <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-accent" aria-hidden="true" />
+          </span>
           <p className="text-xs text-muted">Monitoreo operativo activo en tiempo real</p>
         </div>
       </section>

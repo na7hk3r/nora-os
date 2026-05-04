@@ -24,6 +24,7 @@ import { UnlockScreen } from './core/ui/auth/UnlockScreen'
 import { ErrorBoundary } from './core/ui/components/ErrorBoundary'
 import { GlobalErrorBoundary } from './core/ui/components/GlobalErrorBoundary'
 import { ToastProvider } from './core/ui/components/ToastProvider'
+import { NoraLogoMark } from './core/ui/components/NoraLogo'
 import { messages } from './core/ui/messages'
 import { automationsService } from './core/services/automationsService'
 import { notificationsService } from './core/services/notificationsService'
@@ -199,8 +200,11 @@ export function App() {
 
   if (authStatus === 'checking') {
     return (
-      <div className="relative flex h-screen items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_top,_#16324f_0%,_#101923_45%,_#070d14_100%)] text-white">
+      <div className="relative flex h-screen items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_top_left,_#1d0e3d_0%,_#110a24_42%,_#07060d_100%)] text-white">
+        <div className="pointer-events-none absolute -left-32 top-1/4 h-[480px] w-[480px] rounded-full bg-accent/20 blur-3xl" />
+        <div className="pointer-events-none absolute -right-32 bottom-0 h-[420px] w-[420px] rounded-full bg-accent-light/10 blur-3xl" />
         <div className="relative rounded-2xl border border-white/10 bg-surface-light/70 px-10 py-8 text-center shadow-2xl backdrop-blur">
+          <NoraLogoMark size={56} glow className="mx-auto mb-3 animate-pulse" />
           <p className="text-base font-medium">{messages.loading.checkingSession}</p>
         </div>
       </div>
@@ -223,13 +227,12 @@ export function App() {
 
   if (!ready) {
     return (
-      <div className="relative flex h-screen items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_top,_#16324f_0%,_#101923_45%,_#070d14_100%)] text-white">
-        <div className="absolute inset-0 opacity-20">
-          <img src="./grupo_alt.jpg" alt="Background corporativo" className="h-full w-full object-cover" />
-        </div>
+      <div className="relative flex h-screen items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_top_left,_#1d0e3d_0%,_#110a24_42%,_#07060d_100%)] text-white">
+        <div className="pointer-events-none absolute -left-32 top-1/4 h-[480px] w-[480px] rounded-full bg-accent/20 blur-3xl" />
+        <div className="pointer-events-none absolute -right-32 bottom-0 h-[420px] w-[420px] rounded-full bg-accent-light/10 blur-3xl" />
         <div className="relative rounded-2xl border border-white/10 bg-surface-light/70 px-10 py-8 text-center shadow-2xl backdrop-blur">
-          <img src="./gif-eye.gif" alt="Loader" className="mx-auto h-16 w-16 rounded-full" />
-          <p className="mt-4 text-base font-medium">{messages.loading.initializing}</p>
+          <NoraLogoMark size={64} glow className="mx-auto mb-4 animate-pulse" />
+          <p className="mt-2 text-base font-medium">{messages.loading.initializing}</p>
           <p className="mt-1 text-sm text-muted">{messages.loading.initializingDetail}</p>
         </div>
       </div>

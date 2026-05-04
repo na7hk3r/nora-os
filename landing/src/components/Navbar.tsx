@@ -4,6 +4,7 @@ import { Github, Menu, X } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ThemeToggle } from './ThemeToggle'
 import { NoraLogo } from './NoraLogo'
+import { DownloadButton } from './DownloadButton'
 import { useLatestRelease } from '../hooks/useLatestRelease'
 
 const REPO_URL = 'https://github.com/na7hk3r/nora-os'
@@ -18,7 +19,6 @@ const links: NavLink[] = [
   { href: '#how-it-works', label: 'Cómo funciona' },
   { href: '#plugins', label: 'Plugins' },
   { href: '#copilot-demo', label: 'Copiloto' },
-  { href: '#download', label: 'Descargar' },
   { href: '#faq', label: 'FAQ' },
 ]
 
@@ -98,12 +98,9 @@ export function Navbar() {
           >
             <Github className="w-4 h-4" aria-hidden="true" />
           </a>
-          <a
-            href="#download"
-            className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-accent text-white text-sm font-medium hover:bg-accent-light hover-glow transition-all shadow-glow-sm"
-          >
-            Descargar
-          </a>
+          <div className="hidden sm:inline-flex">
+            <DownloadButton size="sm" />
+          </div>
           <button
             type="button"
             aria-label={open ? 'Cerrar menú' : 'Abrir menú'}
@@ -149,13 +146,9 @@ export function Navbar() {
                 >
                   <Github className="w-4 h-4" aria-hidden="true" /> GitHub
                 </a>
-                <a
-                  href="#download"
-                  onClick={() => setOpen(false)}
-                  className="flex-1 inline-flex items-center justify-center px-3 py-2.5 rounded-md bg-accent text-white font-medium"
-                >
-                  Descargar
-                </a>
+                <div className="flex-1" onClick={() => setOpen(false)}>
+                  <DownloadButton size="md" />
+                </div>
               </li>
             </ul>
           </motion.nav>

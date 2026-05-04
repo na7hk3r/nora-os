@@ -302,7 +302,7 @@ export function Sidebar() {
               <Keyboard size={14} />
               Atajos
             </NavLink>
-            <div className="flex items-center justify-center gap-1.5 opacity-80" title={`Nora OS v${APP_VERSION}`}>
+            <div className="flex items-center justify-center gap-10 opacity-80" title={`Nora OS v${APP_VERSION}`}>
               <NoraLogoMark variant="wordmark" size={12} />
               <span>v{APP_VERSION}</span>
             </div>

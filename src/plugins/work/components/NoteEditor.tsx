@@ -23,18 +23,18 @@ export function NoteEditor() {
     if (!selected) return
     const text = (content ?? '').trim()
     if (text.length <= 200) {
-      toast.info('Necesitás más contenido para extraer tareas (mínimo 200 caracteres).')
+      toast.info('NecesitÃ¡s mÃ¡s contenido para extraer tareas (mÃ­nimo 200 caracteres).')
       return
     }
     setExtracting(true)
     try {
       const tasks = await noteExtractionService.extract(text)
       if (tasks.length === 0) {
-        toast.info('No encontré tareas accionables en la nota.')
+        toast.info('No encontrÃ© tareas accionables en la nota.')
         return
       }
       const ids = await noteExtractionService.createCards(tasks)
-      toast.success(`Creé ${ids.length} ${ids.length === 1 ? 'tarea' : 'tareas'} desde la nota.`)
+      toast.success(`CreÃ© ${ids.length} ${ids.length === 1 ? 'tarea' : 'tareas'} desde la nota.`)
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Error al extraer tareas'
       toast.error(msg)
@@ -91,7 +91,7 @@ export function NoteEditor() {
     eventBus.emit(WORK_EVENTS.NOTE_CREATED, { id, title: note.title })
   }
 
-  // Atajo global Ctrl/Cmd + N ? crea nota desde cualquier lugar.
+  // Atajo global Ctrl/Cmd + N â†’ crea nota desde cualquier lugar.
   useEffect(() => {
     const onCreate = () => handleNew()
     window.addEventListener('work:new-note', onCreate)
@@ -122,7 +122,7 @@ export function NoteEditor() {
     }
 
     toast.undo({
-      message: messages.confirm.deleteNote(note.title || 'Sin título'),
+      message: messages.confirm.deleteNote(note.title || 'Sin tÃ­tulo'),
       onUndo: async () => {
         addNote(note)
         await window.storage.execute(
@@ -204,7 +204,7 @@ export function NoteEditor() {
                   : 'border-border bg-surface text-muted hover:text-white'
               }`}
             >
-              A–Z
+              Aâ†’Z
             </button>
           </div>
         </div>
@@ -212,7 +212,7 @@ export function NoteEditor() {
         <div className="flex-1 overflow-y-auto p-2 space-y-1">
           {filteredNotes.length === 0 && (
             <div className="text-center text-xs text-muted/60 py-6">
-              {search ? 'Sin resultados' : 'No hay notas todavía'}
+              {search ? 'Sin resultados' : 'No hay notas todavÃ­a'}
             </div>
           )}
           {filteredNotes.map((n) => {
@@ -283,7 +283,7 @@ export function NoteEditor() {
               onChange={(e) => setTitle(e.target.value)}
               onBlur={handleSave}
               className="bg-transparent border-b border-border px-4 py-3 text-lg font-semibold outline-none"
-              placeholder="Título"
+              placeholder="TÃ­tulo"
             />
             {(content ?? '').trim().length > 200 ? (
               <div className="flex items-center justify-end gap-2 border-b border-border/60 px-4 py-1.5">
@@ -295,7 +295,7 @@ export function NoteEditor() {
                   title="Extraer tareas accionables con IA"
                 >
                   <Sparkles size={11} />
-                  {extracting ? 'Extrayendo…' : 'Extraer tareas'}
+                  {extracting ? 'Extrayendoâ€¦' : 'Extraer tareas'}
                 </button>
               </div>
             ) : null}
@@ -304,7 +304,7 @@ export function NoteEditor() {
               onChange={(e) => setContent(e.target.value)}
               onBlur={handleSave}
               className="flex-1 bg-transparent px-4 py-3 text-sm resize-none outline-none leading-relaxed"
-              placeholder="Escribí la nota…"
+              placeholder="EscribÃ­ la notaâ€¦"
             />
           </>
         ) : (

@@ -72,12 +72,12 @@ describe('DownloadButton', () => {
     })
   })
 
-  it('cae al fallback de releases si OS=unknown', async () => {
+  it('cae al instalador Windows si OS=unknown (nunca a la página de releases)', async () => {
     render(<DownloadButton forceOS="unknown" />)
     await waitFor(() => {
       expect(screen.getByRole('link')).toHaveAttribute(
         'href',
-        'https://github.com/na7hk3r/nora-os/releases',
+        'https://example.com/setup.exe',
       )
     })
   })

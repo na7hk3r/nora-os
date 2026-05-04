@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react'
+import type { ButtonHTMLAttributes, MouseEventHandler, ReactNode } from 'react'
 
 type Variant = 'primary' | 'secondary' | 'ghost'
 type Size = 'sm' | 'md' | 'lg'
@@ -22,7 +22,10 @@ interface AnchorProps {
   className?: string
   target?: string
   rel?: string
+  download?: string | boolean
+  onClick?: MouseEventHandler<HTMLAnchorElement>
   ['aria-label']?: string
+  ['aria-disabled']?: boolean
 }
 
 const sizeClasses: Record<Size, string> = {
@@ -47,14 +50,18 @@ export function Button(props: ButtonProps | AnchorProps) {
   const cls = `${baseClasses} ${sizeClasses[size]} ${variantClasses[variant]} ${className}`
 
   if ('as' in props && props.as === 'a') {
-    const { href, target, rel, ...rest } = props
+    const { href, target, rel, download, onClick } = props
+    const ariaDisabled = props['aria-disabled']
     return (
       <a
         href={href}
         target={target}
         rel={rel}
+        download={download as string | undefined}
+        onClick={onClick}
         className={cls}
-        aria-label={rest['aria-label']}
+        aria-label={props['aria-label']}
+        aria-disabled={ariaDisabled}
       >
         {leftIcon}
         {children}

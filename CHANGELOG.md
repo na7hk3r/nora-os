@@ -1,5 +1,38 @@
 # Changelog - Nora OS
 
+## [1.13.1] - 2026-05-04
+
+### 🩹 Fixes de marca, descarga y notas
+
+Patch de pulido sobre 1.13.0 que cierra cuatro bugs visibles tras el rebrand.
+
+#### Landing — descarga directa del instalador
+
+- [`landing/src/components/DownloadButton.tsx`](landing/src/components/DownloadButton.tsx): el botón ya no redirige a la página de releases. Ahora siempre selecciona un asset binario (Windows NSIS como fallback duro para OS desconocido), agrega `download` para forzar descarga vía `Content-Disposition` y se deshabilita correctamente mientras carga.
+- [`landing/src/components/Navbar.tsx`](landing/src/components/Navbar.tsx): los CTAs "Descargar" del navbar (desktop y mobile) ahora son `<DownloadButton>` reales en lugar de un anchor `#download` que sólo hacía scroll.
+- [`landing/src/components/Button.tsx`](landing/src/components/Button.tsx): la variante `as="a"` soporta `download`, `onClick` y `aria-disabled`.
+- Tests: actualizado el caso `OS=unknown` para validar que cae al `.exe` Windows en lugar de a `releases/`.
+
+#### Marca — ícono del instalador Windows
+
+- [`scripts/build-icon.ps1`](scripts/build-icon.ps1) reescrito: ya no genera el monograma "PO" legacy. Ahora compone fondo cosmic-purple oficial + isotipo `identidadVisual-noraOS/nora-isotipo-original.png` centrado.
+- Regenerados [`buildResources/icon.png`](buildResources/icon.png) y [`buildResources/icon.ico`](buildResources/icon.ico) (multi-res 16/32/48/64/128/256). El instalador NSIS y el ejecutable adoptan el ícono Nora oficial.
+- Si Windows muestra el ícono cacheado tras reinstalar, ejecutá `ie4uinit.exe -show` o reiniciá `explorer.exe`.
+
+#### Splash y panel — sin assets legacy
+
+- [`src/App.tsx`](src/App.tsx): los splash de `checking` y `!ready` (entre login y bootstrap) ya no usan `grupo_alt.jpg` ni `gif-eye.gif`. Pasan a fondo cosmic-purple coherente con `AuthScreen` y `<NoraLogoMark glow animate-pulse>`.
+- [`src/core/ui/ControlCenter.tsx`](src/core/ui/ControlCenter.tsx): reemplazados `ntkr-logo-alt.png` y `gif-mano.gif` por el isotipo oficial y un indicador puntual con `animate-pulse`.
+
+#### Notas — caracteres especiales
+
+- [`src/plugins/work/components/NoteEditor.tsx`](src/plugins/work/components/NoteEditor.tsx) había sido guardado con un editor que perdió la codificación UTF-8: 13 caracteres `U+FFFD` quedaron literales en placeholders, toasts y comentarios (`Necesit�s`, `T�tulo`, `Escrib�`, `A�Z`, etc.). Restaurados a sus tildes correctas (`á é í ó ú ñ → …`). El contenido escrito por el usuario nunca estuvo afectado: SQLite es UTF-8 por default y la persistencia siempre fue correcta.
+
+#### Misc
+
+- [`landing/src/sections/Footer.tsx`](landing/src/sections/Footer.tsx): logo del footer ahora es `variant="full"` 125px y crédito "por S.M. Curbelo." con link al portfolio.
+- [`src/core/ui/Sidebar.tsx`](src/core/ui/Sidebar.tsx): mayor separación visual entre el wordmark y la versión en el footer del sidebar.
+
 ## [1.13.0] - 2026-05-04
 
 ### 🪐 Renombrado de repositorio + adopción del kit oficial PNG
