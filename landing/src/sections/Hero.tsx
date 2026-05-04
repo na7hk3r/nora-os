@@ -4,11 +4,11 @@ import { motion } from 'framer-motion'
 import { Button } from '../components/Button'
 import { DownloadButton } from '../components/DownloadButton'
 import { BrandIcon } from '../components/BrandIcon'
-import { NoraLogoMark } from '../components/NoraLogo'
+import { NoraLogo } from '../components/NoraLogo'
 import { useTypewriter } from '../hooks/useTypewriter'
 import { useLatestRelease } from '../hooks/useLatestRelease'
 
-const REPO_URL = 'https://github.com/na7hk3r/personal-os'
+const REPO_URL = 'https://github.com/na7hk3r/nora-os'
 
 const COPILOT_LINE =
   'Hoy estás 18% por debajo de tu foco semanal. Tenés 2 tareas que vencen hoy.'
@@ -56,6 +56,16 @@ export function Hero() {
       </div>
 
       <div className="max-w-5xl mx-auto text-center">
+        {/* Logo principal del hero — isotipo grande con glow. */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.85 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.7, ease: 'easeOut' }}
+          className="flex justify-center mb-6"
+        >
+          <NoraLogo variant="mark-original" size={160} glow />
+        </motion.div>
+
         <motion.p
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
@@ -187,7 +197,7 @@ export function Hero() {
             <span className="w-2.5 h-2.5 rounded-full bg-red-400/70" aria-hidden="true" />
             <span className="w-2.5 h-2.5 rounded-full bg-amber-400/70" aria-hidden="true" />
             <span className="w-2.5 h-2.5 rounded-full bg-emerald-400/70" aria-hidden="true" />
-            <NoraLogoMark size={16} className="ml-3 text-foreground/80" />
+            <NoraLogo variant="mark-original" size={16} className="ml-3" />
             <span className="text-[11px] font-mono text-muted tracking-wider">
               nora-os · daily brief
             </span>

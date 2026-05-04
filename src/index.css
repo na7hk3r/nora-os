@@ -105,6 +105,16 @@
   color: rgb(var(--color-text)) !important;
 }
 
+/* Logo Nora — alterna white/black según tema (componente NoraLogoMark con
+ * variantes dual: wordmark y full). En oscuro mostramos el PNG blanco; en
+ * `data-theme="light"` lo escondemos y mostramos el negro. */
+[data-theme="light"] .nora-logo-dark {
+  display: none !important;
+}
+[data-theme="light"] .nora-logo-light {
+  display: block !important;
+}
+
 /* ========== TEMA: CYBERPUNK (60/30/10 — cian dominante) ==========
  *
  * 60 % — base/superficies púrpura-negro (#03000c → #1c0c38)

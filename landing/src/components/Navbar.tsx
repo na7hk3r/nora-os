@@ -3,10 +3,10 @@ import { useEffect, useState } from 'react'
 import { Github, Menu, X } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ThemeToggle } from './ThemeToggle'
-import { NoraLogoMark } from './NoraLogo'
+import { NoraLogo } from './NoraLogo'
 import { useLatestRelease } from '../hooks/useLatestRelease'
 
-const REPO_URL = 'https://github.com/na7hk3r/personal-os'
+const REPO_URL = 'https://github.com/na7hk3r/nora-os'
 
 interface NavLink {
   href: string
@@ -54,13 +54,11 @@ export function Navbar() {
       <div className="max-w-6xl mx-auto px-4 md:px-8 h-16 flex items-center justify-between">
         <a
           href="#"
-          className="font-bold text-foreground text-lg flex items-center gap-2.5 group"
+          className="flex items-center gap-2 group"
           aria-label="Nora OS — inicio"
         >
-          <NoraLogoMark size={32} className="text-foreground transition-transform group-hover:scale-105" />
-          <span className="font-display tracking-[0.14em] text-base">
-            NORA<span className="text-accent-light ml-0.5">OS</span>
-          </span>
+          <NoraLogo variant="mark-original" size={36} className="transition-transform group-hover:scale-105" />
+          <NoraLogo variant="wordmark" size={20} />
         </a>
 
         <nav
