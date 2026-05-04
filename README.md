@@ -9,7 +9,6 @@
 
 `v1.12.0` · Electron 41 · React 19 · TypeScript 5.7 · SQLite
 
-> **Nota de marca**: el slug del repositorio, paquete y URLs ahora usan **`nora-os`**. El nombre comercial de la aplicación es **Nora OS**.
 
 [![Website](https://img.shields.io/badge/Website-na7hk3r.github.io%2Fnora--os-6A39F6?style=flat-square)](https://na7hk3r.github.io/nora-os/)
 [![Releases](https://img.shields.io/github/v/release/na7hk3r/nora-os?style=flat-square&color=6A39F6)](https://github.com/na7hk3r/nora-os/releases)
