@@ -1,23 +1,23 @@
-// Footer minimalista: filosofía + atribución única "por na7hk3r".
 import { NoraLogo } from '../components/NoraLogo'
+import { useI18n } from '../i18n'
 
 export function Footer() {
+  const { t } = useI18n()
+
   return (
-    <footer className="relative border-t border-border bg-surface/30 backdrop-blur mt-20">
-      <div className="max-w-4xl mx-auto px-4 md:px-8 pt-16 pb-10 text-center">
-        <div className="flex justify-center mb-8">
+    <footer className="relative mt-20 border-t border-border bg-surface/30 backdrop-blur">
+      <div className="mx-auto max-w-4xl px-4 pb-10 pt-14 text-center sm:px-6 md:px-8 md:pt-16">
+        <div className="mb-8 flex justify-center">
           <NoraLogo variant="full" size={125} glow />
         </div>
-        <p className="font-display text-2xl md:text-3xl font-medium text-foreground leading-snug max-w-2xl mx-auto">
-          Hecho con convicción.{' '}
-          <span className="text-gradient-accent">Local-first.</span>{' '}
-          Sin telemetría. Sin VC money.
+        <p className="mx-auto max-w-2xl font-display text-2xl font-medium leading-snug text-foreground text-pretty md:text-3xl">
+          {t.footer.line1}{' '}
+          <span className="text-gradient-accent">{t.footer.accent}</span>{' '}
+          {t.footer.line2}
         </p>
-        <p className="mt-4 text-sm text-muted">
-          Una herramienta que vive donde tienen que vivir las cosas tuyas: en tu máquina.
-        </p>
+        <p className="mt-4 text-sm leading-relaxed text-muted text-pretty">{t.footer.body}</p>
         <p className="mt-10 text-xs text-muted">
-          por{' '}
+          {t.footer.by}{' '}
           <a
             href="https://smcurbelo.vercel.app/"
             target="_blank"

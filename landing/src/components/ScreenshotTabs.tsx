@@ -13,9 +13,16 @@ interface Props {
   tabs: ScreenshotTab[]
   /** id por defecto. Default: primer tab. */
   defaultTabId?: string
+  ariaLabel?: string
+  missingLabel?: string
 }
 
-export function ScreenshotTabs({ tabs, defaultTabId }: Props) {
+export function ScreenshotTabs({
+  tabs,
+  defaultTabId,
+  ariaLabel = 'Capturas de Nora OS',
+  missingLabel = 'Captura próximamente',
+}: Props) {
   const [activeId, setActiveId] = useState<string>(defaultTabId ?? tabs[0]?.id ?? '')
   const active = tabs.find((t) => t.id === activeId) ?? tabs[0]
 
@@ -26,8 +33,8 @@ export function ScreenshotTabs({ tabs, defaultTabId }: Props) {
       {/* Tablist */}
       <div
         role="tablist"
-        aria-label="Capturas de Nora OS"
-        className="flex flex-wrap gap-2 justify-center mb-6"
+        aria-label={ariaLabel}
+        className="mb-6 flex flex-wrap justify-start gap-2 sm:justify-center"
       >
         {tabs.map((t) => {
           const isActive = t.id === active.id
@@ -41,7 +48,7 @@ export function ScreenshotTabs({ tabs, defaultTabId }: Props) {
               aria-controls={`shot-panel-${t.id}`}
               tabIndex={isActive ? 0 : -1}
               onClick={() => setActiveId(t.id)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${
+              className={`rounded-lg border px-3 py-2 text-sm font-medium leading-snug transition-colors sm:px-4 ${
                 isActive
                   ? 'bg-accent text-white border-accent shadow-sm'
                   : 'bg-surface/60 text-muted border-border hover:text-foreground hover:border-accent/40'
@@ -58,15 +65,15 @@ export function ScreenshotTabs({ tabs, defaultTabId }: Props) {
         role="tabpanel"
         id={`shot-panel-${active.id}`}
         aria-labelledby={`shot-tab-${active.id}`}
-        className="rounded-2xl overflow-hidden border border-border bg-surface/60 group animate-fade-in"
+        className="group animate-fade-in overflow-hidden rounded-2xl border border-border bg-surface/60"
       >
-        <div className="aspect-[16/10] bg-surface-light flex items-center justify-center overflow-hidden relative">
+        <div className="relative flex aspect-[16/10] items-center justify-center overflow-hidden bg-surface-light">
           <img
             key={active.src}
             src={`${import.meta.env.BASE_URL}${active.src}`}
             alt={active.alt}
             loading="lazy"
-            className="w-full h-full object-cover"
+            className="h-full w-full object-cover"
             onError={(e) => {
               ;(e.currentTarget as HTMLImageElement).style.display = 'none'
               const sibling = (e.currentTarget as HTMLImageElement)
@@ -75,15 +82,15 @@ export function ScreenshotTabs({ tabs, defaultTabId }: Props) {
             }}
           />
           <div
-            className="absolute inset-0 hidden flex-col items-center justify-center text-muted gap-2"
+            className="absolute inset-0 hidden flex-col items-center justify-center gap-2 px-4 text-center text-muted"
             aria-hidden="true"
           >
             <ImageOff className="w-8 h-8" />
-            <span className="text-sm">Captura próximamente</span>
+            <span className="text-sm">{missingLabel}</span>
           </div>
         </div>
         {active.caption && (
-          <p className="px-5 py-4 text-sm text-muted border-t border-border">
+          <p className="border-t border-border px-4 py-4 text-sm leading-relaxed text-muted sm:px-5">
             {active.caption}
           </p>
         )}

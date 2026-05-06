@@ -1,48 +1,55 @@
-// Reformado: cards con gradiente sutil, hover-glow y stagger en scroll.
 import { motion } from 'framer-motion'
 import { Section } from '../components/Section'
-import { features } from '../data/features'
+import { featureIcons } from '../data/features'
+import { useI18n } from '../i18n'
 
 export function Features() {
+  const { t } = useI18n()
+
   return (
     <Section
       id="features"
-      eyebrow="Para vos"
-      title="Lo que vas a notar desde el primer día"
-      description="Sin checklist técnica. Beneficios reales en tu rutina, sin sacrificar tu privacidad."
+      eyebrow={t.features.eyebrow}
+      title={t.features.title}
+      description={t.features.description}
     >
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        {features.map(({ title, description, tag, icon: Icon }, idx) => (
-          <motion.article
-            key={title}
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-80px' }}
-            transition={{ duration: 0.45, delay: (idx % 3) * 0.08 }}
-            className="group relative overflow-hidden p-7 rounded-2xl card-gradient border border-border hover-glow"
-          >
-            {/* halo accent que aparece en hover */}
-            <div
-              aria-hidden="true"
-              className="absolute -top-16 -right-16 w-48 h-48 rounded-full bg-accent/10 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-            />
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+        {t.features.cards.map(({ title, description, tag }, idx) => {
+          const Icon = featureIcons[idx]
 
-            <div className="relative">
-              <div className="inline-flex p-3 rounded-xl bg-accent/15 text-accent mb-5 ring-1 ring-accent/20 group-hover:bg-accent group-hover:text-white transition-colors">
-                <Icon className="w-6 h-6" aria-hidden="true" />
+          return (
+            <motion.article
+              key={title}
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-80px' }}
+              transition={{ duration: 0.45, delay: (idx % 3) * 0.08 }}
+              className="group relative overflow-hidden rounded-2xl border border-border card-gradient p-5 hover-glow sm:p-6 md:p-7"
+            >
+              <div
+                aria-hidden="true"
+                className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-accent/10 opacity-0 blur-3xl transition-opacity duration-500 group-hover:opacity-100"
+              />
+
+              <div className="relative">
+                {Icon && (
+                  <div className="mb-5 inline-flex rounded-xl bg-accent/15 p-3 text-accent ring-1 ring-accent/20 transition-colors group-hover:bg-accent group-hover:text-white">
+                    <Icon className="h-6 w-6" aria-hidden="true" />
+                  </div>
+                )}
+                {tag && (
+                  <p className="mb-2 text-[10px] font-semibold uppercase tracking-widest text-accent">
+                    {tag}
+                  </p>
+                )}
+                <h3 className="mb-3 text-lg font-semibold leading-snug text-foreground text-pretty md:text-xl">
+                  {title}
+                </h3>
+                <p className="text-sm leading-relaxed text-muted md:text-[1rem]">{description}</p>
               </div>
-              {tag && (
-                <p className="text-[10px] uppercase tracking-widest text-accent mb-2 font-semibold">
-                  {tag}
-                </p>
-              )}
-              <h3 className="text-lg md:text-xl font-semibold text-foreground mb-3 leading-snug">
-                {title}
-              </h3>
-              <p className="text-sm md:text-[1rem] text-muted leading-relaxed">{description}</p>
-            </div>
-          </motion.article>
-        ))}
+            </motion.article>
+          )
+        })}
       </div>
     </Section>
   )

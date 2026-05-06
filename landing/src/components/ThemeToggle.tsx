@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Sun, Moon } from 'lucide-react'
+import { useI18n } from '../i18n'
 
 const STORAGE_KEY = 'nora-os:theme'
 
@@ -15,6 +16,7 @@ function readInitial(): Theme {
 
 export function ThemeToggle() {
   const [theme, setTheme] = useState<Theme>('dark')
+  const { t } = useI18n()
 
   useEffect(() => {
     setTheme(readInitial())
@@ -34,13 +36,13 @@ export function ThemeToggle() {
     <button
       type="button"
       onClick={() => setTheme(next)}
-      aria-label={`Cambiar a tema ${next === 'dark' ? 'oscuro' : 'claro'}`}
-      className="p-2 rounded-lg bg-surface-light hover:bg-surface-lighter border border-border transition-colors text-foreground"
+      aria-label={next === 'dark' ? t.common.switchToDark : t.common.switchToLight}
+      className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border bg-surface/60 text-muted transition-colors hover:bg-surface-light hover:text-foreground"
     >
       {theme === 'dark' ? (
-        <Sun className="w-4 h-4" aria-hidden="true" />
+        <Sun className="h-3.5 w-3.5" aria-hidden="true" />
       ) : (
-        <Moon className="w-4 h-4" aria-hidden="true" />
+        <Moon className="h-3.5 w-3.5" aria-hidden="true" />
       )}
     </button>
   )

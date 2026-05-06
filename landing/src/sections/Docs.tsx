@@ -2,9 +2,8 @@ import { useEffect, useMemo, useState } from 'react'
 import { marked } from 'marked'
 import { FileText, ExternalLink, Search } from 'lucide-react'
 import { Section } from '../components/Section'
+import { useI18n } from '../i18n'
 
-// Importa todos los .md de /docs como strings en build time.
-// Vite resuelve la ruta relativa desde este archivo.
 const docModules = import.meta.glob<string>('../../../docs/*.md', {
   query: '?raw',
   import: 'default',
@@ -12,22 +11,14 @@ const docModules = import.meta.glob<string>('../../../docs/*.md', {
 })
 
 interface DocEntry {
-  /** Slug usado en el hash, ej: "AUTH" */
   slug: string
-  /** Nombre amigable mostrado en el sidebar */
   label: string
-  /** Contenido markdown crudo */
   source: string
-  /** Path original (para enlace a GitHub) */
   filename: string
 }
 
 const REPO_DOCS_URL = 'https://github.com/na7hk3r/nora-os/blob/main/docs'
 
-/**
- * Convierte "ARCHITECTURE.md" → "Architecture",
- * "PLUGIN_API.md" → "Plugin API", etc.
- */
 function prettifySlug(slug: string): string {
   return slug
     .split('_')
@@ -51,7 +42,6 @@ const docs: DocEntry[] = Object.entries(docModules)
   })
   .sort((a, b) => a.label.localeCompare(b.label, 'es'))
 
-// Configuración de marked
 marked.setOptions({
   gfm: true,
   breaks: false,
@@ -72,6 +62,7 @@ function getInitialSlug(): string {
 export function Docs() {
   const [activeSlug, setActiveSlug] = useState<string>(getInitialSlug)
   const [query, setQuery] = useState('')
+  const { t } = useI18n()
 
   useEffect(() => {
     function onHashChange() {
@@ -110,10 +101,8 @@ export function Docs() {
 
   if (docs.length === 0) {
     return (
-      <Section id="docs" eyebrow="Documentación" title="Sin documentos disponibles">
-        <p className="text-center text-muted">
-          No se encontraron archivos en /docs.
-        </p>
+      <Section id="docs" eyebrow={t.docs.eyebrow} title={t.docs.emptyTitle}>
+        <p className="text-center text-muted">{t.docs.emptyMessage}</p>
       </Section>
     )
   }
@@ -121,28 +110,27 @@ export function Docs() {
   return (
     <Section
       id="docs"
-      eyebrow="Documentación"
-      title="Explora la documentación técnica"
-      description="Arquitectura, plugins, autenticación y más — directo desde el repositorio."
+      eyebrow={t.docs.eyebrow}
+      title={t.docs.title}
+      description={t.docs.description}
     >
-      <div className="grid grid-cols-1 lg:grid-cols-[260px_minmax(0,1fr)] gap-6">
-        {/* Sidebar */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[260px_minmax(0,1fr)]">
         <aside className="rounded-2xl border border-border bg-surface/60 p-4 lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto">
-          <label className="relative block mb-4">
-            <span className="sr-only">Buscar en la documentación</span>
+          <label className="relative mb-4 block">
+            <span className="sr-only">{t.docs.searchLabel}</span>
             <Search
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted"
+              className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted"
               aria-hidden="true"
             />
             <input
               type="search"
-              placeholder="Buscar..."
+              placeholder={t.docs.searchPlaceholder}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 text-sm rounded-lg bg-base/60 border border-border focus:border-accent focus:outline-none text-foreground placeholder:text-muted"
+              className="w-full rounded-lg border border-border bg-base/60 py-2 pl-9 pr-3 text-sm text-foreground placeholder:text-muted focus:border-accent focus:outline-none"
             />
           </label>
-          <nav aria-label="Documentos">
+          <nav aria-label={t.docs.navLabel}>
             <ul className="space-y-1">
               {filtered.map((d) => {
                 const isActive = d.slug === active?.slug
@@ -151,48 +139,44 @@ export function Docs() {
                     <a
                       href={`#docs/${d.slug}`}
                       onClick={() => setActiveSlug(d.slug)}
-                      className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${
+                      className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors ${
                         isActive
-                          ? 'bg-accent/15 text-foreground border border-accent/40'
-                          : 'text-muted hover:bg-surface-light hover:text-foreground border border-transparent'
+                          ? 'border-accent/40 bg-accent/15 text-foreground'
+                          : 'border-transparent text-muted hover:bg-surface-light hover:text-foreground'
                       }`}
                     >
-                      <FileText
-                        className="w-3.5 h-3.5 shrink-0 opacity-70"
-                        aria-hidden="true"
-                      />
+                      <FileText className="h-3.5 w-3.5 shrink-0 opacity-70" aria-hidden="true" />
                       <span className="truncate">{d.label}</span>
                     </a>
                   </li>
                 )
               })}
               {filtered.length === 0 && (
-                <li className="px-3 py-2 text-sm text-muted">Sin resultados.</li>
+                <li className="px-3 py-2 text-sm text-muted">{t.docs.noResults}</li>
               )}
             </ul>
           </nav>
         </aside>
 
-        {/* Viewer */}
-        <article className="rounded-2xl border border-border bg-surface/60 p-6 md:p-10 min-w-0 lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto">
+        <article className="min-w-0 rounded-2xl border border-border bg-surface/60 p-4 sm:p-6 md:p-10 lg:sticky lg:top-20 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto">
           {active && (
             <>
-              <div className="flex flex-wrap items-center justify-between gap-3 mb-6 pb-4 border-b border-border">
-                <h3 className="text-2xl font-bold text-foreground">{active.label}</h3>
+              <div className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
+                <h3 className="text-2xl font-bold leading-tight text-foreground text-pretty">
+                  {active.label}
+                </h3>
                 <a
                   href={`${REPO_DOCS_URL}/${active.filename}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-xs text-muted hover:text-accent transition-colors"
+                  className="inline-flex items-center gap-1.5 text-xs leading-relaxed text-muted transition-colors hover:text-accent"
                 >
-                  Ver en GitHub
-                  <ExternalLink className="w-3 h-3" aria-hidden="true" />
+                  {t.docs.github}
+                  <ExternalLink className="h-3 w-3 shrink-0" aria-hidden="true" />
                 </a>
               </div>
               <div
                 className="markdown-body"
-                // El contenido proviene de archivos .md propios del repositorio,
-                // no de input externo, por lo que no se sanitiza.
                 dangerouslySetInnerHTML={{ __html: html }}
               />
             </>

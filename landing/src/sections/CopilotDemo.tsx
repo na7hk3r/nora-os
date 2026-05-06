@@ -1,10 +1,28 @@
-// Reformado: sin emojis en bullets (regla "sin emojis en UI"), badge de privacidad, Section reveal con framer.
-import { useMemo, useState } from 'react'
-import { Bot, Sparkles, Zap, Dumbbell, Wallet, Target, Clock, BookOpen, Moon, TrendingUp, AlertTriangle, CheckCircle2, Flame, BarChart3, Coffee, Sunrise, ChefHat } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
+import {
+  Bot,
+  Sparkles,
+  Zap,
+  Dumbbell,
+  Wallet,
+  Target,
+  Clock,
+  BookOpen,
+  Moon,
+  TrendingUp,
+  AlertTriangle,
+  CheckCircle2,
+  Flame,
+  BarChart3,
+  Coffee,
+  Sunrise,
+  ChefHat,
+} from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { Section } from '../components/Section'
 import { useTypewriter } from '../hooks/useTypewriter'
+import { useI18n } from '../i18n'
 
 interface Bullet {
   icon: LucideIcon
@@ -22,69 +40,24 @@ interface QuickAction {
   reply: Reply
 }
 
-const INITIAL_REPLY: Reply = {
-  body: 'Buenos días. Hoy estás al 71% de tu score semanal.',
-  bullets: [
-    { icon: Zap, text: 'Foco: 2h 40m esta semana (objetivo: 4h)' },
-    { icon: Dumbbell, text: 'Ejercicio: 4 días consecutivos — racha activa' },
-    { icon: Wallet, text: 'Finanzas: 12% por encima del presupuesto' },
-  ],
-  closing:
-    'Para volver a baseline hoy:\n→ Completar "Propuesta cliente X" (vence hoy)\n→ 45 min de foco antes de las 14hs',
-}
+const initialBulletIcons = [Zap, Dumbbell, Wallet] as const
+const quickActionIcons = [
+  [Target, Clock],
+  [Sunrise, Coffee, BookOpen, ChefHat, Dumbbell],
+  [BookOpen, Moon, TrendingUp],
+  [CheckCircle2, Flame, BarChart3, AlertTriangle],
+] as const
 
-const QUICK_ACTIONS: QuickAction[] = [
-  {
-    label: '¿En qué enfocarme?',
-    reply: {
-      body:
-        'Hoy lo más urgente es cerrar la propuesta del cliente X. Vence en 6 horas y bloquea tu KR de Q2.',
-      bullets: [
-        { icon: Target, text: '1 tarea crítica · 2 importantes · 5 menores' },
-        { icon: Clock, text: 'Bloque sugerido: 90 min de foco profundo' },
-      ],
-      closing: 'Arrancá con la propuesta. Las menores las hacemos después de las 17hs.',
-    },
-  },
-  {
-    label: 'Organizame el día',
-    reply: {
-      body: 'Plan armado en base a tu energía habitual y vencimientos:',
-      bullets: [
-        { icon: Sunrise, text: '09:00 — 10:30 · Foco profundo · Propuesta cliente X' },
-        { icon: Coffee, text: '10:30 — 11:00 · Break + email triage' },
-        { icon: BookOpen, text: '11:00 — 12:30 · Code review + arquitectura' },
-        { icon: ChefHat, text: '13:00 — 14:00 · Almuerzo' },
-        { icon: Dumbbell, text: '18:00 — 19:00 · Entrenamiento (día 5 de racha)' },
-      ],
-    },
-  },
-  {
-    label: '¿Qué estoy descuidando?',
-    reply: {
-      body: 'Mirando los últimos 14 días, tres áreas en rojo:',
-      bullets: [
-        { icon: BookOpen, text: 'Knowledge: sin sesiones de estudio hace 8 días' },
-        { icon: Moon, text: 'Sueño: promedio 6h 10m (objetivo: 7h)' },
-        { icon: TrendingUp, text: 'Finance: gastos en delivery +34% vs mes pasado' },
-      ],
-      closing: 'Sugerencia: hoy 30 min de lectura + dormirte 9 antes de medianoche.',
-    },
-  },
-  {
-    label: 'Review rápido',
-    reply: {
-      body: 'Resumen de la semana, sin floja:',
-      bullets: [
-        { icon: CheckCircle2, text: '12 tareas completadas (vs 9 promedio)' },
-        { icon: Flame, text: 'Racha de hábitos: 4/6 mantenidos' },
-        { icon: BarChart3, text: 'Foco semanal: 67% del objetivo' },
-        { icon: AlertTriangle, text: 'Goal Q2 "Lanzar v2": 38% — vas atrasado' },
-      ],
-      closing: 'Próxima semana: priorizar 2 sesiones de foco diario para recuperar Goal Q2.',
-    },
-  },
-]
+function withIcons(copy: { body: string; bullets?: string[]; closing?: string }, icons: readonly LucideIcon[]): Reply {
+  return {
+    body: copy.body,
+    closing: copy.closing,
+    bullets: copy.bullets?.map((text, idx) => ({
+      text,
+      icon: icons[idx] ?? Sparkles,
+    })),
+  }
+}
 
 function ReplyView({ reply }: { reply: Reply }) {
   const { text, done } = useTypewriter(reply.body, {
@@ -95,12 +68,12 @@ function ReplyView({ reply }: { reply: Reply }) {
 
   return (
     <div className="space-y-3">
-      <p className="text-sm md:text-[1rem] text-foreground leading-relaxed font-mono min-h-[1.5em]">
+      <p className="min-h-[1.5em] font-mono text-sm leading-relaxed text-foreground md:text-[1rem]">
         {text}
         {!done && (
           <span
             aria-hidden="true"
-            className="inline-block w-[0.55ch] ml-[1px] bg-accent"
+            className="ml-[1px] inline-block w-[0.55ch] bg-accent"
             style={{ height: '1em', verticalAlign: 'middle' }}
           />
         )}
@@ -108,12 +81,9 @@ function ReplyView({ reply }: { reply: Reply }) {
 
       {done && reply.bullets && reply.bullets.length > 0 && (
         <ul className="space-y-1.5 animate-fade-in">
-          {reply.bullets.map((b, i) => (
-            <li
-              key={i}
-              className="text-sm text-muted flex items-start gap-2.5 leading-relaxed"
-            >
-              <b.icon className="w-4 h-4 mt-0.5 shrink-0 text-accent-light" aria-hidden="true" />
+          {reply.bullets.map((b) => (
+            <li key={b.text} className="flex items-start gap-2.5 text-sm leading-relaxed text-muted">
+              <b.icon className="mt-0.5 h-4 w-4 shrink-0 text-accent-light" aria-hidden="true" />
               <span>{b.text}</span>
             </li>
           ))}
@@ -121,7 +91,7 @@ function ReplyView({ reply }: { reply: Reply }) {
       )}
 
       {done && reply.closing && (
-        <p className="text-sm text-foreground/90 whitespace-pre-line leading-relaxed pt-3 mt-3 border-t border-border/50 animate-fade-in">
+        <p className="mt-3 whitespace-pre-line border-t border-border/50 pt-3 text-sm leading-relaxed text-foreground/90 animate-fade-in">
           {reply.closing}
         </p>
       )}
@@ -130,8 +100,27 @@ function ReplyView({ reply }: { reply: Reply }) {
 }
 
 export function CopilotDemo() {
-  const [reply, setReply] = useState<Reply>(INITIAL_REPLY)
+  const { t } = useI18n()
+  const initialReply = useMemo(
+    () => withIcons(t.copilot.initial, initialBulletIcons),
+    [t.copilot.initial],
+  )
+  const quickActions = useMemo<QuickAction[]>(
+    () =>
+      t.copilot.actions.map((action, idx) => ({
+        label: action.label,
+        reply: withIcons(action.reply, quickActionIcons[idx] ?? []),
+      })),
+    [t.copilot.actions],
+  )
+  const [reply, setReply] = useState<Reply>(initialReply)
   const [activeIdx, setActiveIdx] = useState<number | null>(null)
+
+  useEffect(() => {
+    setReply(initialReply)
+    setActiveIdx(null)
+  }, [initialReply])
+
   const replyKey = useMemo(
     () => `${activeIdx ?? 'init'}-${reply.body.slice(0, 8)}`,
     [reply, activeIdx],
@@ -139,63 +128,60 @@ export function CopilotDemo() {
 
   function handleClick(idx: number) {
     setActiveIdx(idx)
-    setReply(QUICK_ACTIONS[idx].reply)
+    setReply(quickActions[idx].reply)
   }
 
   return (
     <Section
       id="copilot-demo"
-      eyebrow="Copiloto IA local"
-      title="Preguntale a tu propia app."
-      description="Tu copiloto conoce tu trabajo, hábitos, salud y finanzas. No es un chatbot genérico: opera sobre tus datos reales — y nunca los manda afuera."
+      eyebrow={t.copilot.eyebrow}
+      title={t.copilot.title}
+      description={t.copilot.description}
     >
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: '-80px' }}
         transition={{ duration: 0.6 }}
-        className="max-w-3xl mx-auto"
+        className="mx-auto max-w-3xl"
       >
         <div className="window-frame">
-          <div className="flex items-center gap-3 px-5 py-3 border-b border-border bg-surface-light/50">
-            <span className="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-accent/15 text-accent">
-              <Bot className="w-4 h-4" aria-hidden="true" />
+          <div className="flex items-center gap-3 border-b border-border bg-surface-light/50 px-4 py-3 sm:px-5">
+            <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-accent/15 text-accent">
+              <Bot className="h-4 w-4" aria-hidden="true" />
             </span>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-foreground leading-tight">
-                Nora OS Copiloto
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-semibold leading-tight text-foreground">
+                {t.copilot.headerTitle}
               </p>
-              <p className="text-xs text-muted leading-tight flex items-center gap-1.5">
-                <span
-                  aria-hidden="true"
-                  className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400"
-                />
-                Local · Ollama detectado
+              <p className="flex items-center gap-1.5 text-xs leading-tight text-muted">
+                <span className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-400" aria-hidden="true" />
+                <span className="truncate">{t.copilot.status}</span>
               </p>
             </div>
-            <span className="hidden sm:inline-flex items-center gap-1 text-[10px] uppercase tracking-widest text-muted">
-              <Sparkles className="w-3 h-3" aria-hidden="true" />
-              Demo
+            <span className="hidden items-center gap-1 text-[10px] uppercase tracking-widest text-muted sm:inline-flex">
+              <Sparkles className="h-3 w-3" aria-hidden="true" />
+              {t.copilot.demoLabel}
             </span>
           </div>
 
-          <div className="px-5 py-6 min-h-[280px]">
+          <div className="min-h-[280px] px-4 py-6 sm:px-5">
             <ReplyView key={replyKey} reply={reply} />
           </div>
 
-          <div className="px-4 py-3 border-t border-border bg-base/40">
-            <div className="grid grid-cols-2 gap-2">
-              {QUICK_ACTIONS.map((qa, idx) => {
+          <div className="border-t border-border bg-base/40 px-3 py-3 sm:px-4">
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              {quickActions.map((qa, idx) => {
                 const isActive = activeIdx === idx
                 return (
                   <button
                     key={qa.label}
                     type="button"
                     onClick={() => handleClick(idx)}
-                    className={`text-left text-xs md:text-sm px-3 py-2 rounded-lg border transition-colors ${
+                    className={`rounded-lg border px-3 py-2 text-left text-xs leading-snug transition-colors md:text-sm ${
                       isActive
-                        ? 'bg-accent/15 border-accent/50 text-foreground'
-                        : 'bg-surface/60 border-border text-muted hover:text-foreground hover:border-accent/40'
+                        ? 'border-accent/50 bg-accent/15 text-foreground'
+                        : 'border-border bg-surface/60 text-muted hover:border-accent/40 hover:text-foreground'
                     }`}
                   >
                     {qa.label}
@@ -206,26 +192,20 @@ export function CopilotDemo() {
           </div>
         </div>
 
-        {/* Badge de privacidad — refuerza la verdad del producto. */}
-        <div className="mt-6 flex flex-wrap justify-center gap-2">
-          {[
-            'Requiere Ollama',
-            '100% offline',
-            'Sin API keys',
-            'Sin envío de datos',
-          ].map((tag) => (
+        <div className="mt-6 flex flex-wrap justify-start gap-2 sm:justify-center">
+          {t.copilot.badges.map((tag) => (
             <span
               key={tag}
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-light/70 border border-border text-xs text-muted"
+              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface-light/70 px-3 py-1 text-xs leading-relaxed text-muted"
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" aria-hidden="true" />
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" aria-hidden="true" />
               {tag}
             </span>
           ))}
         </div>
 
-        <p className="text-center text-xs md:text-sm text-muted mt-4">
-          Tus datos reales. Tu modelo local. Sin internet.
+        <p className="mt-4 text-left text-xs leading-relaxed text-muted sm:text-center md:text-sm">
+          {t.copilot.privacyLine}
         </p>
       </motion.div>
     </Section>

@@ -8,7 +8,7 @@ export function detectOS(userAgent: string = navigator.userAgent): DetectedOS {
   return 'unknown'
 }
 
-export function osLabel(os: DetectedOS): string {
+export function osLabel(os: DetectedOS, fallback = 'tu sistema'): string {
   switch (os) {
     case 'windows':
       return 'Windows'
@@ -17,6 +17,6 @@ export function osLabel(os: DetectedOS): string {
     case 'linux':
       return 'Linux'
     default:
-      return 'tu sistema'
+      return fallback
   }
 }

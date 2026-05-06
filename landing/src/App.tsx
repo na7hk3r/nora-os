@@ -10,15 +10,18 @@ import { ForDevs } from './sections/ForDevs'
 import { Download_ } from './sections/Download'
 import { FAQ } from './sections/FAQ'
 import { Footer } from './sections/Footer'
+import { useI18n } from './i18n'
 
 export default function App() {
+  const { t } = useI18n()
+
   return (
     <div className="min-h-screen flex flex-col">
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:px-3 focus:py-2 focus:bg-accent focus:text-white focus:rounded-lg"
       >
-        Saltar al contenido
+        {t.common.skipContent}
       </a>
 
       <Navbar />

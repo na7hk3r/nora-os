@@ -3,11 +3,14 @@ import { Download } from 'lucide-react'
 import { Button } from './Button'
 import { detectOS, osLabel, type DetectedOS } from '../hooks/useDetectOS'
 import { useLatestRelease, type LatestRelease } from '../hooks/useLatestRelease'
+import { useI18n } from '../i18n'
 
 interface DownloadButtonProps {
   size?: 'sm' | 'md' | 'lg'
   /** Forzar OS (útil para tests). */
   forceOS?: DetectedOS
+  className?: string
+  compact?: boolean
 }
 
 /**
@@ -31,9 +34,10 @@ function pickAsset(os: DetectedOS, release: LatestRelease): string | null {
   }
 }
 
-export function DownloadButton({ size = 'lg', forceOS }: DownloadButtonProps) {
+export function DownloadButton({ size = 'lg', forceOS, className, compact = false }: DownloadButtonProps) {
   const { release, loading } = useLatestRelease()
   const [os, setOS] = useState<DetectedOS>(forceOS ?? 'unknown')
+  const { t } = useI18n()
 
   useEffect(() => {
     if (forceOS) {
@@ -44,7 +48,8 @@ export function DownloadButton({ size = 'lg', forceOS }: DownloadButtonProps) {
   }, [forceOS])
 
   const assetUrl = release ? pickAsset(os, release) : null
-  const label = `Descargar para ${osLabel(os)}`
+  const label = t.common.downloadFor.replace('{os}', osLabel(os, t.common.yourSystem))
+  const visibleLabel = compact ? t.download.download : label
   const isLoading = loading && !release
   const disabled = !assetUrl
 
@@ -54,15 +59,16 @@ export function DownloadButton({ size = 'lg', forceOS }: DownloadButtonProps) {
       href={assetUrl ?? '#'}
       variant="primary"
       size={size}
-      leftIcon={<Download className="w-5 h-5" aria-hidden="true" />}
-      aria-label={isLoading ? 'Cargando última versión' : label}
+      className={className}
+      leftIcon={<Download className={compact ? 'h-3.5 w-3.5 shrink-0' : 'h-5 w-5 shrink-0'} aria-hidden="true" />}
+      aria-label={isLoading ? t.common.loadingLatest : label}
       aria-disabled={disabled || undefined}
       onClick={disabled ? (e) => e.preventDefault() : undefined}
       // Forzamos descarga (Content-Disposition lo respeta GitHub Releases) en
       // lugar de navegar al binario, evitando que el browser intente renderizarlo.
       {...(assetUrl ? { download: '' } : {})}
     >
-      {isLoading ? 'Cargando…' : label}
+      {isLoading ? (compact ? '...' : `${t.common.loadingLatest}...`) : visibleLabel}
     </Button>
   )
 }

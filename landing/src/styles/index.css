@@ -54,17 +54,41 @@ body {
   background-image: var(--bg-gradient);
   background-attachment: fixed;
   min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 /* Tipografía display (titulares) — coherente con el wordmark "NORA OS". */
 .font-display {
   font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
   font-feature-settings: 'ss01', 'cv11';
-  letter-spacing: -0.01em;
+  letter-spacing: 0;
 }
 
 * {
   box-sizing: border-box;
+}
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+li,
+a,
+button {
+  overflow-wrap: break-word;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+.text-pretty {
+  text-wrap: pretty;
 }
 
 /* Smooth focus ring para accesibilidad */

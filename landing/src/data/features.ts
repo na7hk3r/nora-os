@@ -10,6 +10,8 @@ export interface Feature {
   tag?: string
 }
 
+export const featureIcons = [HardDrive, Boxes, RefreshCw, ShieldCheck, Users, Bot] as const
+
 export const features: Feature[] = [
   {
     tag: 'Local-first',
