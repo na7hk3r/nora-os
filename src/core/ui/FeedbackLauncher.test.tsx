@@ -39,6 +39,22 @@ describe('FeedbackLauncher', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   })
 
+  it('closes the portal modal with Escape and restores trigger focus', () => {
+    renderLauncher()
+    const trigger = screen.getByRole('button', { name: /enviar feedback beta/i })
+
+    trigger.focus()
+    fireEvent.click(trigger)
+
+    const dialog = screen.getByRole('dialog', { name: /tu opinion ayuda/i })
+    expect(dialog).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /cerrar feedback/i })).toHaveFocus()
+
+    fireEvent.keyDown(document, { key: 'Escape' })
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(trigger).toHaveFocus()
+  })
+
   it('opens the configured form without context by default', () => {
     const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null)
 

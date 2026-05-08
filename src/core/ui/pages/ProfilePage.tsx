@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { Download, Upload, ShieldCheck, FileJson, RefreshCw, AlertTriangle, CheckCircle2 } from 'lucide-react'
 import { useCoreStore } from '../../state/coreStore'
+import { useGamificationStore } from '@core/gamification/gamificationStore'
+import { PluginIcon } from '../components/PluginIcon'
 import type { ProfileTransferResult } from '@core/types'
 
 type Status =
@@ -23,6 +25,8 @@ export function ProfilePage() {
   const updateProfile = useCoreStore((s) => s.updateProfile)
   const persistProfile = useCoreStore((s) => s.persistProfile)
   const loadFromStorage = useCoreStore((s) => s.loadFromStorage)
+  const achievements = useGamificationStore((s) => s.achievements)
+  const unlockedIds = useGamificationStore((s) => s.unlockedIds)
 
   const [name, setName] = useState(profile.name)
   const [bigGoal, setBigGoal] = useState(profile.bigGoal ?? '')
@@ -33,6 +37,7 @@ export function ProfilePage() {
   const [status, setStatus] = useState<Status>({ kind: 'idle' })
 
   const isAvailable = typeof window !== 'undefined' && Boolean(window.profile)
+  const unlockedAchievements = achievements.filter((achievement) => unlockedIds.includes(achievement.id))
 
   const saveProfile = async () => {
     setSavingProfile(true)
@@ -150,6 +155,41 @@ export function ProfilePage() {
             {savingProfile ? 'Guardando…' : 'Guardar cambios'}
           </button>
         </div>
+      </section>
+
+      <section className="space-y-4 rounded-2xl border border-border bg-surface-light/40 p-6">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-xs uppercase tracking-wider text-muted">Badges</p>
+            <h2 className="text-lg font-semibold">Logros desbloqueados</h2>
+          </div>
+          <span className="rounded-full border border-border bg-surface px-3 py-1 text-xs text-muted">
+            {unlockedAchievements.length}/{achievements.length}
+          </span>
+        </div>
+
+        {unlockedAchievements.length > 0 ? (
+          <div className="grid gap-3 sm:grid-cols-2">
+            {unlockedAchievements.map((achievement) => (
+              <div
+                key={achievement.id}
+                className="flex items-start gap-3 rounded-xl border border-xp-gold/45 bg-xp-gold/10 p-3"
+              >
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-xp-gold/35 bg-xp-gold/15 text-xp-gold">
+                  <PluginIcon name={achievement.icon} size={18} />
+                </span>
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-semibold text-white">{achievement.title}</p>
+                  <p className="mt-0.5 text-xs leading-snug text-muted">{achievement.description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-xl border border-border bg-surface/50 px-4 py-3 text-sm text-muted">
+            Todavia no hay badges desbloqueados. Los logros completados van a aparecer aca.
+          </div>
+        )}
       </section>
 
       {/* Export */}

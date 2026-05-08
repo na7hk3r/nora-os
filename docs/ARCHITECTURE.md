@@ -185,7 +185,15 @@ Cada plugin es un módulo TypeScript que exporta un `PluginManifest`. Internamen
 - Las páginas de plugins usan una capa visual premium definida en `index.css` (`plugin-shell`, `plugin-shell-fitness`, `plugin-shell-work`, `plugin-shell-finance`, `plugin-panel`, etc.) para diferenciar cada dominio sin romper integración temática. Los plugins más nuevos (Habits, Journal, Goals, Knowledge, Tiempo) reutilizan `plugin-shell` + `plugin-panel` con tokens neutros.
 - Cada plugin puede declarar `domain` (`finance`, `fitness`, `productivity`, `habits`, `knowledge`, `time`, …) y `iconography: { primary, gallery? }` en su manifest. El **Consistency Auditor** valida que la iconografía sea coherente con el dominio (regla R6).
 
-### 8. Capa de dashboard
+### 8. Shell y navegación
+
+`Sidebar` agrupa las páginas de plugins por `parentId` bajo **Módulos**. La preferencia visual se guarda en `settings.sidebarNavState:v1`: orden de módulos, bloqueo de reordenamiento y plugins con submenú colapsado.
+
+- El candado del título de **Módulos** bloquea o desbloquea el reordenamiento por drag and drop.
+- Solo se reordenan módulos activos; Principal, Herramientas y footer mantienen orden estable.
+- En modo sidebar colapsado, los submenús siempre se ocultan.
+
+### 9. Capa de dashboard
 
 El dashboard principal combina componentes del core y widgets de plugins:
 
@@ -196,7 +204,7 @@ El dashboard principal combina componentes del core y widgets de plugins:
 - El colapso de widgets de plugins se resuelve en el layout core, no en los plugins.
 - El XP y nivel se muestran en el header del Shell y en `GlobalProgress` (panel expandido del Dashboard); ya no existe el componente legacy `GamificationBar`.
 
-### 9. Planner core (no plugin)
+### 10. Planner core (no plugin)
 
 `src/core/ui/pages/PlannerPage.tsx` implementa agenda diaria/calenadario como parte del core:
 

@@ -1,16 +1,39 @@
 import { NavLink } from 'react-router-dom'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState, type CSSProperties } from 'react'
 import {
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core'
+import {
+  SortableContext,
+  arrayMove,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+import {
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
+  ChevronUp,
   CalendarDays,
   Flame,
+  GripVertical,
   ListTodo,
+  Lock,
   TrendingUp,
   Keyboard,
   Settings,
   LogOut,
+  Unlock,
 } from 'lucide-react'
+import type { NavItemDefinition } from '@core/types'
 import { useCoreStore } from '../state/coreStore'
 import { pluginManager } from '../plugins/PluginManager'
 import { eventBus } from '../events/EventBus'
@@ -22,6 +45,14 @@ import { PluginIcon } from './components/PluginIcon'
 import { NoraLogoMark } from './components/NoraLogo'
 import { SystemSuggestions } from './SystemSuggestions'
 import { FeedbackLauncher } from './FeedbackLauncher'
+import {
+  DEFAULT_SIDEBAR_NAV_STATE,
+  SIDEBAR_NAV_SETTINGS_KEY,
+  groupPluginNavItems,
+  sanitizeSidebarNavState,
+  type SidebarModuleGroup,
+  type SidebarNavState,
+} from './sidebarNav'
 
 function renderNavIcon(iconName: string, size = 18) {
   return <PluginIcon name={iconName} size={size} />
@@ -67,6 +98,125 @@ const NAV_LINK_CLASS = (isActive: boolean) =>
       : 'text-foreground/75 hover:bg-surface-lighter hover:text-foreground'
   }`
 
+interface ModuleGroupProps {
+  group: SidebarModuleGroup
+  sidebarCollapsed: boolean
+  orderLocked: boolean
+  childrenCollapsed: boolean
+  hasActivity: boolean
+  onToggleChildren: (pluginId: string) => void
+}
+
+function ChildNavLink({ item }: { item: NavItemDefinition }) {
+  return (
+    <NavLink
+      key={item.id}
+      to={item.path}
+      className={({ isActive }) =>
+        `relative flex items-center gap-2 rounded-md py-1.5 pl-8 pr-3 text-xs transition-all duration-200 ${
+          isActive
+            ? 'bg-accent/10 text-accent-light'
+            : 'text-muted/70 hover:bg-surface-lighter/50 hover:text-muted'
+        }`
+      }
+    >
+      <span className="text-micro text-muted/40">-</span>
+      <span className="text-muted/80">{renderNavIcon(item.icon, 14)}</span>
+      <span className="truncate">{item.label}</span>
+    </NavLink>
+  )
+}
+
+function ModuleGroup({
+  group,
+  sidebarCollapsed,
+  orderLocked,
+  childrenCollapsed,
+  hasActivity,
+  onToggleChildren,
+}: ModuleGroupProps) {
+  const {
+    attributes,
+    listeners,
+    setActivatorNodeRef,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: group.parent.pluginId,
+    disabled: orderLocked || sidebarCollapsed,
+  })
+
+  const style: CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.65 : 1,
+  }
+
+  const hasChildren = group.children.length > 0
+
+  return (
+    <div ref={setNodeRef} style={style} className="space-y-1">
+      <div className="group/module flex items-center gap-1">
+        {!orderLocked && !sidebarCollapsed && (
+          <button
+            ref={setActivatorNodeRef}
+            type="button"
+            {...attributes}
+            {...listeners}
+            className="shrink-0 rounded-md p-1 text-muted/45 transition-colors hover:bg-surface-lighter hover:text-muted"
+            aria-label={`Mover ${group.parent.label}`}
+            title="Arrastrar para reordenar"
+          >
+            <GripVertical size={14} />
+          </button>
+        )}
+        <NavLink
+          key={group.parent.id}
+          to={group.parent.path}
+          end
+          className={({ isActive }) =>
+            `relative flex min-w-0 flex-1 items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 ${
+              sidebarCollapsed ? 'justify-center' : ''
+            } ${
+              isActive
+                ? 'bg-accent/15 text-accent font-semibold'
+                : 'text-foreground/80 hover:bg-surface-lighter hover:text-foreground'
+            }`
+          }
+        >
+          <span className="relative shrink-0 text-base leading-none">
+            {renderNavIcon(group.parent.icon, 18)}
+            {hasActivity && (
+              <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full border border-surface-light bg-success" />
+            )}
+          </span>
+          {!sidebarCollapsed && <span className="truncate">{group.parent.label}</span>}
+        </NavLink>
+        {!sidebarCollapsed && hasChildren && (
+          <button
+            type="button"
+            onClick={() => onToggleChildren(group.parent.pluginId)}
+            className="shrink-0 rounded-md p-1.5 text-muted transition-colors hover:bg-surface-lighter hover:text-accent-light"
+            aria-label={childrenCollapsed ? `Mostrar paginas de ${group.parent.label}` : `Ocultar paginas de ${group.parent.label}`}
+            title={childrenCollapsed ? 'Mostrar paginas' : 'Ocultar paginas'}
+          >
+            {childrenCollapsed ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
+          </button>
+        )}
+      </div>
+      {!sidebarCollapsed && hasChildren && !childrenCollapsed && (
+        <div className={orderLocked ? '' : 'ml-5'}>
+          {group.children.map((item) => (
+            <ChildNavLink key={item.id} item={item} />
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 export function Sidebar() {
   const sidebarCollapsed = useCoreStore((s) => s.settings.sidebarCollapsed)
   const updateSettings = useCoreStore((s) => s.updateSettings)
@@ -76,6 +226,8 @@ export function Sidebar() {
   const activePlugins = useCoreStore((s) => s.activePlugins)
   const { points, level, streak } = useGamificationStore()
   const logout = useAuthStore((s) => s.logout)
+  const [sidebarNavState, setSidebarNavState] = useState<SidebarNavState>(DEFAULT_SIDEBAR_NAV_STATE)
+  const [sidebarNavLoaded, setSidebarNavLoaded] = useState(false)
   const headerTitle = profileName?.trim() ? profileName.trim().split(' ')[0] : 'Nora OS'
   const tier = getLevelTier(level)
   const levelTitle = getLevelTitle(level)
@@ -97,9 +249,115 @@ export function Sidebar() {
         .filter((item, index, arr) => arr.findIndex((candidate) => candidate.path === item.path) === index),
     [activePlugins],
   )
+  const defaultNavGroups = useMemo(() => groupPluginNavItems(navItems), [navItems])
+  const modulePluginIds = useMemo(
+    () => defaultNavGroups.map((group) => group.parent.pluginId),
+    [defaultNavGroups],
+  )
+  const modulePluginIdKey = modulePluginIds.join('|')
+  const navGroups = useMemo(
+    () => groupPluginNavItems(navItems, sidebarNavState.moduleOrder),
+    [navItems, sidebarNavState.moduleOrder],
+  )
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  )
+
+  useEffect(() => {
+    let cancelled = false
+    setSidebarNavLoaded(false)
+
+    if (!window.storage) {
+      setSidebarNavLoaded(true)
+      return
+    }
+
+    void window.storage
+      .query(
+        `SELECT value FROM settings WHERE key = ? LIMIT 1`,
+        [SIDEBAR_NAV_SETTINGS_KEY],
+      )
+      .then((rows) => {
+        if (cancelled) return
+
+        const list = rows as { value: string }[]
+        const raw = list[0]?.value
+        const parsed = raw ? JSON.parse(raw) as Partial<SidebarNavState> : DEFAULT_SIDEBAR_NAV_STATE
+        setSidebarNavState((prev) => sanitizeSidebarNavState({ ...prev, ...parsed }, modulePluginIds))
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setSidebarNavState((prev) => sanitizeSidebarNavState(prev, modulePluginIds))
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setSidebarNavLoaded(true)
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [modulePluginIdKey, modulePluginIds])
+
+  useEffect(() => {
+    setSidebarNavState((prev) => {
+      const next = sanitizeSidebarNavState(prev, modulePluginIds)
+      return JSON.stringify(next) === JSON.stringify(prev) ? prev : next
+    })
+  }, [modulePluginIdKey, modulePluginIds])
+
+  useEffect(() => {
+    if (!sidebarNavLoaded || !window.storage) return
+
+    void window.storage.execute(
+      `INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)`,
+      [SIDEBAR_NAV_SETTINGS_KEY, JSON.stringify(sidebarNavState)],
+    )
+  }, [sidebarNavLoaded, sidebarNavState])
 
   const toggleCollapse = () => {
     updateSettings({ sidebarCollapsed: !sidebarCollapsed })
+  }
+
+  const toggleModuleOrderLock = () => {
+    setSidebarNavState((prev) => ({
+      ...prev,
+      moduleOrderLocked: !prev.moduleOrderLocked,
+    }))
+  }
+
+  const togglePluginChildren = (pluginId: string) => {
+    setSidebarNavState((prev) => {
+      const collapsed = new Set(prev.collapsedPluginIds)
+      if (collapsed.has(pluginId)) {
+        collapsed.delete(pluginId)
+      } else {
+        collapsed.add(pluginId)
+      }
+
+      return {
+        ...prev,
+        collapsedPluginIds: Array.from(collapsed),
+      }
+    })
+  }
+
+  const handleModuleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event
+    if (sidebarNavState.moduleOrderLocked || !over || active.id === over.id) return
+
+    setSidebarNavState((prev) => {
+      const current = sanitizeSidebarNavState(prev, modulePluginIds).moduleOrder
+      const oldIndex = current.indexOf(String(active.id))
+      const newIndex = current.indexOf(String(over.id))
+      if (oldIndex < 0 || newIndex < 0) return prev
+
+      return {
+        ...prev,
+        moduleOrder: arrayMove(current, oldIndex, newIndex),
+      }
+    })
   }
 
   return (
@@ -151,66 +409,46 @@ export function Sidebar() {
         </NavLink>
 
         {/* Grupo: Módulos (plugins activos) */}
-        {navItems.length > 0 && (
+        {navGroups.length > 0 && (
           <>
             {!sidebarCollapsed && (
-              <p className="px-3 pb-1 pt-3 text-micro uppercase tracking-eyebrow text-muted">Módulos</p>
-            )}
-            {navItems.map((item) => {
-              const hasActivity = hasPluginActivityToday(item.pluginId)
-              const isChild = !!item.parentId
-
-              if (isChild) {
-                return (
-                  <NavLink
-                    key={item.id}
-                    to={item.path}
-                    className={({ isActive }) =>
-                      `relative flex items-center gap-2 rounded-md text-xs transition-all duration-200 ${
-                        sidebarCollapsed ? 'justify-center px-3 py-2' : 'py-1.5 pl-8 pr-3'
-                      } ${
-                        isActive
-                          ? 'bg-accent/10 text-accent-light'
-                          : 'text-muted/70 hover:bg-surface-lighter/50 hover:text-muted'
-                      }`
-                    }
-                  >
-                    {sidebarCollapsed ? (
-                      renderNavIcon(item.icon, 18)
-                    ) : (
-                      <>
-                        <span className="text-micro text-muted/40">└</span>
-                        <span className="text-muted/80">{renderNavIcon(item.icon, 14)}</span>
-                        <span className="truncate">{item.label}</span>
-                      </>
-                    )}
-                  </NavLink>
-                )
-              }
-
-              return (
-                <NavLink
-                  key={item.id}
-                  to={item.path}
-                  end
-                  className={({ isActive }) =>
-                    `relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-200 ${
-                      isActive
-                        ? 'bg-accent/15 text-accent font-semibold'
-                        : 'text-foreground/80 hover:bg-surface-lighter hover:text-foreground'
-                    }`
-                  }
+              <div className="flex items-center justify-between gap-2 px-3 pb-1 pt-3">
+                <p className="text-micro uppercase tracking-eyebrow text-muted">Módulos</p>
+                <button
+                  type="button"
+                  onClick={toggleModuleOrderLock}
+                  className="inline-flex h-6 w-6 items-center justify-center rounded-md border border-border bg-surface text-muted transition-colors hover:border-accent/40 hover:text-accent-light"
+                  aria-label={sidebarNavState.moduleOrderLocked ? 'Desbloquear reordenamiento de modulos' : 'Bloquear reordenamiento de modulos'}
+                  title={sidebarNavState.moduleOrderLocked ? 'Desbloquear reordenamiento' : 'Bloquear reordenamiento'}
                 >
-                  <span className="relative shrink-0 text-base leading-none">
-                    {renderNavIcon(item.icon, 18)}
-                    {hasActivity && (
-                      <span className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full border border-surface-light bg-success" />
-                    )}
-                  </span>
-                  {!sidebarCollapsed && <span className="truncate">{item.label}</span>}
-                </NavLink>
-              )
-            })}
+                  {sidebarNavState.moduleOrderLocked ? <Lock size={13} /> : <Unlock size={13} />}
+                </button>
+              </div>
+            )}
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleModuleDragEnd}
+            >
+              <SortableContext
+                items={navGroups.map((group) => group.parent.pluginId)}
+                strategy={verticalListSortingStrategy}
+              >
+                <div className="space-y-1">
+                  {navGroups.map((group) => (
+                    <ModuleGroup
+                      key={group.parent.id}
+                      group={group}
+                      sidebarCollapsed={sidebarCollapsed}
+                      orderLocked={sidebarNavState.moduleOrderLocked}
+                      childrenCollapsed={sidebarNavState.collapsedPluginIds.includes(group.parent.pluginId)}
+                      hasActivity={hasPluginActivityToday(group.parent.pluginId)}
+                      onToggleChildren={togglePluginChildren}
+                    />
+                  ))}
+                </div>
+              </SortableContext>
+            </DndContext>
           </>
         )}
 

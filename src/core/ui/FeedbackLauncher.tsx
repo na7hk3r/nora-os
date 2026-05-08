@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useLocation } from 'react-router-dom'
 import { ExternalLink, MessageSquare, X } from 'lucide-react'
 import { APP_VERSION } from '@core/utils/version'
@@ -31,6 +32,27 @@ export function FeedbackLauncher({
   const activePlugins = useCoreStore((s) => s.activePlugins)
   const [open, setOpen] = useState(false)
   const [attachContext, setAttachContext] = useState(false)
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null)
+  const previousFocusRef = useRef<HTMLElement | null>(null)
+
+  useEffect(() => {
+    if (!open) return
+
+    previousFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null
+    closeButtonRef.current?.focus()
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setOpen(false)
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+      previousFocusRef.current?.focus()
+    }
+  }, [open])
 
   const collectContext = (): FeedbackContext => ({
     version: APP_VERSION,
@@ -75,7 +97,7 @@ export function FeedbackLauncher({
         {!collapsed && <span>Feedback</span>}
       </button>
 
-      {open && (
+      {open && createPortal(
         <div
           role="dialog"
           aria-modal="true"
@@ -95,6 +117,7 @@ export function FeedbackLauncher({
                 </h2>
               </div>
               <button
+                ref={closeButtonRef}
                 type="button"
                 onClick={() => setOpen(false)}
                 className="shrink-0 rounded-md p-1.5 text-muted hover:bg-surface hover:text-white"
@@ -141,7 +164,8 @@ export function FeedbackLauncher({
               </button>
             </div>
           </section>
-        </div>
+        </div>,
+        document.body,
       )}
     </>
   )

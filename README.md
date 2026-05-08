@@ -127,6 +127,11 @@ Cola persistente con processor cada 30 s, horas de silencio configurables (con w
 - **Plantillas** reusables (`templatesService`) para que cualquier plugin guarde y reutilice contenido.
 - **Notificaciones** centralizadas con cola y horas de silencio.
 
+### Navegación
+
+- En la barra lateral, los plugins activos viven bajo **Módulos**. El candado cerrado bloquea el orden actual; al abrirlo aparece el control de arrastre para reordenar los módulos. Volvé a cerrarlo para dejar fija tu organización.
+- Las páginas internas de cada plugin se pueden mostrar u ocultar desde el control junto al título del plugin.
+
 ### 🎮 Gamificación
 
 | Acción | XP |

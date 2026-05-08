@@ -48,6 +48,8 @@ interface GamificationState {
   dailyMissions: DailyMission[]
   dailyMissionsDate: string
   missionsCompletedDate?: string
+  sweptMissionIds: string[]
+  sweptMissionsDate?: string
   lastActionAt?: string
 
   addPoints: (amount: number, reason: string) => void
@@ -55,6 +57,8 @@ interface GamificationState {
   unlockAchievement: (id: string) => void
   checkAchievements: (stats: GamificationStats) => void
   ensureDailyMissions: () => void
+  sweepCompletedMissions: () => void
+  restoreSweptMissions: () => void
   processMissionEvent: (eventName: string) => void
   markDailyAction: (isoDate?: string) => void
   loadFromStorage: () => Promise<void>
@@ -69,6 +73,8 @@ interface PersistedGamificationState {
   dailyMissions?: DailyMission[]
   dailyMissionsDate?: string
   missionsCompletedDate?: string
+  sweptMissionIds?: string[]
+  sweptMissionsDate?: string
   lastActionAt?: string
 }
 
@@ -202,7 +208,7 @@ const DAILY_MISSION_TEMPLATES: DailyMissionTemplate[] = [
 
 const SETTINGS_KEY = 'gamificationState'
 
-function getPersistableState(state: Pick<GamificationState, 'points' | 'level' | 'streak' | 'history' | 'unlockedIds' | 'dailyMissions' | 'dailyMissionsDate' | 'missionsCompletedDate' | 'lastActionAt'>): PersistedGamificationState {
+function getPersistableState(state: Pick<GamificationState, 'points' | 'level' | 'streak' | 'history' | 'unlockedIds' | 'dailyMissions' | 'dailyMissionsDate' | 'missionsCompletedDate' | 'sweptMissionIds' | 'sweptMissionsDate' | 'lastActionAt'>): PersistedGamificationState {
   return {
     points: state.points,
     level: state.level,
@@ -212,11 +218,13 @@ function getPersistableState(state: Pick<GamificationState, 'points' | 'level' |
     dailyMissions: state.dailyMissions,
     dailyMissionsDate: state.dailyMissionsDate,
     missionsCompletedDate: state.missionsCompletedDate,
+    sweptMissionIds: state.sweptMissionIds,
+    sweptMissionsDate: state.sweptMissionsDate,
     lastActionAt: state.lastActionAt,
   }
 }
 
-function persistState(state: Pick<GamificationState, 'points' | 'level' | 'streak' | 'history' | 'unlockedIds' | 'dailyMissions' | 'dailyMissionsDate' | 'missionsCompletedDate' | 'lastActionAt'>): void {
+function persistState(state: Pick<GamificationState, 'points' | 'level' | 'streak' | 'history' | 'unlockedIds' | 'dailyMissions' | 'dailyMissionsDate' | 'missionsCompletedDate' | 'sweptMissionIds' | 'sweptMissionsDate' | 'lastActionAt'>): void {
   if (!window.storage) return
   const payload = JSON.stringify(getPersistableState(state))
   void window.storage.execute(
@@ -284,7 +292,25 @@ function computeNextStreak(currentStreak: number, lastActionAt: string | undefin
   return 1
 }
 
-function getMissionContext(state: GamificationState): Pick<GamificationState, 'dailyMissions' | 'dailyMissionsDate' | 'missionsCompletedDate'> {
+function getSweepContext(
+  state: Pick<GamificationState, 'sweptMissionIds' | 'sweptMissionsDate'>,
+  missions: DailyMission[],
+  today: string,
+): Pick<GamificationState, 'sweptMissionIds' | 'sweptMissionsDate'> {
+  if (state.sweptMissionsDate !== today) {
+    return { sweptMissionIds: [], sweptMissionsDate: undefined }
+  }
+
+  const missionIds = new Set(missions.map((mission) => mission.id))
+  const sweptMissionIds = state.sweptMissionIds.filter((id) => missionIds.has(id))
+
+  return {
+    sweptMissionIds,
+    sweptMissionsDate: sweptMissionIds.length > 0 ? today : undefined,
+  }
+}
+
+function getMissionContext(state: GamificationState): Pick<GamificationState, 'dailyMissions' | 'dailyMissionsDate' | 'missionsCompletedDate' | 'sweptMissionIds' | 'sweptMissionsDate'> {
   const today = getIsoDateKey(new Date())
   const activePluginIds = useCoreStore.getState().activePlugins
   const keepPrevious = state.dailyMissionsDate === today ? state.dailyMissions : []
@@ -298,10 +324,11 @@ function getMissionContext(state: GamificationState): Pick<GamificationState, 'd
     dailyMissions: missions,
     dailyMissionsDate: today,
     missionsCompletedDate: preserveCompletedDate ? state.missionsCompletedDate : undefined,
+    ...getSweepContext(state, missions, today),
   }
 }
 
-function getFreshMissionsOnLoad(parsed: Partial<PersistedGamificationState>): Pick<GamificationState, 'dailyMissions' | 'dailyMissionsDate' | 'missionsCompletedDate'> {
+function getFreshMissionsOnLoad(parsed: Partial<PersistedGamificationState>): Pick<GamificationState, 'dailyMissions' | 'dailyMissionsDate' | 'missionsCompletedDate' | 'sweptMissionIds' | 'sweptMissionsDate'> {
   const today = getIsoDateKey(new Date())
   const savedDate = parsed.dailyMissionsDate ?? ''
   const storedMissions = Array.isArray(parsed.dailyMissions) ? parsed.dailyMissions : []
@@ -318,10 +345,18 @@ function getFreshMissionsOnLoad(parsed: Partial<PersistedGamificationState>): Pi
     dailyMissions: missions,
     dailyMissionsDate: today,
     missionsCompletedDate: allCompleted && savedDate === today ? parsed.missionsCompletedDate : undefined,
+    ...getSweepContext(
+      {
+        sweptMissionIds: Array.isArray(parsed.sweptMissionIds) ? parsed.sweptMissionIds : [],
+        sweptMissionsDate: parsed.sweptMissionsDate,
+      },
+      missions,
+      today,
+    ),
   }
 }
 
-function getPersistPayload(state: GamificationState): Pick<GamificationState, 'points' | 'level' | 'streak' | 'history' | 'unlockedIds' | 'dailyMissions' | 'dailyMissionsDate' | 'missionsCompletedDate' | 'lastActionAt'> {
+function getPersistPayload(state: GamificationState): Pick<GamificationState, 'points' | 'level' | 'streak' | 'history' | 'unlockedIds' | 'dailyMissions' | 'dailyMissionsDate' | 'missionsCompletedDate' | 'sweptMissionIds' | 'sweptMissionsDate' | 'lastActionAt'> {
   return {
     points: state.points,
     level: state.level,
@@ -331,6 +366,8 @@ function getPersistPayload(state: GamificationState): Pick<GamificationState, 'p
     dailyMissions: state.dailyMissions,
     dailyMissionsDate: state.dailyMissionsDate,
     missionsCompletedDate: state.missionsCompletedDate,
+    sweptMissionIds: state.sweptMissionIds,
+    sweptMissionsDate: state.sweptMissionsDate,
     lastActionAt: state.lastActionAt,
   }
 }
@@ -345,6 +382,8 @@ export const useGamificationStore = create<GamificationState>((set, get) => ({
   dailyMissions: [],
   dailyMissionsDate: '',
   missionsCompletedDate: undefined,
+  sweptMissionIds: [],
+  sweptMissionsDate: undefined,
   lastActionAt: undefined,
 
   addPoints: (amount, reason) => {
@@ -385,6 +424,8 @@ export const useGamificationStore = create<GamificationState>((set, get) => ({
         dailyMissions: s.dailyMissions,
         dailyMissionsDate: s.dailyMissionsDate,
         missionsCompletedDate: s.missionsCompletedDate,
+        sweptMissionIds: s.sweptMissionIds,
+        sweptMissionsDate: s.sweptMissionsDate,
         lastActionAt: s.lastActionAt,
       })
 
@@ -404,6 +445,8 @@ export const useGamificationStore = create<GamificationState>((set, get) => ({
         dailyMissions: s.dailyMissions,
         dailyMissionsDate: s.dailyMissionsDate,
         missionsCompletedDate: s.missionsCompletedDate,
+        sweptMissionIds: s.sweptMissionIds,
+        sweptMissionsDate: s.sweptMissionsDate,
         lastActionAt: s.lastActionAt,
       })
       return { streak: n }
@@ -432,6 +475,8 @@ export const useGamificationStore = create<GamificationState>((set, get) => ({
       dailyMissions: s.dailyMissions,
       dailyMissionsDate: s.dailyMissionsDate,
       missionsCompletedDate: s.missionsCompletedDate,
+      sweptMissionIds: s.sweptMissionIds,
+      sweptMissionsDate: s.sweptMissionsDate,
       lastActionAt: s.lastActionAt,
     })
 
@@ -467,10 +512,44 @@ export const useGamificationStore = create<GamificationState>((set, get) => ({
       dailyMissions: context.dailyMissions,
       dailyMissionsDate: context.dailyMissionsDate,
       missionsCompletedDate: context.missionsCompletedDate,
+      sweptMissionIds: context.sweptMissionIds,
+      sweptMissionsDate: context.sweptMissionsDate,
     })
 
     const next = get()
     persistState(getPersistPayload(next))
+  },
+
+  sweepCompletedMissions: () => {
+    const s = get()
+    const today = getIsoDateKey(new Date())
+    const completedIds = s.dailyMissions
+      .filter((mission) => mission.completed)
+      .map((mission) => mission.id)
+
+    if (completedIds.length === 0) return
+
+    const existing = s.sweptMissionsDate === today ? s.sweptMissionIds : []
+    const sweptMissionIds = Array.from(new Set([...existing, ...completedIds]))
+
+    set({
+      sweptMissionIds,
+      sweptMissionsDate: today,
+    })
+
+    persistState(getPersistPayload(get()))
+  },
+
+  restoreSweptMissions: () => {
+    const s = get()
+    if (s.sweptMissionIds.length === 0 && !s.sweptMissionsDate) return
+
+    set({
+      sweptMissionIds: [],
+      sweptMissionsDate: undefined,
+    })
+
+    persistState(getPersistPayload(get()))
   },
 
   markDailyAction: (isoDate) => {
@@ -539,6 +618,8 @@ export const useGamificationStore = create<GamificationState>((set, get) => ({
       dailyMissions: finalState.dailyMissions,
       dailyMissionsDate: finalState.dailyMissionsDate,
       missionsCompletedDate: finalState.missionsCompletedDate,
+      sweptMissionIds: finalState.sweptMissionIds,
+      sweptMissionsDate: finalState.sweptMissionsDate,
       lastActionAt: finalState.lastActionAt,
     })
   },
@@ -573,6 +654,8 @@ export const useGamificationStore = create<GamificationState>((set, get) => ({
         dailyMissions: missionContext.dailyMissions,
         dailyMissionsDate: missionContext.dailyMissionsDate,
         missionsCompletedDate: missionContext.missionsCompletedDate,
+        sweptMissionIds: missionContext.sweptMissionIds,
+        sweptMissionsDate: missionContext.sweptMissionsDate,
         lastActionAt: parsed.lastActionAt,
       })
     } catch {

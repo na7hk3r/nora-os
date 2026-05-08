@@ -6,6 +6,7 @@ import {
   CheckCircle2,
   Circle,
   CircleAlert,
+  Eraser,
   ListTodo,
   Sparkles,
   Sun,
@@ -14,6 +15,7 @@ import {
 import { useGamificationStore } from '@core/gamification/gamificationStore'
 import { getXpMultiplierForStreak } from '@core/gamification/gamificationUtils'
 import { useCoreStore } from '@core/state/coreStore'
+import { useToast } from './components/ToastProvider'
 import { useWorkStore } from '@plugins/work/store'
 import { usePlannerTasksToday } from './hooks/usePlannerTasksToday'
 import {
@@ -70,10 +72,14 @@ function computePriorityTasks(cards: Card[], columns: Column[]): PriorityGroup {
  */
 export function TodayFocus() {
   const navigate = useNavigate()
+  const { toast } = useToast()
 
   // Misiones (gamificación)
   const dailyMissions = useGamificationStore((s) => s.dailyMissions)
   const missionsCompletedDate = useGamificationStore((s) => s.missionsCompletedDate)
+  const sweptMissionIds = useGamificationStore((s) => s.sweptMissionIds)
+  const sweepCompletedMissions = useGamificationStore((s) => s.sweepCompletedMissions)
+  const restoreSweptMissions = useGamificationStore((s) => s.restoreSweptMissions)
   const streak = useGamificationStore((s) => s.streak)
 
   // Tareas (work)
@@ -89,7 +95,12 @@ export function TodayFocus() {
     [cards, columns],
   )
 
-  const hasMissions = dailyMissions.length > 0
+  const visibleMissions = useMemo(() => {
+    const swept = new Set(sweptMissionIds)
+    return dailyMissions.filter((mission) => !(mission.completed && swept.has(mission.id)))
+  }, [dailyMissions, sweptMissionIds])
+
+  const hasMissions = visibleMissions.length > 0
   const hasTasks = isWorkActive && cards.length > 0
   const hasPlanner = plannerTasks.length > 0
 
@@ -97,6 +108,7 @@ export function TodayFocus() {
 
   const pendingMissions = dailyMissions.filter((m) => !m.completed).length
   const allMissionsCompleted = hasMissions && pendingMissions === 0
+  const completedVisibleMissions = visibleMissions.filter((mission) => mission.completed).length
   const earnedXp = dailyMissions.filter((m) => m.completed).reduce((sum, m) => sum + m.xp, 0)
   const baseXp = dailyMissions.reduce((sum, m) => sum + m.xp, 0)
   const bonusXp = 15 + (streak >= 7 ? 5 : 0)
@@ -105,6 +117,15 @@ export function TodayFocus() {
   const hasMultiplier = multiplier > 1
 
   const taskBadges = hasTasks && (taskGroup.overdueCount > 0 || taskGroup.dueTodayCount > 0)
+
+  const clearCompletedMissions = () => {
+    sweepCompletedMissions()
+    toast.undo({
+      message: 'Misiones completadas ocultas del dashboard.',
+      undoLabel: 'Mostrar',
+      onUndo: restoreSweptMissions,
+    })
+  }
 
   return (
     <section className="rounded-2xl border border-border bg-surface-light/90 p-5 shadow-lg">
@@ -250,7 +271,7 @@ export function TodayFocus() {
         <div>
           <div className="flex items-center justify-between gap-3">
             <p className="text-caption uppercase tracking-eyebrow text-muted">Misiones</p>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center justify-end gap-2">
               <span className="text-caption text-muted">
                 <span className="font-semibold text-accent-light">{earnedXp}</span> / {totalXp} XP
               </span>
@@ -263,11 +284,22 @@ export function TodayFocus() {
                   ✓ Completas
                 </span>
               )}
+              {completedVisibleMissions > 0 && (
+                <button
+                  type="button"
+                  onClick={clearCompletedMissions}
+                  className="inline-flex items-center gap-1 rounded-full border border-border bg-surface px-2 py-0.5 text-caption font-semibold text-muted transition-colors hover:border-accent/40 hover:text-accent-light"
+                  title="Ocultar misiones completadas de hoy"
+                >
+                  <Eraser size={11} />
+                  Limpiar
+                </button>
+              )}
             </div>
           </div>
 
           <div className="mt-3 space-y-2">
-            {dailyMissions.map((mission) => (
+            {visibleMissions.map((mission) => (
               <div
                 key={mission.id}
                 className={`flex items-center justify-between rounded-xl border px-3 py-2 transition-all ${
