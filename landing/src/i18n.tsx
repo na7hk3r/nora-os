@@ -243,7 +243,7 @@ export const copy = {
           tag: 'Modular',
           title: 'Todo lo que necesitás, nada de lo que no',
           description:
-            'Activás solo los módulos que usás: trabajo, hábitos, finanzas, fitness, journal, conocimiento.',
+            'Activás solo los módulos que usás y ordenás el dashboard arrastrando widgets, sin romper tu flujo.',
         },
         {
           tag: 'Auto-update',
@@ -305,7 +305,7 @@ export const copy = {
           name: 'Work',
           domainLabel: 'Productividad',
           description:
-            'Kanban con prioridades, vencimientos, WIP limit y Focus Engine 2.0 con Pomodoro nativo. Notas y enlaces con búsqueda.',
+            'Kanban con prioridades, vencimientos, WIP limit y edición rápida con Enter. Focus Engine 2.0, notas y enlaces con búsqueda.',
         },
         fitness: {
           name: 'Fitness',
@@ -317,7 +317,7 @@ export const copy = {
           name: 'Finanzas',
           domainLabel: 'Finanzas',
           description:
-            'Cuentas, transacciones, presupuestos y gastos recurrentes con motor RRULE. Insights IA opcionales en moneda local.',
+            'Cuentas, transacciones, transferencias, presupuestos y recurrentes configurables. Insights IA opcionales en moneda local.',
         },
         habits: {
           name: 'Hábitos',
@@ -634,7 +634,7 @@ export const copy = {
           tag: 'Modular',
           title: 'Everything you need, nothing you do not',
           description:
-            'Turn on only the modules you use: work, habits, finance, fitness, journal, and knowledge.',
+            'Turn on only the modules you use and arrange the dashboard by dragging widgets without breaking your flow.',
         },
         {
           tag: 'Auto-update',
@@ -696,7 +696,7 @@ export const copy = {
           name: 'Work',
           domainLabel: 'Productivity',
           description:
-            'Kanban with priorities, due dates, WIP limits, and Focus Engine 2.0 with native Pomodoro. Searchable notes and links.',
+            'Kanban with priorities, due dates, WIP limits, and quick Enter-to-save editing. Focus Engine 2.0 plus searchable notes and links.',
         },
         fitness: {
           name: 'Fitness',
@@ -708,7 +708,7 @@ export const copy = {
           name: 'Finance',
           domainLabel: 'Finance',
           description:
-            'Accounts, transactions, budgets, and recurring expenses with an RRULE engine. Optional AI insights in your local currency.',
+            'Accounts, transactions, transfers, budgets, and recurring tools you can enable as needed. Optional AI insights in your local currency.',
         },
         habits: {
           name: 'Habits',
@@ -1026,7 +1026,7 @@ export const copy = {
           tag: 'Modular',
           title: 'Tudo o que você precisa, nada do que não precisa',
           description:
-            'Ative só os módulos que usa: trabalho, hábitos, finanças, fitness, journal e conhecimento.',
+            'Ative só os módulos que usa e organize o dashboard arrastando widgets sem quebrar seu fluxo.',
         },
         {
           tag: 'Auto-update',
@@ -1088,7 +1088,7 @@ export const copy = {
           name: 'Work',
           domainLabel: 'Produtividade',
           description:
-            'Kanban com prioridades, vencimentos, WIP limit e Focus Engine 2.0 com Pomodoro nativo. Notas e links com busca.',
+            'Kanban com prioridades, vencimentos, WIP limit e edição rápida com Enter. Focus Engine 2.0, notas e links com busca.',
         },
         fitness: {
           name: 'Fitness',
@@ -1100,7 +1100,7 @@ export const copy = {
           name: 'Finanças',
           domainLabel: 'Finanças',
           description:
-            'Contas, transações, orçamentos e gastos recorrentes com motor RRULE. Insights IA opcionais em moeda local.',
+            'Contas, transações, transferências, orçamentos e recorrentes configuráveis. Insights IA opcionais em moeda local.',
         },
         habits: {
           name: 'Hábitos',

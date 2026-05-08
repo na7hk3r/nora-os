@@ -49,6 +49,7 @@ A diferencia de un dashboard de SaaS o una app cloud, **toda tu información viv
 
 - **Planner core** — tareas diarias, semanales y mensuales con drag & drop entre días y misión diaria gamificada.
 - **Calendario unificado** — agrega vencimientos de Work, entrenamientos de Fitness, sesiones de foco y tareas del Planner en una vista mensual con filtros por fuente.
+- **Dashboard mosaic** — los widgets principales y la actividad reciente se pueden arrastrar, reordenar y colapsar sin perder su tamaño ni romper la grilla.
 - **Command Palette (`Ctrl/Cmd + K`)** — búsqueda global instantánea sobre notas, tareas, enlaces y rutas (incluye páginas de plugins activos).
 - **Catálogo de atajos in-app** — página `/shortcuts` con todos los keybindings agrupados y buscables, sincronizada con `docs/SHORTCUTS.md`.
 - **Review semanal/mensual** — KPIs reales (fitness, work, gamificación) con análisis IA opcional para cerrar la semana.
@@ -71,9 +72,9 @@ Sistema de plugins de primera clase. Hoy vienen incluidos **8 plugins oficiales*
 
 | Plugin | Dominio | Qué resuelve |
 | --- | --- | --- |
-| **Work** | productivity | Kanban con prioridades, estimaciones, checklists, vencimientos, WIP limit, archivado automático. Notas y enlaces con búsqueda y pin. **Focus Engine 2.0** con pause/resume reales, Pomodoro configurable, notificaciones nativas y cleanup de sesiones zombie. **Note → Task** con extracción IA desde notas largas. |
+| **Work** | productivity | Kanban con prioridades, estimaciones, checklists, vencimientos, WIP limit, archivado automático y edición rápida: Enter guarda los campos principales de una card. Notas y enlaces con búsqueda y pin. **Focus Engine 2.0** con pause/resume reales, Pomodoro configurable, notificaciones nativas y cleanup de sesiones zombie. **Note → Task** con extracción IA desde notas largas. |
 | **Fitness** | fitness | Tracking diario de peso, comidas, ejercicios y sueño. Tabla de medidas corporales, gráficos históricos, resumen mensual y seguimiento opcional para dejar de fumar. |
-| **Finance** | finance | Cuentas, transacciones, categorías, presupuestos mensuales y gastos recurrentes con motor RRULE-light. **Insights IA opcionales**: detección de gastos inusuales, resumen mensual narrativo y sugerencia de presupuestos por mediana 3 meses. Default UYU, multi-moneda. |
+| **Finance** | finance | Cuentas, transacciones, categorías, presupuestos mensuales, gastos recurrentes y transferencias entre cuentas. Secciones configurables desde Control Center, moneda predeterminada editable y **Insights IA opcionales** con alertas de gastos inusuales. Default UYU, multi-moneda. |
 | **Habits** | habits | Tracking de hábitos con metas diarias / semanales / mensuales, rachas reales, detección de "en riesgo" y proveedor IA con top streaks. Eventos `LOGGED` / `GOAL_MET` integrados a gamificación. |
 | **Journal** | knowledge | Diario con prompts builtin, mood (1–5), tags, búsqueda y pin. Una entrada por día, undo en borrado. Privacy-first: el LLM sólo recibe agregados, nunca el contenido. |
 | **Goals & OKRs** | productivity | Objetivos trimestrales / anuales con Key Results manuales o **auto-sincronizados** desde métricas publicadas por otros plugins (`syncMetricBackedKRs` lee `metricsRegistry`). Milestones y proveedor IA con progreso por período. |
@@ -130,7 +131,7 @@ Cola persistente con processor cada 30 s, horas de silencio configurables (con w
 ### Navegación
 
 - En la barra lateral, los plugins activos viven bajo **Módulos**. El candado cerrado bloquea el orden actual; al abrirlo aparece el control de arrastre para reordenar los módulos. Volvé a cerrarlo para dejar fija tu organización.
-- Las páginas internas de cada plugin se pueden mostrar u ocultar desde el control junto al título del plugin.
+- Las páginas internas de cada plugin se pueden mostrar u ocultar desde el control junto al título del plugin; el estado colapsado se conserva aunque cambie la UI dinámica del plugin.
 
 ### 🎮 Gamificación
 

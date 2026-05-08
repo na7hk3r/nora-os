@@ -1,5 +1,39 @@
 # Changelog - Nora OS
 
+## [1.14.0] - 2026-05-08
+
+### Dashboard draggable, Finanzas configurables y pulido de Work
+
+Release menor centrado en hacer más flexible el espacio principal del dashboard, convertir Finanzas en un módulo más configurable y cerrar bugs de interacción detectados en Sidebar y Work.
+
+#### Dashboard
+
+- La zona principal de widgets ahora funciona como mosaico draggable con `@dnd-kit`: los widgets de plugins y **Actividad reciente** se pueden reordenar manteniendo tamaños declarados.
+- El layout persiste `tileOrder`, migra desde `widgetOrder` cuando existe y sanitiza IDs obsoletos antes de guardar.
+- Los widgets colapsados salen del mosaico y quedan disponibles en la franja compacta de restauración; **Actividad reciente** también minimiza/restaura correctamente.
+
+#### Core y navegación
+
+- `PluginManager` puede reemplazar widgets, páginas y nav items activos en runtime para que los ajustes de plugins se reflejen sin reiniciar.
+- Sidebar deja de re-expandir submenús colapsados al recalcular navegación y oculta el control de reordenamiento cuando hay un solo módulo.
+
+#### Finanzas
+
+- Control Center suma ajustes de Finanzas: moneda predeterminada, presupuestos, recurrentes, insights, transferencias, alertas de gastos inusuales y contexto IA.
+- Quick Add permite registrar transferencias entre cuentas, elegir fecha y respeta si las transferencias están desactivadas.
+- Insights IA, alertas y motor de recurrentes respetan los flags del plugin; la navegación de Finanzas se reduce dinámicamente cuando se desactivan secciones.
+
+#### Work
+
+- El modal de detalle de card guarda al presionar Enter en título, descripción, estimación o vencimiento.
+- Enter en checklist sigue agregando ítems y el área de notas mantiene saltos de línea.
+- Se suma cobertura para helpers de reordenamiento del Kanban y casos de movimiento entre columnas.
+
+#### Landing y documentación
+
+- README y landing actualizan copy de Dashboard, Work y Finanzas para reflejar el mosaico draggable, herramientas configurables y transferencias.
+- Se agregan `.env.example` raíz y `landing/.env.example` para documentar URLs de feedback y telemetría pública.
+
 ## [1.13.2] - 2026-05-06
 
 ### Fixes de onboarding, navegacion, auth, Ollama y landing
