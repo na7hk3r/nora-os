@@ -48,6 +48,7 @@ jobs:
         run: npm run build
         env:
           VITE_FEEDBACK_ENDPOINT: https://formsubmit.co/elmathi7@gmail.com
+          VITE_GOATCOUNTER_ENDPOINT: ${{ secrets.GOATCOUNTER_ENDPOINT }}
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

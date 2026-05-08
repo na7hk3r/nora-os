@@ -13,6 +13,7 @@ import { FAQ } from './sections/FAQ'
 import { Footer } from './sections/Footer'
 import { FeedbackPage } from './sections/FeedbackPage'
 import { useI18n } from './i18n'
+import { usePageTelemetry } from './hooks/usePageTelemetry'
 
 function isFeedbackRoute() {
   if (typeof window === 'undefined') return false
@@ -23,6 +24,7 @@ function isFeedbackRoute() {
 export default function App() {
   const { t } = useI18n()
   const [feedbackRoute, setFeedbackRoute] = useState(isFeedbackRoute)
+  usePageTelemetry()
 
   useEffect(() => {
     const syncRoute = () => setFeedbackRoute(isFeedbackRoute())

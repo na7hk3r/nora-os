@@ -28,9 +28,10 @@ landing/
     main.tsx
     App.tsx
     components/          # Button, Section, DownloadButton, ThemeToggle
-    sections/            # Hero, Features, Plugins, Screenshots, Download, FAQ, Footer
+    sections/            # Hero, Features, Plugins, Screenshots, Download, FAQ, Footer, FeedbackPage
     data/                # features, plugins, faq (datos estáticos)
-    hooks/               # useLatestRelease, useDetectOS
+    hooks/               # useLatestRelease, useDetectOS, usePageTelemetry
+    utils/               # telemetry
     styles/index.css     # tokens y reset
     test/                # vitest specs
 ```
@@ -46,6 +47,17 @@ npm run dev          # http://localhost:5173/nora-os/
 ```
 
 > El sitio usa `base: '/nora-os/'` para GitHub Pages, por eso la URL local incluye el prefijo.
+
+### Variables de entorno
+
+El landing puede correr sin estas variables, pero algunas funciones quedan en no-op o muestran estado no configurado.
+
+| Variable | Uso | Ejemplo |
+| --- | --- | --- |
+| `VITE_FEEDBACK_ENDPOINT` | Endpoint HTTP del formulario beta. Se usa desde `#feedback` para enviar opiniones por email. | `https://formsubmit.co/elmathi7@gmail.com` |
+| `VITE_GOATCOUNTER_ENDPOINT` | Endpoint de GoatCounter para visitas y eventos de descarga. | `https://noraos.goatcounter.com/count` |
+
+Para desarrollo local, copiá `landing/.env.example` a `landing/.env`.
 
 ### Otros scripts
 
@@ -64,7 +76,7 @@ El deploy es **automático** vía GitHub Actions. Cualquier push a `main` que to
 
 1. Instala dependencias en `landing/`.
 2. Corre `typecheck` + `test`.
-3. Construye con `npm run build`.
+3. Construye con `npm run build`, inyectando `VITE_FEEDBACK_ENDPOINT` y `VITE_GOATCOUNTER_ENDPOINT`.
 4. Sube `landing/dist/` como artifact de Pages.
 5. Despliega en `github-pages`.
 
@@ -75,6 +87,60 @@ El primer deploy requiere habilitar Pages manualmente:
 3. La URL final aparece en la pestaña **Actions** del repo.
 
 También se puede disparar manualmente con **Run workflow** desde la pestaña Actions.
+
+### Configuración requerida en GitHub
+
+- **Settings → Pages → Build and deployment → Source:** `GitHub Actions`.
+- **Settings → Secrets and variables → Actions → Repository secrets:**
+  - `GOATCOUNTER_ENDPOINT=https://noraos.goatcounter.com/count`
+
+El endpoint de feedback está definido directamente en el workflow porque es temporal:
+`https://formsubmit.co/elmathi7@gmail.com`. FormSubmit puede pedir autorización una vez por origen (`localhost` y `na7hk3r.github.io`).
+
+---
+
+## Feedback beta
+
+La ruta `#feedback` muestra un formulario simple para usuarios no técnicos:
+
+```
+https://na7hk3r.github.io/nora-os/#feedback
+```
+
+- No abre GitHub ni cliente de correo.
+- Envía por `POST` a `VITE_FEEDBACK_ENDPOINT` usando un iframe oculto.
+- Recibe contexto opcional desde query params enviados por la app desktop (`version`, `route`, `theme`, `activePlugins`, `platform`, `recentEvents`).
+- Si el endpoint falta, el formulario muestra un aviso y no envía.
+
+La app desktop abre esta ruta usando `VITE_FEEDBACK_FORM_URL`, configurado en `.github/workflows/release.yml`.
+
+---
+
+## Telemetría
+
+La landing usa GoatCounter de forma liviana y sin SDK externo:
+
+- `usePageTelemetry()` registra visitas de página al cargar y al cambiar hash.
+- `DownloadButton` registra eventos de descarga al clickear el CTA.
+- Si `VITE_GOATCOUNTER_ENDPOINT` no está configurado, la telemetría queda desactivada sin romper la UI.
+
+Los paths esperados en GoatCounter son:
+
+| Dato | Path/evento |
+| --- | --- |
+| Visita a landing | `/` |
+| Visita a feedback | `/feedback` |
+| Descarga Windows | `download-windows-{version}` |
+| Descarga Linux | `download-linux-{version}` |
+| Descarga macOS | `download-mac-{version}` |
+
+Los datos se ven en:
+
+```
+https://noraos.goatcounter.com
+```
+
+GoatCounter marca las descargas como eventos (`e=true`); el path del evento funciona como nombre del evento.
 
 ---
 
@@ -149,6 +215,8 @@ Cobertura:
 - `Hero.test.tsx` — render del título, subtítulo y CTAs.
 - `DownloadButton.test.tsx` — selección de asset por SO, fallback, detección de userAgent.
 - `useLatestRelease.test.ts` — fetch, cache en sessionStorage, manejo de errores, clasificación de assets.
+- `FeedbackPage.test.tsx` — formulario beta, contexto oculto y estados de envío.
+- `telemetry.test.ts` — pageviews, eventos de descarga y no-op sin endpoint.
 
 ---
 
