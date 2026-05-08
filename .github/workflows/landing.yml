@@ -46,6 +46,8 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          VITE_FEEDBACK_ENDPOINT: https://formsubmit.co/elmathi7@gmail.com
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

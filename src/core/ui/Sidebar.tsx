@@ -19,9 +19,9 @@ import { getLevelTier, getLevelTitle } from '@core/gamification/gamificationUtil
 import { useAuthStore } from '@core/state/authStore'
 import { APP_VERSION } from '@core/utils/version'
 import { PluginIcon } from './components/PluginIcon'
-import { BrandIcon } from './components/BrandIcon'
 import { NoraLogoMark } from './components/NoraLogo'
 import { SystemSuggestions } from './SystemSuggestions'
+import { FeedbackLauncher } from './FeedbackLauncher'
 
 function renderNavIcon(iconName: string, size = 18) {
   return <PluginIcon name={iconName} size={size} />
@@ -267,7 +267,9 @@ export function Sidebar() {
 
       {/* Footer */}
       <div className="border-t border-border p-3 text-center text-xs text-muted">
-        {!sidebarCollapsed && (
+        {sidebarCollapsed ? (
+          <FeedbackLauncher collapsed />
+        ) : (
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <NavLink
@@ -294,6 +296,7 @@ export function Sidebar() {
                 <LogOut size={14} />
               </button>
             </div>
+            <FeedbackLauncher />
             <NavLink
               to="/shortcuts"
               className="flex w-full items-center justify-center gap-2 rounded-md border border-border bg-surface px-2 py-1.5 text-xs text-muted transition-colors hover:border-accent/40 hover:text-white"

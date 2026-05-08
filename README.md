@@ -7,7 +7,7 @@
 
 100 % local · Multiusuario · Modular · Con IA opcional vía Ollama
 
-`v1.13.2` · Electron 41 · React 19 · TypeScript 5.7 · SQLite
+Electron 41 · React 19 · TypeScript 5.7 · SQLite
 
 
 [![Website](https://img.shields.io/badge/Website-na7hk3r.github.io%2Fnora--os-6A39F6?style=flat-square)](https://na7hk3r.github.io/nora-os/)
@@ -27,7 +27,7 @@
   <img src="public/icons/CrystalBallEye.svg" alt="Copiloto IA" width="56" height="56" />
 </p>
 
-<sub>Identidad gráfica — set de iconos ilustrativos en <code>public/icons/</code> reutilizables en app, landing y docs.<br />Iconos por <a href="https://github.com/xero/svg-icons">xero/svg-icons</a> (CC0 / dominio público).</sub>
+<sub>Iconos por <a href="https://github.com/xero/svg-icons">xero/svg-icons</a> (CC0 / dominio público).</sub>
 
 </div>
 

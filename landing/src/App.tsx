@@ -1,4 +1,5 @@
 // Reformado: usa nuevo Navbar y reordena secciones para flujo Hero → emocional → beneficios → modular → demo → screenshots → devs → conversión.
+import { useEffect, useState } from 'react'
 import { Navbar } from './components/Navbar'
 import { Hero } from './sections/Hero'
 import { HowItWorks } from './sections/HowItWorks'
@@ -10,10 +11,28 @@ import { ForDevs } from './sections/ForDevs'
 import { Download_ } from './sections/Download'
 import { FAQ } from './sections/FAQ'
 import { Footer } from './sections/Footer'
+import { FeedbackPage } from './sections/FeedbackPage'
 import { useI18n } from './i18n'
+
+function isFeedbackRoute() {
+  if (typeof window === 'undefined') return false
+  const pathname = window.location.pathname.replace(/\/+$/, '')
+  return window.location.hash.startsWith('#feedback') || pathname.endsWith('/feedback')
+}
 
 export default function App() {
   const { t } = useI18n()
+  const [feedbackRoute, setFeedbackRoute] = useState(isFeedbackRoute)
+
+  useEffect(() => {
+    const syncRoute = () => setFeedbackRoute(isFeedbackRoute())
+    window.addEventListener('hashchange', syncRoute)
+    window.addEventListener('popstate', syncRoute)
+    return () => {
+      window.removeEventListener('hashchange', syncRoute)
+      window.removeEventListener('popstate', syncRoute)
+    }
+  }, [])
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -26,17 +45,21 @@ export default function App() {
 
       <Navbar />
 
-      <main id="main" className="flex-1 scroll-mt-20 sm:scroll-mt-24">
-        <Hero />
-        <Features />
-        <HowItWorks />
-        <Plugins />
-        <CopilotDemo />
-        <Screenshots />
-        <ForDevs />
-        <Download_ />
-        <FAQ />
-      </main>
+      {feedbackRoute ? (
+        <FeedbackPage />
+      ) : (
+        <main id="main" className="flex-1 scroll-mt-20 sm:scroll-mt-24">
+          <Hero />
+          <Features />
+          <HowItWorks />
+          <Plugins />
+          <CopilotDemo />
+          <Screenshots />
+          <ForDevs />
+          <Download_ />
+          <FAQ />
+        </main>
+      )}
 
       <Footer />
     </div>

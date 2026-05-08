@@ -45,6 +45,7 @@ jobs:
         run: npm run release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VITE_FEEDBACK_FORM_URL: https://na7hk3r.github.io/nora-os/#feedback
           # Code signing (opcional). Para activarlo:
           #   1. Subir el .pfx a GitHub Secrets como CSC_LINK (base64) o URL.
           #   2. Subir el password como CSC_KEY_PASSWORD.
