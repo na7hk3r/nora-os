@@ -197,8 +197,8 @@ Hoy hay **8 plugins oficiales** distribuidos por dominio. Cada uno declara `doma
 - **Tablas**: `work_boards`, `work_columns`, `work_cards`, `work_notes`, `work_links`, `work_focus_sessions`
 - **Páginas**: `/work`, `/work/notes`
 - **Eventos emitidos**: 14 eventos `TASK_*`, `FOCUS_*`, `NOTE_CREATED` (ver [EVENTS.md](EVENTS.md#work))
-- **Focus Engine 2.0**: sesión activa global con `pause`/`resume` reales (`paused_at`, `paused_total`), switch limpio (<1 min descarta sin XP penalty), cleanup automático de sesiones zombie (>8h), Pomodoro configurable con notificación nativa.
-- **Tarjetas enriquecidas** (v7): `priority`, `estimate_minutes`, `checklist` (JSON), `archived` (auto-archivado en Done >7 días).
+- **Focus Engine 2.0**: sesión activa global con `pause`/`resume` reales (`paused_at`, `paused_total`), switch limpio (<1 min descarta sin XP penalty), cleanup automático de sesiones zombie (>8h), Pomodoro configurable con notificación nativa y mini timer flotante always-on-top.
+- **Tarjetas enriquecidas** (v7): `priority`, `estimate_minutes`, `checklist` (JSON), `archived` para archivo manual de completadas, acentos visuales por prioridad y tags con color determinístico.
 - **Columnas**: edición inline + `wip_limit`.
 - **Configuración core**: `pluginSettings:work` (duración foco/break, alerta vencimiento, WIP, vista predeterminada).
 - **Quick action**: escucha `core:focus-request` desde la barra global del Core.

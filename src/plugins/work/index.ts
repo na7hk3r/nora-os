@@ -312,46 +312,6 @@ const workPlugin: PluginManifest = {
     store.setLinks(links as Link[])
     store.setFocusSessions(focusSessions)
 
-    // Auto-archivado: tarjetas en columna "Done/Hecho" con >7 días sin modificar.
-    const DONE_ARCHIVE_THRESHOLD_MS = 7 * 24 * 60 * 60 * 1000
-    const doneColumnIds = parsedColumns
-      .filter((col) => col.isDone || col.id === 'col-done' || /hecho|done|completad/i.test(col.name))
-      .map((col) => col.id)
-    const focusByTask = new Map<string, number>()
-    focusSessions.forEach((s) => {
-      if (!s.taskId) return
-      const ts = s.endTime ?? s.startTime
-      const prev = focusByTask.get(s.taskId) ?? 0
-      if (ts > prev) focusByTask.set(s.taskId, ts)
-    })
-
-    const toArchive: string[] = []
-    for (const card of cardsWithGlobalTags) {
-      if (card.archived) continue
-      if (!doneColumnIds.includes(card.columnId)) continue
-      const lastActivity = focusByTask.get(card.id) ?? 0
-      // Si la última actividad conocida es >7d, archivar. Sin actividad => archivar igual.
-      if (now - lastActivity > DONE_ARCHIVE_THRESHOLD_MS) {
-        toArchive.push(card.id)
-      }
-    }
-    if (toArchive.length > 0) {
-      await Promise.all(
-        toArchive.map((id) =>
-          api.storage.execute(
-            `UPDATE work_cards SET archived = 1, archived_at = ? WHERE id = ?`,
-            [now, id],
-          ),
-        ),
-      )
-      // Reflejar en el store
-      const archivedSet = new Set(toArchive)
-      const updatedCards = cardsWithGlobalTags.map((c) =>
-        archivedSet.has(c.id) ? { ...c, archived: true, archivedAt: now } : c,
-      )
-      store.setCards(updatedCards)
-    }
-
     api.events.on(WORK_EVENTS.TASK_COMPLETED, () => {
       api.gamification.addPoints(10, 'Tarea completada')
     })

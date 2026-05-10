@@ -72,7 +72,7 @@ Sistema de plugins de primera clase. Hoy vienen incluidos **8 plugins oficiales*
 
 | Plugin | Dominio | Qué resuelve |
 | --- | --- | --- |
-| **Work** | productivity | Kanban con prioridades, estimaciones, checklists, vencimientos, WIP limit, archivado automático y edición rápida: Enter guarda los campos principales de una card. Notas y enlaces con búsqueda y pin. **Focus Engine 2.0** con pause/resume reales, Pomodoro configurable, notificaciones nativas y cleanup de sesiones zombie. **Note → Task** con extracción IA desde notas largas. |
+| **Work** | productivity | Kanban con prioridades, estimaciones, checklists, vencimientos, WIP limit, distintivos visuales y archivo manual de completadas. Edición rápida: Enter guarda los campos principales de una card. Notas y enlaces con búsqueda y pin. **Focus Engine 2.0** con pause/resume reales, Pomodoro configurable, mini timer flotante, notificaciones nativas y cleanup de sesiones zombie. **Note → Task** con extracción IA desde notas largas. |
 | **Fitness** | fitness | Tracking diario de peso, comidas, ejercicios y sueño. Tabla de medidas corporales, gráficos históricos, resumen mensual y seguimiento opcional para dejar de fumar. |
 | **Finance** | finance | Cuentas, transacciones, categorías, presupuestos mensuales, gastos recurrentes y transferencias entre cuentas. Secciones configurables desde Control Center, moneda predeterminada editable y **Insights IA opcionales** con alertas de gastos inusuales. Default UYU, multi-moneda. |
 | **Habits** | habits | Tracking de hábitos con metas diarias / semanales / mensuales, rachas reales, detección de "en riesgo" y proveedor IA con top streaks. Eventos `LOGGED` / `GOAL_MET` integrados a Pulso Nora. |

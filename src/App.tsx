@@ -11,6 +11,7 @@ const ReviewPage = lazy(() => import('./core/ui/pages/ReviewPage').then((m) => (
 const ShortcutsPage = lazy(() => import('./core/ui/pages/ShortcutsPage').then((m) => ({ default: m.ShortcutsPage })))
 const ThemeGalleryPage = lazy(() => import('./core/ui/pages/ThemeGalleryPage').then((m) => ({ default: m.ThemeGalleryPage })))
 const ProfilePage = lazy(() => import('./core/ui/pages/ProfilePage').then((m) => ({ default: m.ProfilePage })))
+const WorkFocusMiniPage = lazy(() => import('./plugins/work/pages/WorkFocusMiniPage').then((m) => ({ default: m.WorkFocusMiniPage })))
 import { CommandPalette } from './core/ui/CommandPalette'
 import { OnboardingWizard } from './core/ui/onboarding/OnboardingWizard'
 import { DailyScoreScreen } from './core/ui/DailyScoreScreen'
@@ -28,6 +29,7 @@ import { NoraLogoMark } from './core/ui/components/NoraLogo'
 import { messages } from './core/ui/messages'
 import { automationsService } from './core/services/automationsService'
 import { notificationsService } from './core/services/notificationsService'
+import { WorkFocusCommandHost } from './plugins/work/components/WorkFocusCommandHost'
 
 // Import and register plugins
 import './plugins/fitness'
@@ -81,6 +83,8 @@ function shouldShowDailyScore(): boolean {
 }
 
 export function App() {
+  const isWorkFocusMiniRoute =
+    typeof window !== 'undefined' && window.location.hash.includes('/work/focus-mini')
   const [ready, setReady] = useState(false)
   const [safeMode] = useState(isSafeModeRequested)
   const [locked, setLocked] = useState(false)
@@ -245,15 +249,16 @@ export function App() {
       <ToastProvider>
         <ErrorBoundary label="app-root">
           <HashRouter>
-            {ready && !onboardingComplete && <OnboardingWizard />}
-            {ready && onboardingComplete && showDailyScore && (
+            {ready && !onboardingComplete && !isWorkFocusMiniRoute && <OnboardingWizard />}
+            {ready && onboardingComplete && showDailyScore && !isWorkFocusMiniRoute && (
               <DailyScoreScreen
                 onDismiss={dismissDailyScore}
                 onOpenCopilot={openCopilotFromDailyScore}
               />
             )}
-            <CommandPalette />
-            {safeMode && (
+            {!isWorkFocusMiniRoute && <CommandPalette />}
+            {ready && !isWorkFocusMiniRoute && <WorkFocusCommandHost />}
+            {safeMode && !isWorkFocusMiniRoute && (
               <div
                 role="status"
                 className="fixed left-1/2 top-3 z-50 -translate-x-1/2 rounded-full border border-amber-400/40 bg-amber-500/15 px-4 py-1.5 text-xs font-medium text-amber-100 shadow-lg backdrop-blur"
@@ -262,6 +267,7 @@ export function App() {
               </div>
             )}
             <Routes>
+              <Route path="/work/focus-mini" element={<Suspense fallback={<RouteFallback />}><WorkFocusMiniPage /></Suspense>} />
               <Route element={<Shell />}>
                 <Route index element={<Dashboard />} />
                 <Route path="/control" element={<Suspense fallback={<RouteFallback />}><ControlCenter /></Suspense>} />

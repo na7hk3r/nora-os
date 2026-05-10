@@ -18,11 +18,37 @@ interface Props {
   activeTag?: string | null
 }
 
-const PRIORITY_STYLES: Record<NonNullable<Card['priority']>, { label: string; className: string }> = {
-  urgent: { label: 'Urgente', className: 'bg-red-500/20 text-red-300 border-red-500/30' },
-  high: { label: 'Alta', className: 'bg-orange-500/20 text-orange-300 border-orange-500/30' },
-  medium: { label: 'Media', className: 'bg-yellow-500/15 text-yellow-300 border-yellow-500/25' },
-  low: { label: 'Baja', className: 'bg-sky-500/15 text-sky-300 border-sky-500/25' },
+const PRIORITY_STYLES: Record<NonNullable<Card['priority']>, { label: string; chipClass: string; cardClass: string }> = {
+  urgent: {
+    label: 'Urgente',
+    chipClass: 'bg-red-500/20 text-red-300 border-red-500/30',
+    cardClass: 'border-l-red-400 bg-red-500/[0.07] shadow-[inset_2px_0_0_0_rgba(248,113,113,0.18)]',
+  },
+  high: {
+    label: 'Alta',
+    chipClass: 'bg-orange-500/20 text-orange-300 border-orange-500/30',
+    cardClass: 'border-l-orange-400 bg-orange-500/[0.06] shadow-[inset_2px_0_0_0_rgba(251,146,60,0.16)]',
+  },
+  medium: {
+    label: 'Media',
+    chipClass: 'bg-yellow-500/15 text-yellow-300 border-yellow-500/25',
+    cardClass: 'border-l-yellow-300 bg-yellow-500/[0.045] shadow-[inset_2px_0_0_0_rgba(253,224,71,0.12)]',
+  },
+  low: {
+    label: 'Baja',
+    chipClass: 'bg-sky-500/15 text-sky-300 border-sky-500/25',
+    cardClass: 'border-l-sky-400 bg-sky-500/[0.045] shadow-[inset_2px_0_0_0_rgba(56,189,248,0.12)]',
+  },
+}
+
+const LABEL_COLORS = ['#38bdf8', '#a78bfa', '#34d399', '#f59e0b', '#fb7185', '#2dd4bf', '#f472b6', '#84cc16']
+
+function colorForLabel(label: string): string {
+  let hash = 0
+  for (let index = 0; index < label.length; index += 1) {
+    hash = (hash * 31 + label.charCodeAt(index)) >>> 0
+  }
+  return LABEL_COLORS[hash % LABEL_COLORS.length]
 }
 
 function formatEstimate(minutes: number): string {
@@ -122,7 +148,9 @@ export function SortableCard({
       style={style}
       {...attributes}
       {...listeners}
-      className="group flex min-h-[116px] flex-col rounded-lg border border-border/50 bg-surface p-3 animate-fade-in select-none touch-none"
+      className={`group flex min-h-[116px] flex-col rounded-lg border border-l-4 border-border/50 bg-surface p-3 animate-fade-in select-none touch-none ${
+        priorityStyle?.cardClass ?? 'border-l-border/60'
+      }`}
       onClick={(e) => {
         if (!(e.target as HTMLElement).closest('[data-delete], [data-focus]')) {
           onOpen(card)
@@ -160,7 +188,7 @@ export function SortableCard({
         <div className="mt-2 flex max-h-[3.75rem] flex-wrap items-center gap-1 overflow-hidden">
           {priorityStyle && (
             <span
-              className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-micro ${priorityStyle.className}`}
+              className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-micro ${priorityStyle.chipClass}`}
               title={`Prioridad ${priorityStyle.label}`}
             >
               <Flag size={10} />
@@ -189,11 +217,12 @@ export function SortableCard({
               {checklistDone}/{checklistTotal}
             </span>
           )}
-          {visibleLabels.map((label) => (
+          {visibleLabels.map((label, index) => (
             <GlobalTagChip
               key={label}
-              tag={{ name: label, color: null }}
+              tag={{ name: label, color: colorForLabel(label) }}
               selected={activeTag?.toLowerCase() === label.toLowerCase()}
+              title={index === 0 ? `Categoria visual: ${label}. Ver conexiones` : `Ver conexiones de ${label}`}
               className="px-2 py-0.5 text-micro"
             />
           ))}

@@ -209,7 +209,7 @@ Tarjetas / tareas.
 | `priority` | TEXT | `low` / `medium` / `high` / `urgent` (nullable). Añadido en v7. |
 | `estimate_minutes` | INTEGER | Estimación en minutos (nullable). Añadido en v7. |
 | `checklist` | TEXT DEFAULT '[]' | JSON array de `{ id, text, done }`. Añadido en v7. |
-| `archived` | INTEGER DEFAULT 0 | 1 si fue archivada (auto-archivado en Done >7d). Añadido en v7. |
+| `archived` | INTEGER DEFAULT 0 | 1 si fue archivada manualmente desde la columna completada. Añadido en v7. |
 | `archived_at` | INTEGER | Timestamp en ms del archivado. Añadido en v7. |
 
 ### `work_notes`

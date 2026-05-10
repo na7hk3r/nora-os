@@ -251,6 +251,13 @@ export interface DbEncryptionBridge {
 
 // ─── UI Registration ───
 
+export interface WorkFocusWindowBridge {
+  open: () => Promise<void>
+  close: () => Promise<void>
+  toggle: () => Promise<void>
+  focusMain: () => Promise<void>
+}
+
 export interface WidgetDefinition {
   id: string
   pluginId: string

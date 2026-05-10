@@ -24,5 +24,11 @@ if (typeof window !== 'undefined') {
     importPlain: async () => ({ ok: false }),
     importEncrypted: async () => ({ ok: false }),
   }
+  w.workFocusWindow ??= {
+    open: async () => undefined,
+    close: async () => undefined,
+    toggle: async () => undefined,
+    focusMain: async () => undefined,
+  }
   w.auth ??= {}
 }

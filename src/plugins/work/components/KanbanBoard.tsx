@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Flag, Pencil, Plus, Trash2, CheckCircle2 } from 'lucide-react'
+import { Archive, Flag, Inbox, Pencil, Plus, RotateCcw, Trash2, CheckCircle2 } from 'lucide-react'
 import {
   DndContext,
   DragOverlay,
@@ -41,6 +41,12 @@ import {
   moveVisibleCard,
   sortVisibleCardsByPriority,
 } from '../utils/kanbanDnD'
+import {
+  archiveCompletedCards,
+  getCompletedArchiveTargets,
+  getNextActiveCardPosition,
+  restoreArchivedCard,
+} from '../archive'
 import { SortableCard } from './SortableCard'
 import { CardDetailModal } from './CardDetailModal'
 import type { Card, Column } from '../types'
@@ -69,8 +75,42 @@ function ColumnDropZone({ id, className, children }: ColumnDropZoneProps) {
   )
 }
 
+function formatArchiveMonth(timestamp: number | null | undefined): string {
+  if (!timestamp) return 'Sin fecha'
+  return new Date(timestamp).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })
+}
+
+function formatArchiveDate(timestamp: number | null | undefined): string {
+  if (!timestamp) return 'Sin fecha'
+  return new Date(timestamp).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })
+}
+
+function formatFocusDuration(durationMs: number): string {
+  const minutes = Math.max(0, Math.round(durationMs / 60_000))
+  if (minutes < 60) return `${minutes}m`
+  const hours = Math.floor(minutes / 60)
+  const rest = minutes % 60
+  return rest === 0 ? `${hours}h` : `${hours}h ${rest}m`
+}
+
+const TAG_COLORS = ['#38bdf8', '#a78bfa', '#34d399', '#f59e0b', '#fb7185', '#2dd4bf', '#f472b6', '#84cc16']
+const PRIORITY_LABELS: Record<NonNullable<Card['priority']>, string> = {
+  low: 'Baja',
+  medium: 'Media',
+  high: 'Alta',
+  urgent: 'Urgente',
+}
+
+function colorForTagName(name: string): string {
+  let hash = 0
+  for (let index = 0; index < name.length; index += 1) {
+    hash = (hash * 31 + name.charCodeAt(index)) >>> 0
+  }
+  return TAG_COLORS[hash % TAG_COLORS.length]
+}
+
 export function KanbanBoard() {
-  const { columns, cards, focusSessions, addCard, reorderCards, deleteCard, currentFocusSession, setColumns } = useWorkStore()
+  const { columns, cards, focusSessions, addCard, reorderCards, deleteCard, currentFocusSession, setColumns, setCards } = useWorkStore()
   const { toast } = useToast()
   const [newCardTitle, setNewCardTitle] = useState<Record<string, string>>({})
   const [activeCard, setActiveCard] = useState<Card | null>(null)
@@ -81,6 +121,7 @@ export function KanbanBoard() {
   const [creatingColumn, setCreatingColumn] = useState(false)
   const [newColumnName, setNewColumnName] = useState('')
   const [tagFilter, setTagFilter] = useState<string | null>(null)
+  const [showArchive, setShowArchive] = useState(false)
   const dragStartCardsRef = useRef<Card[] | null>(null)
   const lastOverId = useRef<UniqueIdentifier | null>(null)
   const recentlyMovedToNewColumn = useRef(false)
@@ -121,6 +162,16 @@ export function KanbanBoard() {
     return acc
   }, new Map())
 
+  const focusDurationByTask = useMemo(() => {
+    const map = new Map<string, number>()
+    for (const session of focusSessions) {
+      if (!session.taskId || !session.endTime || session.interrupted) continue
+      const duration = session.duration ?? Math.max(0, session.endTime - session.startTime)
+      map.set(session.taskId, (map.get(session.taskId) ?? 0) + duration)
+    }
+    return map
+  }, [focusSessions])
+
   const isDoneColumn = (columnId: string) => {
     const col = columns.find((c) => c.id === columnId)
     return col ? isDoneColumnUtil(col) : false
@@ -128,6 +179,28 @@ export function KanbanBoard() {
 
   const isInProgressColumn = (columnId: string) =>
     columnId === 'col-progress' || columns.some((column) => column.id === columnId && /progreso|progress/i.test(column.name))
+
+  const doneColumn = useMemo(() => (
+    sortedColumns.find((column) => isDoneColumnUtil(column)) ??
+    sortedColumns.find((column) => column.id === 'col-done') ??
+    sortedColumns.find((column) => /hecho|done|completad/i.test(column.name)) ??
+    null
+  ), [sortedColumns])
+
+  const archivedCards = useMemo(() => (
+    cards
+      .filter((card) => card.archived)
+      .sort((a, b) => (b.archivedAt ?? 0) - (a.archivedAt ?? 0))
+  ), [cards])
+
+  const archivedCardsByMonth = useMemo(() => {
+    const groups = new Map<string, Card[]>()
+    for (const card of archivedCards) {
+      const key = formatArchiveMonth(card.archivedAt)
+      groups.set(key, [...(groups.get(key) ?? []), card])
+    }
+    return [...groups.entries()]
+  }, [archivedCards])
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -414,6 +487,43 @@ export function KanbanBoard() {
     })
   }
 
+  const handleArchiveCompleted = async (columnId: string) => {
+    const targets = getCompletedArchiveTargets(cards, columnId)
+    if (targets.length === 0) return
+    const ok = window.confirm(`Archivar ${targets.length} tarjeta(s) completadas? Van a quedar disponibles en el archivo.`)
+    if (!ok) return
+
+    const archivedAt = Date.now()
+    const result = archiveCompletedCards(cards, columnId, archivedAt)
+    setCards(result.cards)
+
+    if (window.storage) {
+      await Promise.all(result.targetIds.map((id) =>
+        window.storage.execute(
+          `UPDATE work_cards SET archived = 1, archived_at = ? WHERE id = ?`,
+          [archivedAt, id],
+        ),
+      ))
+    }
+    setShowArchive(true)
+  }
+
+  const handleRestoreArchivedCard = async (card: Card) => {
+    const targetColumn = doneColumn ?? sortedColumns[0]
+    if (!targetColumn) return
+    const nextPosition = getNextActiveCardPosition(cards, targetColumn.id)
+    setCards(restoreArchivedCard(cards, card.id, targetColumn.id, nextPosition))
+
+    if (window.storage) {
+      await window.storage.execute(
+        `UPDATE work_cards SET column_id = ?, position = ?, archived = 0, archived_at = NULL WHERE id = ?`,
+        [targetColumn.id, nextPosition, card.id],
+      )
+    }
+
+    eventBus.emit(WORK_EVENTS.TASK_UPDATED, { taskId: card.id, title: card.title })
+  }
+
   const startEditColumn = (col: { id: string; name: string; wipLimit?: number | null }) => {
     setEditingColumnId(col.id)
     setColumnDraft({ name: col.name, wipLimit: col.wipLimit ? String(col.wipLimit) : '' })
@@ -584,34 +694,145 @@ export function KanbanBoard() {
 
   return (
     <>
-      {availableTags.length > 0 && (
-        <div className="mb-3 rounded-xl border border-border bg-surface-light/75 px-3 py-2">
-          <div className="flex flex-wrap items-center gap-2">
+      <div className="mb-3 rounded-xl border border-border bg-surface-light/75 px-3 py-2">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
             <span className="text-caption uppercase tracking-wide text-muted">Tags del tablero</span>
-            {availableTags.slice(0, 14).map((tag) => (
-              <GlobalTagChip
-                key={tag.name}
-                tag={{ name: tag.name, color: null }}
-                count={tag.count}
-                selected={tagFilter?.toLowerCase() === tag.name.toLowerCase()}
-              />
-            ))}
+            {availableTags.length === 0 ? (
+              <span className="text-caption text-muted/70">Sin tags activos</span>
+            ) : (
+              availableTags.slice(0, 14).map((tag) => (
+                <GlobalTagChip
+                  key={tag.name}
+                  tag={{ name: tag.name, color: colorForTagName(tag.name) }}
+                  count={tag.count}
+                  selected={tagFilter?.toLowerCase() === tag.name.toLowerCase()}
+                />
+              ))
+            )}
+          </div>
+          <div className="flex shrink-0 flex-wrap items-center gap-2">
             {tagFilter && (
               <button
                 type="button"
                 onClick={() => setTagFilter(null)}
-                className="ml-auto text-caption text-muted underline-offset-2 hover:text-white hover:underline"
+                className="text-caption text-muted underline-offset-2 hover:text-white hover:underline"
               >
                 Limpiar filtro
               </button>
             )}
+            <button
+              type="button"
+              onClick={() => setShowArchive((current) => !current)}
+              className={`inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-caption font-medium transition-colors ${
+                showArchive
+                  ? 'border-accent/40 bg-accent/15 text-accent-light'
+                  : 'border-border bg-surface text-muted hover:border-accent/35 hover:text-white'
+              }`}
+            >
+              <Archive size={13} />
+              Archivo de completadas
+              <span className="rounded-full bg-white/10 px-1.5 py-0 text-[10px] leading-4">
+                {archivedCards.length}
+              </span>
+            </button>
           </div>
-          {tagFilter && (
-            <p className="mt-1 text-caption text-muted">
-              Mostrando tareas con #{tagFilter}. El arrastre queda pausado mientras el filtro esta activo.
-            </p>
-          )}
         </div>
+        {tagFilter && (
+          <p className="mt-1 text-caption text-muted">
+            Mostrando tareas con #{tagFilter}. El arrastre queda pausado mientras el filtro esta activo.
+          </p>
+        )}
+      </div>
+
+      {showArchive && (
+        <section className="mb-4 overflow-hidden rounded-xl border border-border bg-surface-light/80 shadow-lg shadow-black/20">
+          <div className="flex flex-col gap-3 border-b border-border/70 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0">
+              <p className="flex items-center gap-2 text-sm font-semibold text-white">
+                <Inbox size={15} className="text-accent-light" />
+                Archivo de completadas
+              </p>
+              <p className="mt-0.5 text-caption text-muted">
+                Cards archivadas manualmente desde la columna Done. Se conservan en Work y pueden restaurarse.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowArchive(false)}
+              className="self-start rounded-lg border border-border px-3 py-1.5 text-caption text-muted transition-colors hover:bg-surface hover:text-white sm:self-auto"
+            >
+              Cerrar
+            </button>
+          </div>
+          <div className="max-h-[420px] overflow-y-auto p-3">
+            {archivedCards.length === 0 ? (
+              <div className="rounded-lg border border-dashed border-border/60 px-4 py-8 text-center text-sm text-muted">
+                Todavia no hay cards archivadas. Usá Archivar completadas desde la columna Done cuando quieras limpiar el tablero.
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {archivedCardsByMonth.map(([month, monthCards]) => (
+                  <div key={month}>
+                    <h4 className="mb-2 text-caption font-semibold uppercase tracking-eyebrow text-muted">{month}</h4>
+                    <div className="grid gap-2 lg:grid-cols-2">
+                      {monthCards.map((card) => {
+                        const priority = card.priority ? card.priority : null
+                        const focusMs = focusDurationByTask.get(card.id) ?? 0
+                        return (
+                          <article
+                            key={card.id}
+                            className="rounded-lg border border-border bg-surface px-3 py-2.5"
+                          >
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="min-w-0">
+                                <p className="truncate text-sm font-medium text-white" title={card.title}>
+                                  {card.title}
+                                </p>
+                                <p className="mt-0.5 text-caption text-muted">
+                                  Archivada {formatArchiveDate(card.archivedAt)}
+                                  {focusMs > 0 ? ` · foco ${formatFocusDuration(focusMs)}` : ''}
+                                </p>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => { void handleRestoreArchivedCard(card) }}
+                                className="inline-flex shrink-0 items-center gap-1 rounded-md border border-success/30 px-2 py-1 text-caption text-success transition-colors hover:bg-success/10"
+                                title="Restaurar a Done"
+                              >
+                                <RotateCcw size={12} />
+                                Restaurar
+                              </button>
+                            </div>
+                            <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                              {priority && (
+                                <span className="rounded-full border border-border/70 bg-surface-light/70 px-2 py-0.5 text-micro uppercase tracking-wide text-muted">
+                                  {PRIORITY_LABELS[priority]}
+                                </span>
+                              )}
+                              {card.labels.slice(0, 4).map((label) => (
+                                <GlobalTagChip
+                                  key={label}
+                                  tag={{ name: label, color: colorForTagName(label) }}
+                                  className="px-2 py-0.5 text-micro"
+                                />
+                              ))}
+                              {card.labels.length > 4 && (
+                                <span className="rounded-full border border-border/70 bg-surface-light/70 px-2 py-0.5 text-micro text-muted">
+                                  +{card.labels.length - 4}
+                                </span>
+                              )}
+                            </div>
+                          </article>
+                        )
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
       )}
       <DndContext
         sensors={sensors}
@@ -628,6 +849,9 @@ export function KanbanBoard() {
 
             const overWip = col.wipLimit != null && col.wipLimit > 0 && colCards.length > col.wipLimit
             const isDone = isDoneColumnUtil(col)
+            const completedArchiveCount = isDone
+              ? getCompletedArchiveTargets(cards, col.id).length
+              : 0
 
             return (
               <ColumnDropZone
@@ -703,6 +927,18 @@ export function KanbanBoard() {
                         >
                           <CheckCircle2 size={12} />
                         </button>
+                        {isDone && (
+                          <button
+                            type="button"
+                            onClick={() => { void handleArchiveCompleted(col.id) }}
+                            title="Archivar todas las cards completadas de esta columna"
+                            aria-label={`Archivar completadas de ${col.name}`}
+                            className="text-muted/40 transition-colors hover:text-accent-light disabled:cursor-not-allowed disabled:opacity-30"
+                            disabled={completedArchiveCount === 0}
+                          >
+                            <Archive size={12} />
+                          </button>
+                        )}
                         <button
                           type="button"
                           onClick={() => { void handleSortColumnByPriority(col.id) }}
@@ -734,6 +970,19 @@ export function KanbanBoard() {
                     </>
                   )}
                 </div>
+
+                {isDone && completedArchiveCount > 0 && editingColumnId !== col.id && (
+                  <div className="border-b border-border/50 px-3 py-2">
+                    <button
+                      type="button"
+                      onClick={() => { void handleArchiveCompleted(col.id) }}
+                      className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-success/25 bg-success/10 px-3 py-1.5 text-caption font-medium text-success transition-colors hover:bg-success/15"
+                    >
+                      <Archive size={13} />
+                      Archivar completadas ({completedArchiveCount})
+                    </button>
+                  </div>
+                )}
 
                 {/* Cards */}
                 <SortableContext items={colCards.map((c) => c.id)} strategy={verticalListSortingStrategy}>

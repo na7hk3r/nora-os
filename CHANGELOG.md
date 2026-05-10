@@ -19,6 +19,17 @@
 - Automatizaciones suma modo simple por recetas y mantiene el modo avanzado
   con edicion y validacion de JSON.
 
+### Work
+
+- Dashboard Work ajusta los paneles inferiores a dos columnas equilibradas en
+  desktop/fullscreen, con altura fija y scroll interno para evitar cortes.
+- Now Panel suma una mini ventana Electron always-on-top para controlar el foco
+  fuera de la app principal, sincronizada por BroadcastChannel.
+- Cards Kanban muestran acentos por prioridad y tags con color deterministico,
+  reutilizando prioridad, labels, vencimiento, estimacion, checklist y foco.
+- El archivado de Done pasa a ser manual con "Archivar completadas" y un panel
+  "Archivo de completadas" para consultar/restaurar cards sin borrarlas.
+
 ## [1.15.1] - 2026-05-10
 
 ### Hotfix Nori en app instalada

@@ -9,6 +9,7 @@ import type {
   ScheduledBackupBridge,
   DbEncryptionBridge,
   ProfileBridge,
+  WorkFocusWindowBridge,
 } from '@core/types'
 
 declare global {
@@ -23,6 +24,7 @@ declare global {
     appUpdate: AppUpdateBridge
     scheduledBackup: ScheduledBackupBridge
     dbEncryption: DbEncryptionBridge
+    workFocusWindow: WorkFocusWindowBridge
   }
 
   // Inyectado por Vite (define) en build/dev. Ver electron.vite.config.ts.

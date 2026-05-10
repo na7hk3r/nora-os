@@ -12,6 +12,7 @@ import type {
   ScheduledBackupConfig,
   DbEncryptionBridge,
   ProfileBridge,
+  WorkFocusWindowBridge,
 } from '../src/core/types'
 
 const storageBridge: StorageBridge = {
@@ -89,6 +90,13 @@ const dbEncryptionBridge: DbEncryptionBridge = {
   unlock: (passphrase: string) => ipcRenderer.invoke('dbencryption:unlock', passphrase),
 }
 
+const workFocusWindowBridge: WorkFocusWindowBridge = {
+  open: () => ipcRenderer.invoke('work-focus-window:open'),
+  close: () => ipcRenderer.invoke('work-focus-window:close'),
+  toggle: () => ipcRenderer.invoke('work-focus-window:toggle'),
+  focusMain: () => ipcRenderer.invoke('work-focus-window:focus-main'),
+}
+
 contextBridge.exposeInMainWorld('storage', storageBridge)
 contextBridge.exposeInMainWorld('auth', authBridge)
 contextBridge.exposeInMainWorld('backup', backupBridge)
@@ -99,3 +107,4 @@ contextBridge.exposeInMainWorld('diagnostic', diagnosticBridge)
 contextBridge.exposeInMainWorld('appUpdate', appUpdateBridge)
 contextBridge.exposeInMainWorld('scheduledBackup', scheduledBackupBridge)
 contextBridge.exposeInMainWorld('dbEncryption', dbEncryptionBridge)
+contextBridge.exposeInMainWorld('workFocusWindow', workFocusWindowBridge)

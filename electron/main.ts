@@ -12,6 +12,7 @@ import { registerNotificationsIpc } from './services/notifications-ipc'
 import { registerDiagnosticIpc } from './services/diagnostic-ipc'
 import { registerAppUpdateIpc, shutdownAppUpdateIpc } from './services/app-update-ipc'
 import { registerDbEncryptionIpc } from './services/db-encryption-ipc'
+import { closeWorkFocusWindow, registerWorkFocusWindowIpc } from './services/work-focus-window-ipc'
 import {
   registerScheduledBackupIpc,
   bootScheduledBackup,
@@ -145,6 +146,11 @@ app.whenReady().then(() => {
   registerScheduledBackupIpc(db)
   registerAppUpdateIpc(() => mainWindow)
   registerDbEncryptionIpc()
+  registerWorkFocusWindowIpc(() => mainWindow, {
+    preloadPath: join(__dirname, '../preload/index.js'),
+    rendererFile: join(__dirname, '../renderer/index.html'),
+    rendererUrl,
+  })
   bootScheduledBackup(db)
 
   createWindow()
@@ -157,6 +163,7 @@ app.whenReady().then(() => {
 })
 
 app.on('window-all-closed', () => {
+  closeWorkFocusWindow()
   shutdownScheduledBackup()
   shutdownAppUpdateIpc()
   if (process.platform !== 'darwin') {

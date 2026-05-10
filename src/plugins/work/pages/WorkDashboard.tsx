@@ -16,8 +16,9 @@ import {
 import { WORK_EVENTS } from '../events'
 import { KanbanBoard } from '../components/KanbanBoard'
 import { useFocusNudge } from '../components/useFocusNudge'
-import { CheckCircle2, ClipboardList, History, KanbanSquare, ListChecks, NotebookPen, Sparkles, TimerReset, Play, Pause, Square, XCircle } from 'lucide-react'
+import { CheckCircle2, ClipboardList, ExternalLink, History, KanbanSquare, ListChecks, NotebookPen, Sparkles, TimerReset, Play, Pause, Square, XCircle } from 'lucide-react'
 import { BrandIcon } from '@core/ui/components/BrandIcon'
+import { useToast } from '@core/ui/components/ToastProvider'
 
 const WORK_ACTIVITY_EVENTS: Set<string> = new Set([
   WORK_EVENTS.TASK_CREATED,
@@ -196,9 +197,11 @@ function describeActivity(entry: EventLogEntry, ctx: ActivityContext): ActivityD
 
 export function WorkDashboard() {
   const { boards, columns, cards, notes, focusSessions, currentFocusSession } = useWorkStore()
+  const { toast } = useToast()
   useFocusNudge()
   const [now, setNow] = useState(Date.now())
   const [recentEvents, setRecentEvents] = useState<EventLogEntry[]>([])
+  const [openingFocusWindow, setOpeningFocusWindow] = useState(false)
   // Objetivo de Pomodoro en minutos (persistido en localStorage).
   const [pomodoroGoalMin, setPomodoroGoalMin] = useState<number>(() => {
     if (typeof window === 'undefined') return 25
@@ -331,6 +334,35 @@ export function WorkDashboard() {
   const pomodoroGoalMs = pomodoroGoalMin * 60_000
   const pomodoroProgress = pomodoroGoalMs > 0 ? Math.min(1, currentDuration / pomodoroGoalMs) : 0
   const remainingMs = Math.max(0, pomodoroGoalMs - currentDuration)
+
+  const openFocusMiniWindow = async () => {
+    if (openingFocusWindow) return
+    setOpeningFocusWindow(true)
+    try {
+      const bridge = (window as typeof window & { workFocusWindow?: Window['workFocusWindow'] }).workFocusWindow
+      if (bridge?.open) {
+        await bridge.open()
+        return
+      }
+
+      const popup = window.open(
+        `${window.location.origin}${window.location.pathname}#/work/focus-mini`,
+        'nora-work-focus',
+        'width=376,height=342,resizable=yes,alwaysRaised=yes',
+      )
+      if (popup) {
+        toast.info('Abrí el timer en una ventana separada.')
+        return
+      }
+
+      toast.error('La mini ventana todavía no está disponible. Cerrá y volvé a abrir Nora OS para cargar el puente de foco.')
+    } catch (err) {
+      console.error('[WorkDashboard] failed to open focus mini window', err)
+      toast.error('No pude abrir el timer flotante. Cerrá y volvé a abrir Nora OS para cargar el puente de foco.')
+    } finally {
+      setOpeningFocusWindow(false)
+    }
+  }
 
   // Dispara notificación + auto-complete cuando se alcanza el objetivo.
   useEffect(() => {
@@ -469,6 +501,15 @@ export function WorkDashboard() {
                 </button>
               )}
               <button
+                onClick={() => { void openFocusMiniWindow() }}
+                title="Abrir el timer en una mini ventana flotante"
+                disabled={openingFocusWindow}
+                className="inline-flex items-center gap-2 rounded-xl border border-border px-3 py-2 text-sm text-muted transition-colors hover:border-accent/35 hover:bg-surface-light hover:text-white disabled:cursor-wait disabled:opacity-60"
+              >
+                <ExternalLink size={14} />
+                {openingFocusWindow ? 'Abriendo...' : 'Fijar timer'}
+              </button>
+              <button
                 onClick={() => {
                   const taskId = currentFocusSession?.taskId ?? null
                   if (taskId) {
@@ -539,8 +580,8 @@ export function WorkDashboard() {
         <KanbanBoard />
       </div>
 
-      <div className="grid items-stretch gap-6 xl:grid-cols-[1.2fr_0.8fr]">
-        <section className="plugin-panel flex min-h-[380px] flex-col rounded-2xl p-5 xl:h-[420px] border-l-4 border-l-success/70 shadow-[inset_1px_0_0_0_rgba(34,197,94,0.18)]">
+      <div className="grid min-w-0 items-stretch gap-6 xl:grid-cols-2">
+        <section className="plugin-panel flex h-[420px] min-h-0 min-w-0 flex-col overflow-hidden rounded-2xl p-5 border-l-4 border-l-success/70 shadow-[inset_1px_0_0_0_rgba(34,197,94,0.18)]">
           <div className="flex items-center justify-between gap-3">
             <div>
               <p className="text-xs uppercase tracking-eyebrow text-success flex items-center gap-2"><ListChecks size={12} /> Active Tasks</p>
@@ -580,7 +621,7 @@ export function WorkDashboard() {
 
               return (
                 <div key={card.id} className={`min-h-[76px] rounded-xl border px-4 py-3 transition-colors ${cardClass}`}>
-                  <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                  <div className="flex min-w-0 flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
                         <p className="truncate text-sm font-medium text-white">{card.title}</p>
@@ -651,7 +692,7 @@ export function WorkDashboard() {
           </div>
         </section>
 
-        <section className="plugin-panel flex min-h-[380px] flex-col rounded-2xl p-5 xl:h-[420px] border-l-4 border-l-purple-400/60 shadow-[inset_1px_0_0_0_rgba(168,85,247,0.18)]">
+        <section className="plugin-panel flex h-[420px] min-h-0 min-w-0 flex-col overflow-hidden rounded-2xl p-5 border-l-4 border-l-purple-400/60 shadow-[inset_1px_0_0_0_rgba(168,85,247,0.18)]">
           <p className="text-xs uppercase tracking-eyebrow text-purple-300 flex items-center gap-2"><History size={12} /> Recent Work Activity</p>
           <h3 className="mt-1 text-lg font-semibold text-white">Actividad reciente</h3>
 
