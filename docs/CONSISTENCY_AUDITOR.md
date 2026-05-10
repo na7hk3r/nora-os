@@ -1,5 +1,10 @@
 # Consistency Auditor
 
+En la UI se presenta como **Salud del sistema**: resume si esta todo bien,
+si conviene revisar ahora o si puede esperar. Los codigos tecnicos, ubicaciones
+y payloads quedan plegados en "Ver detalle tecnico" para no cargar al usuario
+no tecnico.
+
 El **Consistency Auditor** es un sistema de validación cruzada que detecta
 inconsistencias entre el core de Nora OS y los plugins instalados.
 Se ejecuta automáticamente al iniciar la app y cada vez que se activa o

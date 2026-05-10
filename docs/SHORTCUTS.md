@@ -15,6 +15,10 @@ La fuente de verdad para la UI vive en `src/core/ui/shortcuts.ts`.
 
 ## Command Palette
 
+La busqueda global acepta texto libre y tambien queries por tag: `#tag` o
+`tag:nombre`. En ese modo muestra el tag global y las notas, cards de Work o
+tareas del Planner conectadas.
+
 | Atajo | Acción |
 | --- | --- |
 | `↑` / `↓` | Navegar resultados |

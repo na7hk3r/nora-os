@@ -1,5 +1,24 @@
 # Changelog - Nora OS
 
+## Unreleased
+
+### Config, tags y flujos no tecnicos
+
+- Configuracion pasa a un modelo de drafts por seccion: los cambios se aplican
+  solo al guardar el bloque correspondiente, con aviso al salir si quedan
+  cambios pendientes.
+- Login recuerda hasta 5 usernames recientes sin guardar passwords ni sesiones
+  extra, con migracion automatica desde la clave anterior.
+- Tags globales se integran en Notas, Work y Planner con picker reutilizable,
+  migracion idempotente de tags legacy y pop-up global de conexiones al tocar
+  cualquier tag.
+- Command Palette soporta busquedas `#tag` y `tag:nombre`, mostrando notas,
+  cards de Work y tareas del Planner conectadas.
+- Auditoria se presenta como Salud del sistema, con mensajes orientados a
+  usuario y detalle tecnico plegado.
+- Automatizaciones suma modo simple por recetas y mantiene el modo avanzado
+  con edicion y validacion de JSON.
+
 ## [1.15.1] - 2026-05-10
 
 ### Hotfix Nori en app instalada

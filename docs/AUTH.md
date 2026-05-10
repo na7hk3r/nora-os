@@ -166,6 +166,18 @@ contextBridge.exposeInMainWorld('auth', {
 })
 ```
 
+## Recordar usuarios recientes
+
+La pantalla de login guarda solo usernames en `localStorage`.
+
+- Clave actual: `auth:rememberedUsernames:v2`, JSON array newest-first.
+- Clave legacy: `auth:rememberedUsername:v1`, migrada automaticamente si existe.
+- Maximo: 5 usernames.
+- Login exitoso con "Recordar usuario" activo agrega o mueve el username al inicio.
+- Login exitoso con "Recordar usuario" inactivo elimina solo ese username de la lista.
+- La UI permite usar, olvidar uno u olvidar todos. No se guardan passwords,
+  passphrases ni sesiones adicionales.
+
 ## Mensajes de error mejorados
 
 ### Validación de username

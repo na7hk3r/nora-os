@@ -72,6 +72,50 @@ Tracking de migraciones aplicadas. Clave compuesta `(plugin_id, version)`.
 | `version` | INTEGER NOT NULL | Número de versión de la migración |
 | `applied_at` | TEXT | Timestamp de aplicación |
 
+### `core_tags`
+
+Catalogo global de tags compartidos por modulos.
+
+| Columna | Tipo | DescripciÃ³n |
+|---------|------|-------------|
+| `id` | INTEGER PK AUTOINCREMENT | ID del tag |
+| `name` | TEXT UNIQUE NOT NULL | Nombre normalizado en minusculas |
+| `color` | TEXT | Color opcional `#RRGGBB` |
+| `created_at` | TEXT | Timestamp de creaciÃ³n |
+
+### `core_tag_links`
+
+Relacion entre tags globales y entidades de la app.
+
+| Columna | Tipo | DescripciÃ³n |
+|---------|------|-------------|
+| `tag_id` | INTEGER NOT NULL | FK a `core_tags.id` |
+| `entity_type` | TEXT NOT NULL | Tipo estable (`work_note`, `work_card`, `planner_task`) |
+| `entity_id` | TEXT NOT NULL | ID de la entidad enlazada |
+| `created_at` | TEXT | Timestamp de creaciÃ³n |
+
+La clave unica logica es `(tag_id, entity_type, entity_id)`. Los arrays legacy
+`work_notes.tags`, `work_cards.labels` y `PlannerTask.tags` se mantienen como
+espejo de nombres para compatibilidad y busquedas existentes.
+
+### `core_automations`
+
+Automatizaciones creadas desde Config, tanto desde recetas simples como desde
+modo avanzado.
+
+| Columna | Tipo | DescripciÃ³n |
+|---------|------|-------------|
+| `id` | TEXT PK | ID de la automatizacion |
+| `name` | TEXT NOT NULL | Nombre visible |
+| `enabled` | INTEGER | 1 activa, 0 pausada |
+| `trigger_event` | TEXT NOT NULL | Evento que dispara la automatizacion |
+| `condition` | TEXT | JSON opcional de condicion |
+| `action_type` | TEXT NOT NULL | Accion (`notify`, `xp`, `emit`) |
+| `action_payload` | TEXT | JSON de payload |
+| `last_run_at` | TEXT | Ultima ejecucion |
+| `run_count` | INTEGER | Cantidad de ejecuciones |
+| `created_at` | TEXT | Timestamp de creaciÃ³n |
+
 ---
 
 ## Tablas del plugin Fitness
