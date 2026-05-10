@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { CalendarClock, FolderOpen, KeyRound, Play, ShieldCheck } from 'lucide-react'
+import { CalendarClock, FolderOpen, KeyRound, Play, Save, ShieldCheck } from 'lucide-react'
 import { messages } from '../messages'
 import type { ScheduledBackupConfig, ScheduledBackupStatus } from '../../types'
 
@@ -24,6 +24,7 @@ function formatDate(iso: string | null): string {
 export function ScheduledBackupSection() {
   const bridge = window.scheduledBackup
   const [status, setStatus] = useState<ScheduledBackupStatus | null>(null)
+  const [draftConfig, setDraftConfig] = useState<ScheduledBackupConfig | null>(null)
   const [passphrase, setPassphrase] = useState('')
   const [busy, setBusy] = useState(false)
   const [feedback, setFeedback] = useState<{ kind: 'ok' | 'err'; text: string } | null>(null)
@@ -32,6 +33,7 @@ export function ScheduledBackupSection() {
     if (!bridge) return
     const result = await bridge.getStatus()
     setStatus(result)
+    setDraftConfig(result.config)
   }
 
   useEffect(() => {
@@ -48,14 +50,29 @@ export function ScheduledBackupSection() {
   }
 
   const config = status?.config ?? null
+  const editableConfig = draftConfig ?? config
+  const configDirty = Boolean(
+    config &&
+    editableConfig &&
+    JSON.stringify(config) !== JSON.stringify(editableConfig),
+  )
 
-  const updateConfig = async (patch: Partial<ScheduledBackupConfig>) => {
-    if (!config) return
+  const updateDraft = (patch: Partial<ScheduledBackupConfig>) => {
+    setDraftConfig((prev) => {
+      const base = prev ?? config
+      return base ? { ...base, ...patch } : prev
+    })
+    setFeedback(null)
+  }
+
+  const saveConfig = async () => {
+    if (!config || !editableConfig) return
     setBusy(true)
     setFeedback(null)
     try {
-      const result = await bridge.setConfig(patch)
+      const result = await bridge.setConfig(editableConfig)
       setStatus(result)
+      setDraftConfig(result.config)
       setFeedback({ kind: 'ok', text: 'Configuración guardada.' })
     } catch (err) {
       setFeedback({ kind: 'err', text: (err as Error).message ?? messages.errors.generic })
@@ -69,7 +86,7 @@ export function ScheduledBackupSection() {
     try {
       const result = await bridge.pickDestination()
       if (result.path) {
-        await updateConfig({ destinationDir: result.path })
+        updateDraft({ destinationDir: result.path })
       }
     } finally {
       setBusy(false)
@@ -108,7 +125,7 @@ export function ScheduledBackupSection() {
     }
   }
 
-  const enabled = config?.enabled ?? false
+  const enabled = editableConfig?.enabled ?? false
   const passphraseLoaded = status?.passphraseLoaded ?? false
 
   return (
@@ -127,22 +144,22 @@ export function ScheduledBackupSection() {
           <input
             type="checkbox"
             checked={enabled}
-            disabled={busy || !config}
-            onChange={(e) => updateConfig({ enabled: e.target.checked })}
+            disabled={busy || !editableConfig}
+            onChange={(e) => updateDraft({ enabled: e.target.checked })}
             className="h-4 w-4 accent-accent"
           />
           Activado
         </label>
       </header>
 
-      {config && (
+      {editableConfig && (
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
           <div className="space-y-1">
             <label className="text-xs text-muted">Frecuencia</label>
             <select
-              value={config.frequencyDays}
+              value={editableConfig.frequencyDays}
               disabled={busy}
-              onChange={(e) => updateConfig({ frequencyDays: Number(e.target.value) })}
+              onChange={(e) => updateDraft({ frequencyDays: Number(e.target.value) })}
               className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-white"
             >
               {FREQ_OPTIONS.map((opt) => (
@@ -159,9 +176,9 @@ export function ScheduledBackupSection() {
               type="number"
               min={1}
               max={50}
-              value={config.retainCount}
+              value={editableConfig.retainCount}
               disabled={busy}
-              onChange={(e) => updateConfig({ retainCount: Number(e.target.value) })}
+              onChange={(e) => updateDraft({ retainCount: Number(e.target.value) })}
               className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-white"
             />
           </div>
@@ -172,7 +189,7 @@ export function ScheduledBackupSection() {
               <input
                 type="text"
                 readOnly
-                value={config.destinationDir ?? 'Sin definir'}
+                value={editableConfig.destinationDir ?? 'Sin definir'}
                 className="flex-1 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-white"
               />
               <button
@@ -189,9 +206,9 @@ export function ScheduledBackupSection() {
           <label className="flex items-center gap-2 text-sm text-white md:col-span-2">
             <input
               type="checkbox"
-              checked={config.encrypt}
+              checked={editableConfig.encrypt}
               disabled={busy}
-              onChange={(e) => updateConfig({ encrypt: e.target.checked })}
+              onChange={(e) => updateDraft({ encrypt: e.target.checked })}
               className="h-4 w-4 accent-accent"
             />
             <ShieldCheck size={14} className="text-accent-light" />
@@ -200,7 +217,7 @@ export function ScheduledBackupSection() {
         </div>
       )}
 
-      {config?.encrypt && (
+      {editableConfig?.encrypt && (
         <div className="rounded-lg border border-border bg-surface px-3 py-3 space-y-2">
           <p className="text-xs text-muted flex items-center gap-2">
             <KeyRound size={12} /> Passphrase {passphraseLoaded ? '(cargada en memoria)' : '(no definida)'}
@@ -244,15 +261,26 @@ export function ScheduledBackupSection() {
         )}
       </div>
 
-      <div className="flex items-center justify-between gap-3">
-        <button
-          type="button"
-          onClick={runNow}
-          disabled={busy || !config}
-          className="flex items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-white hover:bg-surface-light disabled:opacity-40"
-        >
-          <Play size={14} /> Ejecutar ahora
-        </button>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => void saveConfig()}
+            disabled={busy || !editableConfig || !configDirty}
+            className="flex items-center gap-2 rounded-lg bg-accent px-3 py-2 text-sm font-semibold text-white hover:bg-accent/85 disabled:opacity-40"
+          >
+            <Save size={14} /> Guardar
+          </button>
+          <button
+            type="button"
+            onClick={runNow}
+            disabled={busy || !config}
+            className="flex items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-white hover:bg-surface-light disabled:opacity-40"
+          >
+            <Play size={14} /> Ejecutar ahora
+          </button>
+          {configDirty && <span className="text-xs text-warning">Cambios sin guardar</span>}
+        </div>
         {feedback && (
           <span
             className={`text-xs ${feedback.kind === 'ok' ? 'text-emerald-300' : 'text-rose-300'}`}

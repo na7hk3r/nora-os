@@ -1,51 +1,218 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Plus, Power, Trash2, Zap } from 'lucide-react'
-import { automationsService, type ActionType, type Automation } from '@core/services/automationsService'
+import { Edit3, Plus, Power, Trash2, Zap } from 'lucide-react'
+import { automationsService, type ActionType, type Automation, type AutomationDraft } from '@core/services/automationsService'
 import { CORE_EVENTS } from '@core/events/events'
 
+type AutomationMode = 'simple' | 'advanced'
+type SimpleActionType = 'notify' | 'add_xp' | 'emit_event'
+
+interface AutomationRecipe {
+  id: string
+  label: string
+  description: string
+  triggerEvent: string
+}
+
 const ACTION_TYPES: ActionType[] = ['notify', 'add_xp', 'emit_event', 'log']
+const SIMPLE_ACTIONS: SimpleActionType[] = ['notify', 'add_xp', 'emit_event']
+
+const RECIPES: AutomationRecipe[] = [
+  {
+    id: 'focus-completed',
+    label: 'Cuando completo una sesion de foco',
+    description: 'Ideal para celebrar avances o sumar XP extra.',
+    triggerEvent: 'WORK_FOCUS_COMPLETED',
+  },
+  {
+    id: 'work-task-completed',
+    label: 'Cuando completo una tarea de Work',
+    description: 'Reacciona cuando una tarjeta pasa a completada.',
+    triggerEvent: 'WORK_TASK_COMPLETED',
+  },
+  {
+    id: 'planner-task-completed',
+    label: 'Cuando completo una tarea del Planner',
+    description: 'Conecta misiones diarias con avisos o recompensas.',
+    triggerEvent: CORE_EVENTS.PLANNER_TASK_COMPLETED,
+  },
+  {
+    id: 'fitness-day-logged',
+    label: 'Cuando registro mi dia de fitness',
+    description: 'Sirve para recordatorios de continuidad.',
+    triggerEvent: 'FITNESS_DAY_LOGGED',
+  },
+  {
+    id: 'profile-updated',
+    label: 'Cuando actualizo mi perfil',
+    description: 'Util para confirmar cambios importantes.',
+    triggerEvent: CORE_EVENTS.PROFILE_UPDATED,
+  },
+]
 
 const KNOWN_EVENTS: string[] = Array.from(new Set([
   ...Object.values(CORE_EVENTS),
-  'WORK_TASK_COMPLETED', 'TASK_COMPLETED',
-  'WORK_FOCUS_STARTED', 'WORK_FOCUS_COMPLETED',
-  'FITNESS_DAY_LOGGED', 'FITNESS_WORKOUT_COMPLETED',
+  ...RECIPES.map((recipe) => recipe.triggerEvent),
+  'WORK_TASK_COMPLETED',
+  'TASK_COMPLETED',
+  'WORK_FOCUS_STARTED',
+  'WORK_FOCUS_COMPLETED',
+  'FITNESS_DAY_LOGGED',
+  'FITNESS_WORKOUT_COMPLETED',
 ])).sort()
+
+function parsePayload(value: string): Record<string, unknown> | null {
+  try {
+    const parsed = JSON.parse(value) as unknown
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+      ? parsed as Record<string, unknown>
+      : null
+  } catch {
+    return null
+  }
+}
+
+function defaultPayload(actionType: ActionType): string {
+  switch (actionType) {
+    case 'notify': return '{"title":"Recordatorio","body":"Nora detecto el evento."}'
+    case 'add_xp': return '{"amount":25,"reason":"automation"}'
+    case 'emit_event': return '{"event":"CUSTOM_EVENT","payload":{}}'
+    case 'log': return '{"message":"check"}'
+  }
+}
 
 export function AutomationsSection() {
   const [items, setItems] = useState<Automation[]>([])
-  const [showForm, setShowForm] = useState(false)
+  const [mode, setMode] = useState<AutomationMode>('simple')
+  const [editingId, setEditingId] = useState<number | null>(null)
+  const [error, setError] = useState('')
+  const [status, setStatus] = useState('')
+
+  const [simpleName, setSimpleName] = useState('')
+  const [recipeId, setRecipeId] = useState(RECIPES[0]?.id ?? '')
+  const [simpleAction, setSimpleAction] = useState<SimpleActionType>('notify')
+  const [notifyTitle, setNotifyTitle] = useState('Nora OS')
+  const [notifyBody, setNotifyBody] = useState('Automatizacion ejecutada.')
+  const [xpAmount, setXpAmount] = useState(25)
+  const [xpReason, setXpReason] = useState('Automatizacion')
+  const [customEvent, setCustomEvent] = useState('CUSTOM_EVENT')
+
   const [name, setName] = useState('')
-  const [triggerEvent, setTriggerEvent] = useState(KNOWN_EVENTS[0] ?? 'CORE_PROFILE_UPDATED')
+  const [triggerEvent, setTriggerEvent] = useState(KNOWN_EVENTS[0] ?? CORE_EVENTS.PROFILE_UPDATED)
   const [condition, setCondition] = useState('')
   const [actionType, setActionType] = useState<ActionType>('notify')
-  const [actionPayloadStr, setActionPayloadStr] = useState('{"title":"Recordatorio"}')
-  const [error, setError] = useState('')
+  const [actionPayloadStr, setActionPayloadStr] = useState(defaultPayload('notify'))
+
+  const selectedRecipe = RECIPES.find((recipe) => recipe.id === recipeId) ?? RECIPES[0]
 
   const refresh = () => { void automationsService.list().then(setItems) }
   useEffect(() => { refresh() }, [])
 
-  const placeholder = useMemo(() => {
-    switch (actionType) {
-      case 'notify': return '{"title":"Foco completado","body":"Buen trabajo"}'
-      case 'add_xp': return '{"amount":25,"reason":"automation"}'
-      case 'emit_event': return '{"event":"CUSTOM_EVENT","payload":{}}'
-      case 'log': return '{"message":"check"}'
-    }
-  }, [actionType])
+  const placeholder = useMemo(() => defaultPayload(actionType), [actionType])
 
-  const submit = async () => {
+  const resetForm = () => {
+    setEditingId(null)
     setError('')
-    let parsed: Record<string, unknown>
-    try { parsed = JSON.parse(actionPayloadStr) as Record<string, unknown> }
-    catch { setError('Payload no es JSON válido'); return }
+    setStatus('')
+    setSimpleName('')
+    setRecipeId(RECIPES[0]?.id ?? '')
+    setSimpleAction('notify')
+    setNotifyTitle('Nora OS')
+    setNotifyBody('Automatizacion ejecutada.')
+    setXpAmount(25)
+    setXpReason('Automatizacion')
+    setCustomEvent('CUSTOM_EVENT')
+    setName('')
+    setTriggerEvent(KNOWN_EVENTS[0] ?? CORE_EVENTS.PROFILE_UPDATED)
+    setCondition('')
+    setActionType('notify')
+    setActionPayloadStr(defaultPayload('notify'))
+  }
+
+  const saveDraft = async (draft: AutomationDraft) => {
+    const message = editingId == null ? 'Automatizacion creada.' : 'Automatizacion actualizada.'
+    if (editingId == null) {
+      await automationsService.create(draft)
+    } else {
+      await automationsService.update(editingId, draft)
+    }
+    resetForm()
+    setStatus(message)
+    refresh()
+  }
+
+  const submitSimple = async () => {
+    if (!selectedRecipe) return
+    setError('')
+    const title = simpleName.trim() || selectedRecipe.label
+    let actionPayload: Record<string, unknown>
+    if (simpleAction === 'notify') {
+      actionPayload = { title: notifyTitle.trim() || title, body: notifyBody.trim() || undefined }
+    } else if (simpleAction === 'add_xp') {
+      actionPayload = { amount: xpAmount, reason: xpReason.trim() || title }
+    } else {
+      actionPayload = { event: customEvent.trim(), payload: {} }
+    }
+
     try {
-      await automationsService.create({
-        name, triggerEvent, condition: condition || null, actionType, actionPayload: parsed,
+      await saveDraft({
+        name: title,
+        triggerEvent: selectedRecipe.triggerEvent,
+        condition: null,
+        actionType: simpleAction,
+        actionPayload,
+        enabled: true,
       })
-      setShowForm(false); setName(''); setCondition(''); setActionPayloadStr('{}')
-      refresh()
-    } catch (err) { setError((err as Error).message) }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'No se pudo guardar la automatizacion')
+    }
+  }
+
+  const submitAdvanced = async () => {
+    setError('')
+    const parsed = parsePayload(actionPayloadStr)
+    if (!parsed) {
+      setError('El payload debe ser un objeto JSON valido.')
+      return
+    }
+    try {
+      await saveDraft({
+        name,
+        triggerEvent,
+        condition: condition.trim() || null,
+        actionType,
+        actionPayload: parsed,
+        enabled: true,
+      })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'No se pudo guardar la automatizacion')
+    }
+  }
+
+  const editAutomation = (automation: Automation) => {
+    const payload = parsePayload(automation.action_payload ?? '{}') ?? {}
+    setEditingId(automation.id)
+    setStatus('')
+    setError('')
+    setName(automation.name)
+    setTriggerEvent(automation.trigger_event)
+    setCondition(automation.condition ?? '')
+    setActionType(automation.action_type as ActionType)
+    setActionPayloadStr(JSON.stringify(payload, null, 2))
+
+    const recipe = RECIPES.find((item) => item.triggerEvent === automation.trigger_event)
+    if (recipe && SIMPLE_ACTIONS.includes(automation.action_type as SimpleActionType)) {
+      setMode('simple')
+      setRecipeId(recipe.id)
+      setSimpleName(automation.name)
+      setSimpleAction(automation.action_type as SimpleActionType)
+      setNotifyTitle(String(payload.title ?? 'Nora OS'))
+      setNotifyBody(String(payload.body ?? ''))
+      setXpAmount(Number(payload.amount ?? 25))
+      setXpReason(String(payload.reason ?? automation.name))
+      setCustomEvent(String(payload.event ?? 'CUSTOM_EVENT'))
+    } else {
+      setMode('advanced')
+    }
   }
 
   return (
@@ -55,16 +222,99 @@ export function AutomationsSection() {
           <Zap size={18} className="text-accent-light" />
           <h2 className="text-lg font-semibold">Automatizaciones</h2>
         </div>
-        <button
-          onClick={() => setShowForm((v) => !v)}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-xs font-medium text-white hover:bg-accent/85"
-        ><Plus size={12} /> Nueva</button>
+        {editingId != null && (
+          <button
+            type="button"
+            onClick={resetForm}
+            className="rounded-lg border border-border bg-surface px-3 py-1.5 text-xs text-muted hover:text-white"
+          >
+            Cancelar edicion
+          </button>
+        )}
       </div>
       <p className="mt-1 text-sm text-muted">
-        Reaccioná a eventos de Nora OS sin escribir código. Por ejemplo: cuando completás un foco, sumá XP o disparate una notificación.
+        Crea reglas con recetas simples o usa el modo avanzado para eventos, condiciones y payload JSON.
       </p>
 
-      {showForm && (
+      <div className="mt-4 inline-flex rounded-lg border border-border bg-surface p-1 text-xs">
+        <button
+          type="button"
+          onClick={() => setMode('simple')}
+          className={`rounded-md px-3 py-1.5 ${mode === 'simple' ? 'bg-accent text-white' : 'text-muted hover:text-white'}`}
+        >
+          Simple
+        </button>
+        <button
+          type="button"
+          onClick={() => setMode('advanced')}
+          className={`rounded-md px-3 py-1.5 ${mode === 'advanced' ? 'bg-accent text-white' : 'text-muted hover:text-white'}`}
+        >
+          Avanzado
+        </button>
+      </div>
+
+      {mode === 'simple' ? (
+        <div className="mt-4 space-y-3 rounded-xl border border-border bg-surface p-4">
+          <label className="block space-y-1">
+            <span className="text-xs text-muted">Nombre</span>
+            <input value={simpleName} onChange={(e) => setSimpleName(e.target.value)} className="w-full rounded-lg border border-border bg-surface-light px-3 py-2 text-sm" placeholder={selectedRecipe?.label} />
+          </label>
+
+          <label className="block space-y-1">
+            <span className="text-xs text-muted">Cuando pase esto</span>
+            <select value={recipeId} onChange={(e) => setRecipeId(e.target.value)} className="w-full rounded-lg border border-border bg-surface-light px-3 py-2 text-sm">
+              {RECIPES.map((recipe) => <option key={recipe.id} value={recipe.id}>{recipe.label}</option>)}
+            </select>
+            {selectedRecipe && <p className="text-caption text-muted">{selectedRecipe.description}</p>}
+          </label>
+
+          <label className="block space-y-1">
+            <span className="text-xs text-muted">Hacer</span>
+            <select value={simpleAction} onChange={(e) => setSimpleAction(e.target.value as SimpleActionType)} className="w-full rounded-lg border border-border bg-surface-light px-3 py-2 text-sm">
+              <option value="notify">Mostrar una notificacion</option>
+              <option value="add_xp">Sumar XP</option>
+              <option value="emit_event">Emitir evento personalizado</option>
+            </select>
+          </label>
+
+          {simpleAction === 'notify' && (
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <label className="space-y-1">
+                <span className="text-xs text-muted">Titulo</span>
+                <input value={notifyTitle} onChange={(e) => setNotifyTitle(e.target.value)} className="w-full rounded-lg border border-border bg-surface-light px-3 py-2 text-sm" />
+              </label>
+              <label className="space-y-1">
+                <span className="text-xs text-muted">Mensaje</span>
+                <input value={notifyBody} onChange={(e) => setNotifyBody(e.target.value)} className="w-full rounded-lg border border-border bg-surface-light px-3 py-2 text-sm" />
+              </label>
+            </div>
+          )}
+
+          {simpleAction === 'add_xp' && (
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <label className="space-y-1">
+                <span className="text-xs text-muted">XP</span>
+                <input type="number" value={xpAmount} onChange={(e) => setXpAmount(Number(e.target.value) || 0)} className="w-full rounded-lg border border-border bg-surface-light px-3 py-2 text-sm" />
+              </label>
+              <label className="space-y-1">
+                <span className="text-xs text-muted">Motivo</span>
+                <input value={xpReason} onChange={(e) => setXpReason(e.target.value)} className="w-full rounded-lg border border-border bg-surface-light px-3 py-2 text-sm" />
+              </label>
+            </div>
+          )}
+
+          {simpleAction === 'emit_event' && (
+            <label className="block space-y-1">
+              <span className="text-xs text-muted">Evento personalizado</span>
+              <input value={customEvent} onChange={(e) => setCustomEvent(e.target.value.toUpperCase())} className="w-full rounded-lg border border-border bg-surface-light px-3 py-2 text-sm" />
+            </label>
+          )}
+
+          <button onClick={() => void submitSimple()} className="inline-flex items-center gap-1.5 rounded-lg bg-accent px-4 py-2 text-xs font-medium text-white hover:bg-accent/85">
+            <Plus size={12} /> {editingId == null ? 'Crear automatizacion' : 'Guardar cambios'}
+          </button>
+        </div>
+      ) : (
         <div className="mt-4 space-y-3 rounded-xl border border-border bg-surface p-4">
           <label className="block space-y-1">
             <span className="text-xs text-muted">Nombre</span>
@@ -73,60 +323,66 @@ export function AutomationsSection() {
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <label className="space-y-1">
               <span className="text-xs text-muted">Evento trigger</span>
-              <input
-                list="known-events" value={triggerEvent}
-                onChange={(e) => setTriggerEvent(e.target.value)}
-                className="w-full rounded-lg border border-border bg-surface-light px-3 py-2 text-sm"
-              />
+              <input list="known-events" value={triggerEvent} onChange={(e) => setTriggerEvent(e.target.value)} className="w-full rounded-lg border border-border bg-surface-light px-3 py-2 text-sm" />
               <datalist id="known-events">{KNOWN_EVENTS.map((ev) => <option key={ev} value={ev} />)}</datalist>
             </label>
             <label className="space-y-1">
-              <span className="text-xs text-muted">Acción</span>
-              <select value={actionType} onChange={(e) => setActionType(e.target.value as ActionType)} className="w-full rounded-lg border border-border bg-surface-light px-3 py-2 text-sm">
+              <span className="text-xs text-muted">Accion</span>
+              <select
+                value={actionType}
+                onChange={(e) => {
+                  const next = e.target.value as ActionType
+                  setActionType(next)
+                  setActionPayloadStr(defaultPayload(next))
+                }}
+                className="w-full rounded-lg border border-border bg-surface-light px-3 py-2 text-sm"
+              >
                 {ACTION_TYPES.map((a) => <option key={a} value={a}>{a}</option>)}
               </select>
             </label>
           </div>
           <label className="block space-y-1">
-            <span className="text-xs text-muted">Condición (opcional, JS-like sobre payload). Ej: <code>amount {'>'} 10</code></span>
-            <input value={condition} onChange={(e) => setCondition(e.target.value)} className="w-full rounded-lg border border-border bg-surface-light px-3 py-2 text-sm" />
+            <span className="text-xs text-muted">Condicion opcional</span>
+            <input value={condition} onChange={(e) => setCondition(e.target.value)} placeholder="Ej: amount > 10" className="w-full rounded-lg border border-border bg-surface-light px-3 py-2 text-sm" />
           </label>
           <label className="block space-y-1">
-            <span className="text-xs text-muted">Payload (JSON)</span>
-            <textarea
-              value={actionPayloadStr} onChange={(e) => setActionPayloadStr(e.target.value)}
-              rows={3} placeholder={placeholder}
-              className="w-full rounded-lg border border-border bg-surface-light px-3 py-2 font-mono text-xs"
-            />
+            <span className="text-xs text-muted">Payload JSON</span>
+            <textarea value={actionPayloadStr} onChange={(e) => setActionPayloadStr(e.target.value)} rows={4} placeholder={placeholder} className="w-full rounded-lg border border-border bg-surface-light px-3 py-2 font-mono text-xs" />
           </label>
-          {error && <p className="text-xs text-warning">{error}</p>}
-          <div className="flex gap-2">
-            <button onClick={() => void submit()} className="rounded-lg bg-accent px-4 py-2 text-xs font-medium text-white hover:bg-accent/85">Crear</button>
-            <button onClick={() => setShowForm(false)} className="rounded-lg border border-border px-4 py-2 text-xs text-muted hover:text-white">Cancelar</button>
-          </div>
+          <button onClick={() => void submitAdvanced()} className="rounded-lg bg-accent px-4 py-2 text-xs font-medium text-white hover:bg-accent/85">
+            {editingId == null ? 'Crear automatizacion avanzada' : 'Guardar cambios'}
+          </button>
         </div>
       )}
 
+      {error && <p className="mt-2 text-xs text-warning">{error}</p>}
+      {status && <p className="mt-2 text-xs text-success">{status}</p>}
+
       <div className="mt-4 space-y-2">
         {items.length === 0 ? (
-          <p className="text-xs text-muted">Aún no hay automatizaciones. Creá la primera con el botón &quot;Nueva&quot;.</p>
+          <p className="text-xs text-muted">Aun no hay automatizaciones. Crea la primera con el modo simple.</p>
         ) : items.map((a) => (
           <div key={a.id} className="flex items-center justify-between gap-3 rounded-lg border border-border bg-surface px-3 py-2">
             <div className="min-w-0">
               <p className="truncate text-sm font-medium">{a.name}</p>
               <p className="truncate text-caption text-muted">
-                {a.trigger_event} → {a.action_type} · ejecutada {a.run_count}x
-                {a.last_run_at && ` · última ${a.last_run_at}`}
+                {`${a.trigger_event} -> ${a.action_type} - ejecutada ${a.run_count}x`}
+                {a.last_run_at && ` - ultima ${a.last_run_at}`}
               </p>
             </div>
             <div className="flex shrink-0 items-center gap-1">
+              <button
+                onClick={() => editAutomation(a)}
+                title="Editar"
+                className="rounded p-1.5 text-muted hover:bg-surface-light hover:text-white"
+              ><Edit3 size={14} /></button>
               <button
                 onClick={() => void automationsService.toggle(a.id, !a.enabled).then(refresh)}
                 title={a.enabled ? 'Desactivar' : 'Activar'}
                 className={`rounded p-1.5 ${a.enabled ? 'text-emerald-300' : 'text-muted'} hover:bg-surface-light`}
               ><Power size={14} /></button>
               <button
-                onClick={() => { if (window.confirm('¿Eliminar automatización?')) void automationsService.remove(a.id).then(refresh) }}
+                onClick={() => { if (window.confirm('Eliminar automatizacion?')) void automationsService.remove(a.id).then(refresh) }}
                 className="rounded p-1.5 text-muted hover:bg-surface-light hover:text-warning"
               ><Trash2 size={14} /></button>
             </div>

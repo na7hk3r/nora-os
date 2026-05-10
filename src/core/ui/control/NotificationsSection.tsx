@@ -18,19 +18,25 @@ function fromHHMM(v: string): number {
 
 export function NotificationsSection() {
   const [quiet, setQuiet] = useState<QuietHours>(DEFAULT)
+  const [savedQuiet, setSavedQuiet] = useState<QuietHours>(DEFAULT)
   const [supported, setSupported] = useState(false)
   const [status, setStatus] = useState<string>('')
 
   useEffect(() => {
     void window.notifications?.isSupported().then(setSupported).catch(() => setSupported(false))
     void storageAPI.getSetting(KEY).then((v) => {
-      if (v) try { setQuiet({ ...DEFAULT, ...JSON.parse(v) }) } catch { /* noop */ }
+      if (v) try {
+        const loaded = { ...DEFAULT, ...JSON.parse(v) }
+        setQuiet(loaded)
+        setSavedQuiet(loaded)
+      } catch { /* noop */ }
     })
   }, [])
 
   const save = async () => {
     await storageAPI.setSetting(KEY, JSON.stringify(quiet))
     notificationsService.setQuietHours(quiet)
+    setSavedQuiet(quiet)
     setStatus('Guardado')
   }
 
@@ -38,6 +44,8 @@ export function NotificationsSection() {
     await notificationsService.showNow({ title: 'Nora OS', body: 'Notificación de prueba' })
     setStatus('Notificación enviada')
   }
+
+  const dirty = JSON.stringify(savedQuiet) !== JSON.stringify(quiet)
 
   return (
     <article className="rounded-2xl border border-border bg-surface-light/85 p-6">
@@ -86,13 +94,15 @@ export function NotificationsSection() {
       <div className="mt-4 flex flex-wrap items-center gap-2">
         <button
           onClick={() => void save()}
-          className="flex items-center gap-1.5 rounded-lg bg-accent px-4 py-2 text-xs font-medium text-white hover:bg-accent/85"
+          disabled={!dirty}
+          className="flex items-center gap-1.5 rounded-lg bg-accent px-4 py-2 text-xs font-medium text-white hover:bg-accent/85 disabled:opacity-50"
         ><Save size={13} /> Guardar</button>
         <button
           onClick={() => void testNotify()}
           disabled={!supported}
           className="rounded-lg border border-border bg-surface px-3 py-2 text-xs text-muted hover:text-white disabled:opacity-50"
         >Probar notificación</button>
+        {dirty && <span className="text-xs text-warning">Cambios sin guardar</span>}
         {status && <span className="text-xs text-muted">{status}</span>}
       </div>
     </article>

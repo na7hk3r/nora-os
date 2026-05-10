@@ -17,13 +17,17 @@ const RECOMMENDED_MODELS = [
 
 export function OllamaSection() {
   const [settings, setSettings] = useState<OllamaSettings | null>(null)
+  const [savedSettings, setSavedSettings] = useState<OllamaSettings | null>(null)
   const [models, setModels] = useState<string[]>([])
   const [busy, setBusy] = useState(false)
   const [pullingModel, setPullingModel] = useState('')
   const [status, setStatus] = useState<string>('')
 
   useEffect(() => {
-    void ollamaService.getSettings().then(setSettings)
+    void ollamaService.getSettings().then((loaded) => {
+      setSettings(loaded)
+      setSavedSettings(loaded)
+    })
   }, [])
 
   const loadModels = async () => {
@@ -72,6 +76,7 @@ export function OllamaSection() {
       const nextSettings = { ...settings, enabled: true, model }
       setSettings(nextSettings)
       await ollamaService.saveSettings(nextSettings)
+      setSavedSettings(nextSettings)
       await loadModels()
       setStatus(`Modelo ${model} listo y seleccionado.`)
     } catch (err) {
@@ -87,6 +92,7 @@ export function OllamaSection() {
     setBusy(true)
     try {
       await ollamaService.saveSettings(settings)
+      setSavedSettings(settings)
       setStatus('Configuración guardada')
     } finally {
       setBusy(false)
@@ -94,6 +100,7 @@ export function OllamaSection() {
   }
 
   if (!settings) return null
+  const dirty = Boolean(savedSettings && JSON.stringify(savedSettings) !== JSON.stringify(settings))
 
   return (
     <article className="rounded-2xl border border-border bg-surface-light/85 p-6">
@@ -232,7 +239,7 @@ export function OllamaSection() {
       <div className="mt-4 flex flex-wrap items-center gap-2">
         <button
           onClick={() => void save()}
-          disabled={busy}
+          disabled={busy || !dirty}
           className="flex items-center gap-1.5 rounded-lg bg-accent px-4 py-2 text-xs font-medium text-white hover:bg-accent/85 disabled:opacity-60"
         ><Save size={13} /> Guardar</button>
         <button
@@ -240,6 +247,7 @@ export function OllamaSection() {
           disabled={busy}
           className="rounded-lg border border-border bg-surface px-3 py-2 text-xs text-muted hover:text-white disabled:opacity-60"
         >Probar conexión</button>
+        {dirty && <span className="text-xs text-warning">Cambios sin guardar</span>}
         {status && <span className="text-xs text-muted">{status}</span>}
       </div>
     </article>

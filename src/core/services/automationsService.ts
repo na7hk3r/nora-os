@@ -155,6 +155,25 @@ export const automationsService = {
     return result.lastInsertRowid
   },
 
+  async update(id: number, draft: AutomationDraft): Promise<void> {
+    assertDraft(draft)
+    await storageAPI.execute(
+      `UPDATE core_automations
+       SET name = ?, enabled = ?, trigger_event = ?, condition = ?, action_type = ?, action_payload = ?
+       WHERE id = ?`,
+      [
+        draft.name,
+        draft.enabled === false ? 0 : 1,
+        draft.triggerEvent,
+        draft.condition ?? null,
+        draft.actionType,
+        JSON.stringify(draft.actionPayload ?? {}),
+        id,
+      ],
+    )
+    await reinstallSubscriptions()
+  },
+
   async toggle(id: number, enabled: boolean): Promise<void> {
     await storageAPI.execute('UPDATE core_automations SET enabled = ? WHERE id = ?', [enabled ? 1 : 0, id])
     await reinstallSubscriptions()
