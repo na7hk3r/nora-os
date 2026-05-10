@@ -6,6 +6,7 @@ import { WORK_EVENTS } from '@plugins/work/events'
 import { getIsoDateKey, getXpMultiplierForStreak } from './gamificationUtils'
 import { useCoreStore } from '@core/state/coreStore'
 import { CORE_EVENTS } from '@core/events/events'
+import { getNoriLevel } from './pulsoNora'
 
 export interface Achievement {
   id: string
@@ -77,8 +78,6 @@ interface PersistedGamificationState {
   sweptMissionsDate?: string
   lastActionAt?: string
 }
-
-const POINTS_PER_LEVEL = 100
 
 const DEFAULT_ACHIEVEMENTS: Achievement[] = [
   {
@@ -391,7 +390,7 @@ export const useGamificationStore = create<GamificationState>((set, get) => ({
       const multiplier = amount > 0 ? getXpMultiplierForStreak(s.streak) : 1
       const effectiveAmount = amount > 0 ? Math.round(amount * multiplier) : amount
       const newPoints = Math.max(0, s.points + effectiveAmount)
-      const newLevel = Math.floor(newPoints / POINTS_PER_LEVEL) + 1
+      const newLevel = getNoriLevel(newPoints)
       const levelUp = newLevel > s.level
 
       if (levelUp) {
@@ -638,7 +637,7 @@ export const useGamificationStore = create<GamificationState>((set, get) => ({
 
       const parsed = JSON.parse(raw) as Partial<PersistedGamificationState>
       const points = Number(parsed.points ?? 0)
-      const level = Number(parsed.level ?? Math.floor(points / POINTS_PER_LEVEL) + 1)
+      const level = getNoriLevel(points)
       const streak = Number(parsed.streak ?? 0)
       const history = Array.isArray(parsed.history) ? parsed.history.slice(0, 180) : []
       const unlockedIds = Array.isArray(parsed.unlockedIds) ? parsed.unlockedIds : []

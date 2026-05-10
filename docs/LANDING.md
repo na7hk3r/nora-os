@@ -59,6 +59,20 @@ npm run dev          # http://localhost:5173/nora-os/
 
 ---
 
+## Pulso Nora en la landing
+
+La version `1.15.0` incorpora Pulso Nora en el copy publico:
+
+- El bloque de features suma Pulso Nora como progreso vivo con Nori.
+- Las capturas de dashboard deben mostrar el panel de Progreso con Nori, barra
+  de XP y preview bloqueado de la siguiente evolucion.
+- El bloque de desarrolladores nombra Pulso Nora dentro de la CoreAPI en lugar
+  de la gamificacion generica anterior.
+- El texto del copiloto puede mencionar que las acciones IA avanzadas se
+  desbloquean progresivamente desde Nori nivel 6.
+
+---
+
 ## Deploy
 
 El deploy es **automático** vía GitHub Actions. Cualquier push a `main` que toque `landing/**` (o el propio workflow) dispara `.github/workflows/landing.yml`, que:

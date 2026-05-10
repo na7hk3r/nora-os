@@ -19,6 +19,8 @@ import {
 } from '@core/services/copilotChatService'
 import { dailyBriefService, type DailyBrief } from '@core/services/dailyBriefService'
 import { eventBus } from '@core/events/EventBus'
+import { useGamificationStore } from '@core/gamification/gamificationStore'
+import { PULSO_NORA_COMPANION_NAME, isRewardUnlocked } from '@core/gamification/pulsoNora'
 
 interface CopilotPanelProps {
   collapsed: boolean
@@ -128,6 +130,11 @@ export function CopilotPanel({ collapsed, onToggle }: CopilotPanelProps) {
 
   const runAction = async (action: CopilotAction) => {
     try {
+      const level = useGamificationStore.getState().level
+      if (!isRewardUnlocked('copilot-actions', level)) {
+        setActionFeedback(`${PULSO_NORA_COMPANION_NAME} desbloquea acciones ejecutables en nivel 6.`)
+        return
+      }
       if (action.kind === 'INICIAR_FOCO') {
         const mod = await import('@plugins/work/focus')
         await mod.startWorkFocusSession(null)

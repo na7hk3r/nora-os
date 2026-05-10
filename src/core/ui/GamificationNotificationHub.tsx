@@ -7,6 +7,8 @@ import { Trophy, Sparkles } from 'lucide-react'
 import { useGamificationStore } from '@core/gamification/gamificationStore'
 import { buildGamificationStats, isMissionTrackedEvent } from '@core/gamification/gamificationUtils'
 import { useCoreStore } from '@core/state/coreStore'
+import { getNoriStage, getRewardForLevel } from '@core/gamification/pulsoNora'
+import { NoriSprite } from './components/NoriSprite'
 
 type NotificationItem =
   | {
@@ -26,6 +28,9 @@ type NotificationItem =
 interface LevelOverlayState {
   level: number
   visible: boolean
+  rewardTitle?: string
+  rewardDescription?: string
+  stageTitle?: string
 }
 
 const ICON_LABEL_MAP: Record<string, string> = {
@@ -110,7 +115,16 @@ export function GamificationNotificationHub() {
 
     const onLevelUp = (payload: unknown) => {
       const data = (payload ?? {}) as { level?: number }
-      setLevelOverlay({ level: Number(data.level ?? 1), visible: true })
+      const level = Number(data.level ?? 1)
+      const reward = getRewardForLevel(level)
+      const stage = getNoriStage(level)
+      setLevelOverlay({
+        level,
+        visible: true,
+        rewardTitle: reward?.title,
+        rewardDescription: reward?.description,
+        stageTitle: stage.title,
+      })
       window.setTimeout(() => {
         setLevelOverlay((prev) => ({ ...prev, visible: false }))
       }, 3000)
@@ -205,7 +219,7 @@ export function GamificationNotificationHub() {
 
       {levelOverlay.visible && (
         <div className="pointer-events-none fixed inset-0 z-[60] flex items-center justify-center bg-black/45 backdrop-blur-[2px]">
-          <div className="relative h-[220px] w-[min(560px,92vw)] overflow-hidden rounded-3xl border border-accent/35 bg-surface-light/95 p-8 text-center shadow-2xl animate-level-burst">
+          <div className="relative w-[min(620px,92vw)] overflow-hidden rounded-3xl border border-accent/35 bg-surface-light/95 p-8 text-center shadow-2xl animate-level-burst">
             <div className="absolute inset-0 opacity-90">
               {confetti.map((piece) => (
                 <span
@@ -220,11 +234,24 @@ export function GamificationNotificationHub() {
               ))}
             </div>
 
-            <div className="relative z-10 flex h-full flex-col items-center justify-center gap-2">
-              <Sparkles className="text-xp-gold" size={26} />
-              <p className="text-xs uppercase tracking-[0.28em] text-muted">Level Up</p>
-              <p className="text-4xl font-black text-white">Nivel {levelOverlay.level}</p>
-              <p className="text-sm text-muted">Subiste de nivel. Segui asi.</p>
+            <div className="relative z-10 flex flex-col items-center justify-center gap-3">
+              <NoriSprite level={levelOverlay.level} size="hero" />
+              <div>
+                <p className="text-xs uppercase tracking-[0.28em] text-muted">Pulso Nora</p>
+                <p className="text-4xl font-black text-white">Nori nivel {levelOverlay.level}</p>
+                {levelOverlay.stageTitle && (
+                  <p className="mt-1 text-sm text-accent-light">{levelOverlay.stageTitle}</p>
+                )}
+              </div>
+              {levelOverlay.rewardTitle && (
+                <div className="max-w-md rounded-xl border border-accent/25 bg-accent/10 px-4 py-3">
+                  <p className="inline-flex items-center gap-1.5 text-sm font-semibold text-white">
+                    <Sparkles className="text-xp-gold" size={16} />
+                    {levelOverlay.rewardTitle}
+                  </p>
+                  <p className="mt-1 text-xs text-muted">{levelOverlay.rewardDescription}</p>
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -1,4 +1,6 @@
 import { aiSuggestionsService } from './aiSuggestionsService'
+import { useGamificationStore } from '@core/gamification/gamificationStore'
+import { isRewardUnlocked } from '@core/gamification/pulsoNora'
 
 export type CopilotRole = 'user' | 'assistant' | 'system'
 
@@ -29,12 +31,17 @@ type Listener = (messages: CopilotMessage[]) => void
 const ACTION_REGEX =
   /ACCI[ÓO]N\s*:\s*(INICIAR_FOCO|CREAR_TAREA|REGISTRAR_HABITO)\s*(?::\s*(.+))?/i
 
-function parseAction(text: string): { clean: string; action: CopilotAction | null } {
+function canAttachCopilotAction(level = useGamificationStore.getState().level): boolean {
+  return isRewardUnlocked('copilot-actions', level)
+}
+
+function parseAction(text: string, opts?: { allowActions?: boolean }): { clean: string; action: CopilotAction | null } {
   const match = text.match(ACTION_REGEX)
   if (!match) return { clean: text.trim(), action: null }
   const kind = match[1].toUpperCase() as CopilotActionKind
   const payload = match[2]?.trim().replace(/^\[|\]$/g, '').trim() || undefined
   const clean = text.replace(ACTION_REGEX, '').trim()
+  if (opts?.allowActions === false) return { clean, action: null }
   return { clean, action: { kind, payload, raw: match[0].trim() } }
 }
 
@@ -98,7 +105,7 @@ class CopilotChatService {
 
     try {
       const result = await aiSuggestionsService.freeChat(trimmed)
-      const { clean, action } = parseAction(result.text)
+      const { clean, action } = parseAction(result.text, { allowActions: canAttachCopilotAction() })
       const finalMsg: CopilotMessage = {
         ...placeholder,
         text: clean || result.text,
@@ -138,4 +145,4 @@ class CopilotChatService {
 }
 
 export const copilotChatService = new CopilotChatService()
-export { parseAction as __parseCopilotAction }
+export { parseAction as __parseCopilotAction, canAttachCopilotAction as __canAttachCopilotAction }

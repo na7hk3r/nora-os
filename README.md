@@ -35,7 +35,7 @@ Electron 41 · React 19 · TypeScript 5.7 · SQLite
 
 ## ¿Qué es Nora OS?
 
-Nora OS es una aplicación de escritorio modular que centraliza **lo que importa de tu día**: el trabajo que estás ejecutando, tus hábitos de salud, tu agenda y tus objetivos — con gamificación integrada para sostener la consistencia.
+Nora OS es una aplicación de escritorio modular que centraliza **lo que importa de tu día**: el trabajo que estás ejecutando, tus hábitos de salud, tu agenda y tus objetivos — con **Pulso Nora** y su mascota Nori como sistema vivo de progreso.
 
 A diferencia de un dashboard de SaaS o una app cloud, **toda tu información vive en tu máquina**: una base de datos SQLite cifrable, sin servidores, sin telemetría, sin tracking. Si querés inteligencia sobre tus datos, conectás un modelo local con [Ollama](https://ollama.com) y listo — el LLM nunca sale de tu equipo.
 
@@ -47,12 +47,12 @@ A diferencia de un dashboard de SaaS o una app cloud, **toda tu información viv
 
 ### 🎯 Núcleo de productividad
 
-- **Planner core** — tareas diarias, semanales y mensuales con drag & drop entre días y misión diaria gamificada.
+- **Planner core** — tareas diarias, semanales y mensuales con drag & drop entre días y misiones que alimentan Pulso Nora.
 - **Calendario unificado** — agrega vencimientos de Work, entrenamientos de Fitness, sesiones de foco y tareas del Planner en una vista mensual con filtros por fuente.
 - **Dashboard mosaic** — los widgets principales y la actividad reciente se pueden arrastrar, reordenar y colapsar sin perder su tamaño ni romper la grilla.
 - **Command Palette (`Ctrl/Cmd + K`)** — búsqueda global instantánea sobre notas, tareas, enlaces y rutas (incluye páginas de plugins activos).
 - **Catálogo de atajos in-app** — página `/shortcuts` con todos los keybindings agrupados y buscables, sincronizada con `docs/SHORTCUTS.md`.
-- **Review semanal/mensual** — KPIs reales (fitness, work, gamificación) con análisis IA opcional para cerrar la semana.
+- **Review semanal/mensual** — KPIs reales (fitness, work, Pulso Nora) con análisis IA opcional para cerrar la semana.
 - **Accesibilidad** — skip-link, landmarks ARIA, command palette como combobox/listbox real, toasts con `role="alert"` para errores y modales con `aria-modal`.
 
 ### 🤖 IA local con Ollama (privacidad total)
@@ -62,7 +62,7 @@ A diferencia de un dashboard de SaaS o una app cloud, **toda tu información viv
 - **Daily Brief** — una línea accionable cada mañana, cacheada por día, con fallback determinístico cuando Ollama está off.
 - **Smart Focus Nudge** — si llevás 45 s en `/work` sin actividad y la última sesión de foco fue hace más de 4 h, la app te ofrece arrancar foco con la tarea más prioritaria. Una vez por sesión de la app.
 - **Note → Task** — desde el editor de Notas extraés tareas accionables a Kanban con un click (requiere Ollama).
-- El servicio `aiContextService` arma un snapshot real de tu actividad (fitness 7d, work, planner, gamificación, eventos recientes) y lo entrega al LLM como contexto.
+- El servicio `aiContextService` arma un snapshot real de tu actividad (fitness 7d, work, planner, Pulso Nora, eventos recientes) y lo entrega al LLM como contexto.
 - **Registry de proveedores de contexto** (`registerAIContextProvider`): cada plugin aporta su slice al snapshot sin que el core lo conozca.
 - Configurable desde Control Center: enable, modelo, system prompt, temperatura.
 
@@ -75,7 +75,7 @@ Sistema de plugins de primera clase. Hoy vienen incluidos **8 plugins oficiales*
 | **Work** | productivity | Kanban con prioridades, estimaciones, checklists, vencimientos, WIP limit, archivado automático y edición rápida: Enter guarda los campos principales de una card. Notas y enlaces con búsqueda y pin. **Focus Engine 2.0** con pause/resume reales, Pomodoro configurable, notificaciones nativas y cleanup de sesiones zombie. **Note → Task** con extracción IA desde notas largas. |
 | **Fitness** | fitness | Tracking diario de peso, comidas, ejercicios y sueño. Tabla de medidas corporales, gráficos históricos, resumen mensual y seguimiento opcional para dejar de fumar. |
 | **Finance** | finance | Cuentas, transacciones, categorías, presupuestos mensuales, gastos recurrentes y transferencias entre cuentas. Secciones configurables desde Control Center, moneda predeterminada editable y **Insights IA opcionales** con alertas de gastos inusuales. Default UYU, multi-moneda. |
-| **Habits** | habits | Tracking de hábitos con metas diarias / semanales / mensuales, rachas reales, detección de "en riesgo" y proveedor IA con top streaks. Eventos `LOGGED` / `GOAL_MET` integrados a gamificación. |
+| **Habits** | habits | Tracking de hábitos con metas diarias / semanales / mensuales, rachas reales, detección de "en riesgo" y proveedor IA con top streaks. Eventos `LOGGED` / `GOAL_MET` integrados a Pulso Nora. |
 | **Journal** | knowledge | Diario con prompts builtin, mood (1–5), tags, búsqueda y pin. Una entrada por día, undo en borrado. Privacy-first: el LLM sólo recibe agregados, nunca el contenido. |
 | **Goals & OKRs** | productivity | Objetivos trimestrales / anuales con Key Results manuales o **auto-sincronizados** desde métricas publicadas por otros plugins (`syncMetricBackedKRs` lee `metricsRegistry`). Milestones y proveedor IA con progreso por período. |
 | **Knowledge** | knowledge | PKM ligero local-first: recursos (libros / cursos / papers / videos), highlights con tags y flashcards con algoritmo **SM-2** completo. Página de repaso diario y proveedor IA con tarjetas due, mastered y top tags. |
@@ -133,23 +133,25 @@ Cola persistente con processor cada 30 s, horas de silencio configurables (con w
 - En la barra lateral, los plugins activos viven bajo **Módulos**. El candado cerrado bloquea el orden actual; al abrirlo aparece el control de arrastre para reordenar los módulos. Volvé a cerrarlo para dejar fija tu organización.
 - Las páginas internas de cada plugin se pueden mostrar u ocultar desde el control junto al título del plugin; el estado colapsado se conserva aunque cambie la UI dinámica del plugin.
 
-### 🎮 Gamificación
+### Pulso Nora
 
-| Acción | XP |
-| --- | --- |
-| Entrada diaria fitness | +5 |
-| Entrenamiento completado | +25 |
-| Tarea de trabajo completada | +10 |
-| Sesión de foco completada | +5 |
-| Sesión de foco interrumpida | −2 |
-| Misión Planner (baja / media / alta) | +5 / +10 / +16 |
-| Hábito loggeado / meta cumplida | +2 / +5 |
-| Entrada de Journal nueva / update / mood | +5 / +2 / +1 |
-| Highlight capturado / flashcard repasada / recurso terminado | +3 / +2 / +15 |
-| Time entry registrada (≥5 min) | +2 |
-| Key Result completado / Objective completado | +20 / +100 |
+Pulso Nora es el sistema vivo de progreso de Nora OS. La mascota Nori evoluciona
+en 15 etapas usando sprites propios (`public/nora-evo/nori-01.png` a
+`nori-15.png`), aparece libre en Progreso, en miniatura en la sidebar y en los
+overlays de level-up.
 
-Cada 100 puntos sube un nivel. Logros se desbloquean por hitos acumulados.
+La curva es acumulada y mas lenta que el sistema anterior:
+
+`0, 120, 280, 480, 730, 1030, 1380, 1780, 2230, 2730, 3280, 3880, 4530, 5230, 5980`
+
+Las acciones de Work, Planner, Habits, Journal, Knowledge, Time, Goals, Fitness
+y Finance siguen otorgando XP, pero el nivel se recalcula desde el XP total y se
+limita a 15. Los desbloqueos activan capas visibles y comportamiento IA
+progresivo: tono Pulso Nora en el brief diario, nudges de foco, review semanal,
+acciones ejecutables del copiloto desde nivel 6 y modo coach completo al final.
+
+Ver [docs/GAMIFICATION.md](docs/GAMIFICATION.md) para la tabla de XP, curva,
+helpers y gating de IA.
 
 ---
 
@@ -281,7 +283,7 @@ nora-os/
 │   ├── core/
 │   │   ├── audit/               # Consistency Auditor (10 reglas + catálogo dominio→ícono)
 │   │   ├── events/              # EventBus singleton + catálogo
-│   │   ├── gamification/        # XP, niveles, logros
+│   │   ├── gamification/        # Pulso Nora, Nori, XP, niveles, recompensas
 │   │   ├── plugins/             # PluginManager + Registry + Context
 │   │   ├── services/            # tags, templates, automations, notifications,
 │   │   │                        # ollama, aiContext + aiContextRegistry,
@@ -314,7 +316,7 @@ nora-os/
 1. **Electron main** abre la ventana, inicializa SQLite por usuario y registra los IPC handlers: `storage`, `auth`, `backup`, `profile`, `ollama`, `notifications`, `diagnostic`, `app-update`, `scheduled-backup`, `db-encryption`.
 2. **Preload** expone los 10 bridges tipados (`window.storage`, `window.auth`, `window.backup`, `window.profile`, `window.ollama`, `window.notifications`, `window.diagnostic`, `window.appUpdate`, `window.scheduledBackup`, `window.dbEncryption`) bajo context isolation.
 3. **PluginManager** lee el registry, aplica migraciones por plugin, expone `CoreAPI` (`storage`, `events`, `ui`, `gamification`, `metrics`, `getProfile`) y monta rutas/nav items.
-4. **EventBus** persistente sirve de columna vertebral: cualquier acción del usuario emite eventos que alimentan automatizaciones, gamificación, dashboard, feed reciente y métricas publicadas en `metricsRegistry`.
+4. **EventBus** persistente sirve de columna vertebral: cualquier acción del usuario emite eventos que alimentan automatizaciones, Pulso Nora, dashboard, feed reciente y métricas publicadas en `metricsRegistry`.
 5. **Consistency Auditor** corre en boot y al togglear plugins; valida 10 reglas (R1–R10) sobre logros huérfanos, eventos sin emisor, iconografía coherente con el dominio, etc.
 6. **AI opt-in**: cada plugin se registra como context provider (`registerAIContextProvider`); `aiContextService` agrega los slices → `aiSuggestionsService` lo combina con un prompt → llamada a Ollama vía IPC.
 

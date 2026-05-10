@@ -9,7 +9,7 @@ describe('Hero', () => {
     expect(h1).toHaveTextContent(/copiloto que conoce/i)
     expect(h1).toHaveTextContent(/toda tu vida/i)
     expect(
-      screen.getByText(/Nora OS conecta tu trabajo, salud, hábitos y finanzas/i),
+      screen.getByText(/Nora OS conecta tu trabajo, salud, hábitos, finanzas y Pulso Nora/i),
     ).toBeInTheDocument()
   })
 

@@ -1327,7 +1327,8 @@ function registerProfileIpc(db) {
 const CHANNELS$3 = {
   health: "ollama:health",
   generate: "ollama:generate",
-  listModels: "ollama:list-models"
+  listModels: "ollama:list-models",
+  pullModel: "ollama:pull-model"
 };
 const DEFAULT_BASE = "http://127.0.0.1:11434";
 function getBase() {
@@ -1426,6 +1427,17 @@ function registerOllamaIpc() {
   electron.ipcMain.handle(CHANNELS$3.listModels, async () => {
     const data = await getJson("/api/tags", 5e3);
     return data.models?.map((m) => ({ name: m.name, size: m.size, modifiedAt: m.modified_at })) ?? [];
+  });
+  electron.ipcMain.handle(CHANNELS$3.pullModel, async (_event, payload) => {
+    if (typeof payload !== "string" || payload.trim().length === 0) {
+      throw new Error("model requerido");
+    }
+    const model = payload.trim();
+    const result = await postJson("/api/pull", {
+      model,
+      stream: false
+    }, 6e5);
+    return { ok: true, model, status: result.status };
   });
   electron.ipcMain.handle(CHANNELS$3.generate, async (_event, payload) => {
     if (!payload || typeof payload !== "object") {
@@ -1557,6 +1569,54 @@ function scheduleAutoUpdateChecks(opts) {
   };
   return handle;
 }
+const OFFICIAL_DOWNLOAD_URL = "https://na7hk3r.github.io/nora-os/#download";
+const MANUAL_UPDATE_ERROR_MESSAGE = "No pudimos conectar con el servidor de actualizaciones. Descargá manualmente la última versión desde el sitio oficial.";
+const RECOVERABLE_UPDATE_ERROR_PATTERNS = [
+  /ERR_NAME_NOT_RESOLVED/i,
+  /\bENOTFOUND\b/i,
+  /\bEAI_AGAIN\b/i,
+  /\bETIMEDOUT\b/i,
+  /\bECONNRESET\b/i,
+  /\bECONNREFUSED\b/i,
+  /timeout|timed out/i,
+  /network|fetch failed|socket hang up/i,
+  /\b404\b|not found/i,
+  /latest\.ya?ml|app-update\.ya?ml|manifest|feed/i
+];
+function getAppUpdateErrorMessage(error) {
+  if (error instanceof Error) {
+    const details = error;
+    return [
+      error.name,
+      error.message,
+      details.code,
+      details.statusCode,
+      details.status
+    ].filter((value) => typeof value === "string" || typeof value === "number").join(" ");
+  }
+  if (typeof error === "string") return error;
+  if (error && typeof error === "object") {
+    const details = error;
+    const parts = [details.message, details.code, details.statusCode, details.status].filter((value) => typeof value === "string" || typeof value === "number").join(" ");
+    if (parts) return parts;
+  }
+  try {
+    return JSON.stringify(error);
+  } catch {
+    return String(error);
+  }
+}
+function isRecoverableAppUpdateError(error) {
+  const message = getAppUpdateErrorMessage(error);
+  return RECOVERABLE_UPDATE_ERROR_PATTERNS.some((pattern) => pattern.test(message));
+}
+function toAppUpdateErrorStatus(_error) {
+  return {
+    state: "error",
+    message: MANUAL_UPDATE_ERROR_MESSAGE,
+    manualDownloadUrl: OFFICIAL_DOWNLOAD_URL
+  };
+}
 const CHANNELS$1 = {
   getStatus: "app-update:get-status",
   check: "app-update:check",
@@ -1582,6 +1642,12 @@ function tryLoadUpdater() {
   } catch {
     return null;
   }
+}
+function broadcastUpdateError(context, err) {
+  const technicalMessage = getAppUpdateErrorMessage(err);
+  const recoverable = isRecoverableAppUpdateError(err);
+  console.warn(`[app-update] ${context}`, { recoverable, technicalMessage, error: err });
+  broadcast(toAppUpdateErrorStatus());
 }
 function registerAppUpdateIpc(getMainWindow) {
   mainWindowGetter = getMainWindow;
@@ -1623,9 +1689,7 @@ function registerAppUpdateIpc(getMainWindow) {
         const version = info?.version ?? "desconocida";
         broadcast({ state: "downloaded", version });
       });
-      updater.on("error", (err) => {
-        broadcast({ state: "error", message: err instanceof Error ? err.message : String(err) });
-      });
+      updater.on("error", (err) => broadcastUpdateError("autoUpdater error", err));
     }
   }
   electron.ipcMain.handle(CHANNELS$1.getStatus, () => currentStatus);
@@ -1634,7 +1698,7 @@ function registerAppUpdateIpc(getMainWindow) {
     try {
       await updater.checkForUpdates();
     } catch (err) {
-      broadcast({ state: "error", message: err instanceof Error ? err.message : "Error al chequear updates" });
+      broadcastUpdateError("checkForUpdates failed", err);
     }
     return currentStatus;
   });
@@ -1643,7 +1707,7 @@ function registerAppUpdateIpc(getMainWindow) {
     try {
       await updater.downloadUpdate();
     } catch (err) {
-      broadcast({ state: "error", message: err instanceof Error ? err.message : "Error al descargar update" });
+      broadcastUpdateError("downloadUpdate failed", err);
     }
     return currentStatus;
   });

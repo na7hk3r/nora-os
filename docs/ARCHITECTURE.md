@@ -21,7 +21,7 @@ Nora OS sigue una arquitectura de **kernel + plugins** donde un núcleo (`core/`
 │  │  EventBus ◄─── PluginManager ────► CoreAPI      │   │
 │  │     │               │                │          │   │
 │  │  coreStore    Plugin Registry   StorageAPI      │   │
-│  │  gamifStore       Shell UI                      │   │
+│  │  pulsoNoraStore   Shell UI                      │   │
 │  └──────────────────────────────────────────────────┘   │
 │                         │                               │
 │  ┌──────────────────────▼──────────────────────────┐   │
@@ -42,7 +42,7 @@ App.tsx
   1. authStore.initializeSession()  → valida sesión; si la DB del usuario está cifrada, queda lockeada
   2. UnlockScreen (si corresponde) → setActiveUser(userId, passphrase)
   3. loadFromStorage()              → carga perfil, ajustes, plugins activos desde SQLite
-  4. gamificationStore.loadFromStorage() → restaura puntos, nivel, racha, historial y logros
+  4. gamificationStore.loadFromStorage() → restaura XP, recalcula nivel Pulso Nora, racha, historial y logros
   5. Import de los 8 plugins        → registra manifests en PluginRegistry
   6. pluginManager.initPlugin(id)   por cada plugin activo
        → runMigrations
@@ -67,7 +67,7 @@ App.tsx
 - `services/storage-ipc.ts` — Tres handlers IPC con validación estricta de SQL. Toda operación debe pasar el filtro de tipo (SELECT-only para query, INSERT/UPDATE/DELETE para execute).
 - `services/auth-ipc.ts` — 6 canales: `register`, `login`, `logout`, `me`, `get-recovery-question`, `reset-password-with-recovery`. Ver [AUTH.md](AUTH.md).
 - `services/backup-ipc.ts` — 4 canales: export/import plain y encrypted (DB completa del usuario activo).
-- `services/profile-ipc.ts` — 4 canales: export/import plain y encrypted del **snapshot de perfil** (perfil + settings whitelisted + activePlugins + gamificación). Formato `.posprof.json` o `.posprof` con magic header `POS-PRF1`.
+- `services/profile-ipc.ts` — 4 canales: export/import plain y encrypted del **snapshot de perfil** (perfil + settings whitelisted + activePlugins + Pulso Nora). Formato `.posprof.json` o `.posprof` con magic header `POS-PRF1`.
 - `services/ollama-ipc.ts` — `health`, `list-models`, `generate` contra `http://127.0.0.1:11434` vía Electron `net` (sin CORS).
 - `services/notifications-ipc.ts` — `supported`, `show` (notificaciones nativas del SO).
 - `services/diagnostic-ipc.ts` — `export` genera JSON local con versión, plataforma, conteos de tablas y últimos eventos.
@@ -152,11 +152,12 @@ Además, los plugins pueden importar directamente:
 - Esta lista de plugins activos también condiciona la UI del `ControlCenter` (secciones por plugin visibles solo cuando el plugin está activo) y dispara `runAudit()` en cada toggle.
 
 #### `gamificationStore`
-- Puntos totales, nivel calculado (puntos / 100 + 1), racha de días.
+- Puntos totales, nivel Pulso Nora recalculado desde XP, racha de días.
 - Historial de transacciones de puntos.
 - Logros desbloqueados.
 - Persistencia del snapshot en `settings.gamificationState`.
-- `addPoints(amount, reason)` actualiza nivel, emite eventos y guarda el snapshot persistido.
+- `addPoints(amount, reason)` recalcula nivel con `getNoriLevel(points)`, emite eventos y guarda el snapshot persistido.
+- Pulso Nora define 15 niveles maximos, curva acumulada `[0, 120, 280, 480, 730, 1030, 1380, 1780, 2230, 2730, 3280, 3880, 4530, 5230, 5980]`, sprites de Nori y recompensas de UI/IA en `pulsoNora.ts`.
 
 ### 6. Storage API + Repository
 
@@ -202,7 +203,7 @@ El dashboard principal combina componentes del core y widgets de plugins:
 - Los widgets principales del dashboard pueden reordenarse condicionalmente para optimizar distribución visual.
 - Cada plugin puede aportar widgets (`HabitsSummaryWidget`, `KnowledgeSummaryWidget`, `TimeSummaryWidget`, etc.) vía `api.ui.registerWidget`.
 - El colapso de widgets de plugins se resuelve en el layout core, no en los plugins.
-- El XP y nivel se muestran en el header del Shell y en `GlobalProgress` (panel expandido del Dashboard); ya no existe el componente legacy `GamificationBar`.
+- El XP, nivel, etapa de Nori y preview de la siguiente evolucion se muestran en la sidebar y en `GlobalProgress`; ya no existe el componente legacy `GamificationBar`.
 
 ### 10. Planner core (no plugin)
 
@@ -214,7 +215,7 @@ El dashboard principal combina componentes del core y widgets de plugins:
 - Reprogramación de tareas por drag and drop entre días.
 - Persistencia en `settings` bajo `corePlannerTasksV1`.
 
-Cuando se completa una tarea por primera vez, emite `CORE_PLANNER_TASK_COMPLETED` y dispara flujo de gamificación.
+Cuando se completa una tarea por primera vez, emite `CORE_PLANNER_TASK_COMPLETED` y dispara flujo de Pulso Nora.
 
 ## Flujo de datos típico
 
@@ -244,7 +245,7 @@ KanbanBoard.handleDragEnd()
                      gamificationStore.addPoints()
                            │
                            ▼
-                     UI del header / GlobalProgress re-renderiza
+                     UI de Sidebar / GlobalProgress re-renderiza
 ```
 
 ## Temas visuales

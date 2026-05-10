@@ -1,6 +1,6 @@
 // Reformado: copy orientado a beneficio (no a feature técnica), íconos lucide curados.
 import type { LucideIcon } from 'lucide-react'
-import { HardDrive, Boxes, RefreshCw, ShieldCheck, Users, Bot } from 'lucide-react'
+import { HardDrive, Boxes, RefreshCw, ShieldCheck, Users, Sparkles, Bot } from 'lucide-react'
 
 export interface Feature {
   title: string
@@ -10,7 +10,7 @@ export interface Feature {
   tag?: string
 }
 
-export const featureIcons = [HardDrive, Boxes, RefreshCw, ShieldCheck, Users, Bot] as const
+export const featureIcons = [HardDrive, Boxes, RefreshCw, ShieldCheck, Users, Sparkles, Bot] as const
 
 export const features: Feature[] = [
   {
@@ -47,6 +47,13 @@ export const features: Feature[] = [
     description:
       'Cada usuario del equipo tiene su propia base cifrable. Sin cuentas online, todo separado en disco.',
     icon: Users,
+  },
+  {
+    tag: 'Pulso Nora',
+    title: 'Nori evoluciona con tu constancia',
+    description:
+      '15 niveles, XP mas exigente y recompensas que desbloquean mejoras visibles e IA mas capaz.',
+    icon: Sparkles,
   },
   {
     tag: 'IA opcional',

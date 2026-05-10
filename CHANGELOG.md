@@ -1,5 +1,45 @@
 # Changelog - Nora OS
 
+## [1.15.0] - 2026-05-10
+
+### Pulso Nora, Nori y progresion de 15 evoluciones
+
+Release mayor de progreso personal: la gamificacion lineal se reemplaza por
+**Pulso Nora**, un sistema vivo con Nori como mascota evolutiva, curva de XP mas
+lenta y recompensas que abren capas visibles de UI e IA.
+
+#### Pulso Nora
+
+- Nueva configuracion central en `pulsoNora.ts` con 15 niveles maximos, curva
+  acumulada hasta 5980 XP, etapas evolutivas, sprites y recompensas.
+- El nivel vuelve a calcularse desde el XP total como fuente de verdad; los
+  perfiles anteriores conservan XP y migran automaticamente al nuevo rango.
+- Se recorto el sprite sheet `nora-evo-monsters-nobackground.png` en 15 assets
+  publicos `public/nora-evo/nori-01.png` ... `nori-15.png`.
+
+#### UI
+
+- `GlobalProgress` se redisenia como panel Pulso Nora: Nori libre y destacado,
+  etapa evolutiva, barra de XP, preview bloqueado de la siguiente evolucion,
+  recompensas y logros.
+- Click en Nori dentro de Progreso abre una tabla pop-up con evoluciones
+  desbloqueadas y solo una preview oculta del siguiente nivel.
+- Sidebar muestra Nori en miniatura con nivel, progreso de XP y racha.
+- El overlay de level-up muestra la nueva evolucion y los desbloqueos del nivel.
+
+#### IA
+
+- `aiContextService` expone sistema, companero, nivel de Nori, etapa, progreso y
+  recompensas activas.
+- Daily brief, nudges, review semanal y copiloto respetan desbloqueos por nivel.
+- Las acciones ejecutables del copiloto quedan disponibles desde nivel 6.
+
+#### Landing y documentacion
+
+- README, arquitectura, documentacion de gamificacion, landing y notas de
+  capturas quedan actualizadas para Pulso Nora.
+- Versionado de app y landing sincronizado en `1.15.0`.
+
 ## [1.14.0] - 2026-05-08
 
 ### Dashboard draggable, Finanzas configurables y pulido de Work

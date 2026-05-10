@@ -34,3 +34,9 @@ npx png2icons icon.png icon -allp
 `build/` esta gitignoreado (output de algunas herramientas).
 **Este directorio (`buildResources/`) se versiona** para que los assets de marca
 viajen con el repo y CI pueda firmarlos / empaquetarlos.
+
+## Nota de release 1.15.0
+
+Pulso Nora usa assets publicos del renderer (`public/nora-evo/`) y no requiere
+cambios en los recursos nativos de electron-builder. Los iconos de instalador y
+DMG siguen saliendo de este directorio.

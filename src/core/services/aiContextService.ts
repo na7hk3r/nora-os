@@ -1,6 +1,13 @@
 import { storageAPI } from '@core/storage/StorageAPI'
 import { useCoreStore } from '@core/state/coreStore'
 import { useGamificationStore } from '@core/gamification/gamificationStore'
+import {
+  PULSO_NORA_COMPANION_NAME,
+  PULSO_NORA_SYSTEM_NAME,
+  getNoriProgress,
+  getNoriStage,
+  getUnlockedRewards,
+} from '@core/gamification/pulsoNora'
 import { getAIContextProviders } from './aiContextRegistry'
 import { loadFitnessSettings } from '@plugins/fitness/settings'
 
@@ -17,9 +24,16 @@ export interface UserContextSnapshot {
     weightGoal: number
   }
   gamification: {
+    systemName: string
+    companionName: string
     level: number
+    maxLevel: number
     points: number
     streak: number
+    stage: string
+    progressPercent: number
+    xpToNextLevel: number
+    unlockedRewards: string[]
   }
   fitness?: {
     daysWithDataLast7: number
@@ -187,6 +201,9 @@ export const aiContextService = {
   async snapshot(): Promise<UserContextSnapshot> {
     const profile = useCoreStore.getState().profile
     const gam = useGamificationStore.getState()
+    const noriProgress = getNoriProgress(gam.points)
+    const noriStage = getNoriStage(noriProgress.level)
+    const unlockedRewards = getUnlockedRewards(noriProgress.level)
     const providers = getAIContextProviders()
     const [fitness, work, planner, recent, ...providerResults] = await Promise.all([
       getFitnessSnapshot().catch(() => undefined),
@@ -216,7 +233,18 @@ export const aiContextService = {
         height: profile.height,
         weightGoal: profile.weightGoal,
       },
-      gamification: { level: gam.level, points: gam.points, streak: gam.streak },
+      gamification: {
+        systemName: PULSO_NORA_SYSTEM_NAME,
+        companionName: PULSO_NORA_COMPANION_NAME,
+        level: noriProgress.level,
+        maxLevel: noriProgress.maxLevel,
+        points: gam.points,
+        streak: gam.streak,
+        stage: noriStage.title,
+        progressPercent: noriProgress.percent,
+        xpToNextLevel: noriProgress.xpToNextLevel,
+        unlockedRewards: unlockedRewards.map((reward) => reward.title),
+      },
       fitness,
       work,
       planner,
@@ -233,7 +261,10 @@ export const aiContextService = {
     const lines: string[] = []
     lines.push(`Fecha: ${snapshot.generatedAt.slice(0, 10)}`)
     if (snapshot.profile.name) lines.push(`Usuario: ${snapshot.profile.name}`)
-    lines.push(`Gamificación: nivel ${snapshot.gamification.level}, ${snapshot.gamification.points} XP, racha ${snapshot.gamification.streak}d`)
+    lines.push(`${snapshot.gamification.systemName}: ${snapshot.gamification.companionName} nivel ${snapshot.gamification.level}/${snapshot.gamification.maxLevel}, etapa ${snapshot.gamification.stage}, ${snapshot.gamification.points} XP, racha ${snapshot.gamification.streak}d, progreso ${snapshot.gamification.progressPercent}%, faltan ${snapshot.gamification.xpToNextLevel} XP`)
+    if (snapshot.gamification.unlockedRewards.length) {
+      lines.push(`Desbloqueos activos: ${snapshot.gamification.unlockedRewards.join(', ')}`)
+    }
     if (snapshot.fitness) {
       const f = snapshot.fitness
       lines.push(

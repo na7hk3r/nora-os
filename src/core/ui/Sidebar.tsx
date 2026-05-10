@@ -38,11 +38,12 @@ import { useCoreStore } from '../state/coreStore'
 import { pluginManager } from '../plugins/PluginManager'
 import { eventBus } from '../events/EventBus'
 import { useGamificationStore } from '@core/gamification/gamificationStore'
-import { getLevelTier, getLevelTitle } from '@core/gamification/gamificationUtils'
+import { PULSO_NORA_SYSTEM_NAME, getNoriProgress, getNoriStage } from '@core/gamification/pulsoNora'
 import { useAuthStore } from '@core/state/authStore'
 import { APP_VERSION } from '@core/utils/version'
 import { PluginIcon } from './components/PluginIcon'
 import { NoraLogoMark } from './components/NoraLogo'
+import { NoriSprite } from './components/NoriSprite'
 import { SystemSuggestions } from './SystemSuggestions'
 import { FeedbackLauncher } from './FeedbackLauncher'
 import {
@@ -230,16 +231,8 @@ export function Sidebar() {
   const [sidebarNavState, setSidebarNavState] = useState<SidebarNavState>(DEFAULT_SIDEBAR_NAV_STATE)
   const [sidebarNavLoaded, setSidebarNavLoaded] = useState(false)
   const headerTitle = profileName?.trim() ? profileName.trim().split(' ')[0] : 'Nora OS'
-  const tier = getLevelTier(level)
-  const levelTitle = getLevelTitle(level)
-  const pointsInLevel = points % 100
-
-  const TIER_STYLE: Record<string, string> = {
-    bronze: 'from-xp-bronze to-amber-300 text-[#2a1808]',
-    silver: 'from-xp-silver to-slate-200 text-[#1f2937]',
-    gold: 'from-xp-gold to-yellow-200 text-[#3a2a00]',
-    platinum: 'from-xp-platinum to-cyan-200 text-[#08212f]',
-  }
+  const noriProgress = getNoriProgress(points)
+  const noriStage = getNoriStage(level)
 
   // Re-derive nav items only when plugin UI changes. Keeping this array stable
   // prevents the sidebar layout loader from replaying stale persisted state
@@ -483,31 +476,36 @@ export function Sidebar() {
         </NavLink>
       </nav>
 
-      {/* Gamification mini widget (compacto: badge + barra + streak) */}
+      {/* Pulso Nora mini widget */}
       {!sidebarCollapsed && (
         <NavLink
           to="/review"
           className="mx-2 mb-2 block rounded-xl border border-border bg-surface/60 p-2.5 transition-colors hover:border-accent/40"
-          title={`Nivel ${level} · ${levelTitle} · ${points} puntos· Ver progreso completo`}
+          title={`${PULSO_NORA_SYSTEM_NAME} - Nori nivel ${level} - ${points} XP - Ver progreso completo`}
         >
-          <div className="flex items-center gap-2.5">
-            <span
-              className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-white/15 bg-gradient-to-br text-xs font-black shadow ${TIER_STYLE[tier]}`}
-            >
-              {level}
-            </span>
-            <div className="relative h-1.5 flex-1 overflow-hidden rounded-full bg-surface-lighter">
-              <div
-                className="h-1.5 rounded-full bg-gradient-to-r from-accent to-accent-light transition-all duration-500"
-                style={{ width: `${pointsInLevel}%` }}
-              />
+          <div className="flex items-center gap-2">
+            <div className="relative -ml-1 flex h-14 w-14 shrink-0 items-end justify-center">
+              <div className="absolute bottom-1 h-2 w-9 rounded-[50%] bg-black/35 blur-sm" aria-hidden />
+              <NoriSprite level={level} size="md" decorative className="relative z-10 -mb-1" />
             </div>
-            {streak > 0 && (
-              <span className="inline-flex items-center gap-0.5 text-xs font-semibold text-warning" title={`Racha de ${streak} días`}>
-                <Flame size={12} />
-                {streak}
-              </span>
-            )}
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center justify-between gap-2">
+                <p className="truncate text-xs font-semibold text-white">Nori L{level}</p>
+                {streak > 0 && (
+                  <span className="inline-flex items-center gap-0.5 text-xs font-semibold text-warning" title={`Racha de ${streak} dias`}>
+                    <Flame size={12} />
+                    {streak}
+                  </span>
+                )}
+              </div>
+              <p className="truncate text-[10px] uppercase tracking-eyebrow text-muted">{noriStage.title}</p>
+              <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-surface-lighter">
+                <div
+                  className="h-1.5 rounded-full bg-gradient-to-r from-accent to-accent-light transition-all duration-500"
+                  style={{ width: `${noriProgress.percent}%` }}
+                />
+              </div>
+            </div>
           </div>
         </NavLink>
       )}

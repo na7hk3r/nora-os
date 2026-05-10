@@ -167,7 +167,7 @@ export const copy = {
     meta: {
       title: 'Nora OS - Copiloto local para organizar tu vida',
       description:
-        'Nora OS conecta trabajo, salud, hábitos y finanzas en una app local-first, privada y extensible.',
+        'Nora OS conecta trabajo, salud, hábitos, finanzas y Pulso Nora en una app local-first, privada y extensible.',
     },
     common: {
       skipContent: 'Saltar al contenido',
@@ -203,7 +203,7 @@ export const copy = {
       titleAccent: 'toda tu vida.',
       mantra: 'Tu sistema · Tu vida · Una sola IA',
       description:
-        'Nora OS conecta tu trabajo, salud, hábitos y finanzas para decirte qué hacer hoy sin enviar tus datos a ningún servidor.',
+        'Nora OS conecta tu trabajo, salud, hábitos, finanzas y Pulso Nora para decirte qué hacer hoy sin enviar tus datos a ningún servidor.',
       githubCta: 'Ver en GitHub',
       proof: ['Sin cuenta requerida', 'Cifrado AES-256-GCM', '100% local · Licencia ISC'],
       copilotLine:
@@ -262,6 +262,12 @@ export const copy = {
           title: 'Varios perfiles, cero cloud',
           description:
             'Cada usuario del equipo tiene su propia base cifrable. Sin cuentas online, todo separado en disco.',
+        },
+        {
+          tag: 'Pulso Nora',
+          title: 'Nori evoluciona con tu constancia',
+          description:
+            '15 niveles, XP mas exigente y recompensas que desbloquean mejoras visibles e IA mas capaz.',
         },
         {
           tag: 'IA opcional',
@@ -429,8 +435,9 @@ export const copy = {
           id: 'dashboard',
           label: 'Dashboard',
           src: 'screenshots/screenshot-dashboard.png',
-          alt: 'Dashboard de Nora OS con Daily Score y misiones',
-          caption: 'Daily Score, misiones del día y resumen de hábitos en una sola vista.',
+          alt: 'Dashboard de Nora OS con Pulso Nora y Nori',
+          caption:
+            'Pulso Nora, Nori, XP, misiones del día y resumen de hábitos en una sola vista.',
         },
         {
           id: 'copilot',
@@ -438,7 +445,7 @@ export const copy = {
           src: 'screenshots/screenshot-copiloto.png',
           alt: 'Panel del copiloto IA local',
           caption:
-            'Copiloto IA local. Respuestas en lenguaje natural sobre tus datos reales, sin enviar nada a la nube.',
+            'Copiloto IA local con acciones avanzadas desbloqueables desde Nori nivel 6, sin enviar nada a la nube.',
         },
         {
           id: 'themes',
@@ -473,7 +480,7 @@ export const copy = {
         {
           title: 'CoreAPI',
           description:
-            'Acceso completo a storage, EventBus, gamificación, IA context y settings. Una API estable, tipada, testeada.',
+            'Acceso completo a storage, EventBus, Pulso Nora, IA context y settings. Una API estable, tipada, testeada.',
           linkText: 'docs/PLUGIN_API',
         },
         {
@@ -559,7 +566,7 @@ export const copy = {
     meta: {
       title: 'Nora OS - Local copilot for organizing your life',
       description:
-        'Nora OS connects work, health, habits, and finances in a private, extensible, local-first app.',
+        'Nora OS connects work, health, habits, finance, and Pulso Nora in a private, extensible, local-first app.',
     },
     common: {
       skipContent: 'Skip to content',
@@ -595,7 +602,7 @@ export const copy = {
       titleAccent: 'your whole life.',
       mantra: 'Your system · Your life · One AI',
       description:
-        'Nora OS connects your work, health, habits, and finances to tell you what to do today without sending your data to any server.',
+        'Nora OS connects your work, health, habits, finance, and Pulso Nora to tell you what to do today without sending your data to any server.',
       githubCta: 'View on GitHub',
       proof: ['No account required', 'AES-256-GCM encryption', '100% local · ISC license'],
       copilotLine: 'Today you are 18% below your weekly focus. You have 2 tasks due today.',
@@ -653,6 +660,12 @@ export const copy = {
           title: 'Several profiles, zero cloud',
           description:
             'Each user gets their own encryptable database. No online accounts, everything separated on disk.',
+        },
+        {
+          tag: 'Pulso Nora',
+          title: 'Nori evolves with your consistency',
+          description:
+            '15 levels, slower XP, and rewards that unlock visible upgrades and stronger AI behavior.',
         },
         {
           tag: 'Optional AI',
@@ -820,8 +833,8 @@ export const copy = {
           id: 'dashboard',
           label: 'Dashboard',
           src: 'screenshots/screenshot-dashboard.png',
-          alt: 'Nora OS dashboard with Daily Score and missions',
-          caption: 'Daily Score, daily missions, and habit summaries in one view.',
+          alt: 'Nora OS dashboard with Pulso Nora and Nori',
+          caption: 'Pulso Nora, Nori, XP, daily missions, and habit summaries in one view.',
         },
         {
           id: 'copilot',
@@ -829,7 +842,7 @@ export const copy = {
           src: 'screenshots/screenshot-copiloto.png',
           alt: 'Local AI copilot panel',
           caption:
-            'Local AI copilot. Natural-language answers about your real data, without sending anything to the cloud.',
+            'Local AI copilot with advanced actions unlockable from Nori level 6, without sending anything to the cloud.',
         },
         {
           id: 'themes',
@@ -864,7 +877,7 @@ export const copy = {
         {
           title: 'CoreAPI',
           description:
-            'Full access to storage, EventBus, gamification, AI context, and settings. A stable, typed, tested API.',
+            'Full access to storage, EventBus, Pulso Nora, AI context, and settings. A stable, typed, tested API.',
           linkText: 'docs/PLUGIN_API',
         },
         {
@@ -950,7 +963,7 @@ export const copy = {
     meta: {
       title: 'Nora OS - Copiloto local para organizar sua vida',
       description:
-        'Nora OS conecta trabalho, saúde, hábitos e finanças em um app local-first, privado e extensível.',
+        'Nora OS conecta trabalho, saude, habitos, financas e Pulso Nora em um app local-first, privado e extensivel.',
     },
     common: {
       skipContent: 'Ir para o conteúdo',
@@ -986,7 +999,7 @@ export const copy = {
       titleAccent: 'a sua vida inteira.',
       mantra: 'Seu sistema · Sua vida · Uma só IA',
       description:
-        'Nora OS conecta trabalho, saúde, hábitos e finanças para dizer o que fazer hoje sem enviar seus dados para nenhum servidor.',
+        'Nora OS conecta trabalho, saude, habitos, financas e Pulso Nora para dizer o que fazer hoje sem enviar seus dados para nenhum servidor.',
       githubCta: 'Ver no GitHub',
       proof: ['Sem conta obrigatória', 'Criptografia AES-256-GCM', '100% local · Licença ISC'],
       copilotLine:
@@ -1045,6 +1058,12 @@ export const copy = {
           title: 'Vários perfis, zero nuvem',
           description:
             'Cada usuário tem sua própria base criptografável. Sem contas online, tudo separado no disco.',
+        },
+        {
+          tag: 'Pulso Nora',
+          title: 'Nori evolui com sua constancia',
+          description:
+            '15 niveis, XP mais exigente e recompensas que desbloqueiam melhorias visiveis e uma IA mais capaz.',
         },
         {
           tag: 'IA opcional',
@@ -1212,8 +1231,9 @@ export const copy = {
           id: 'dashboard',
           label: 'Dashboard',
           src: 'screenshots/screenshot-dashboard.png',
-          alt: 'Dashboard do Nora OS com Daily Score e missões',
-          caption: 'Daily Score, missões do dia e resumo de hábitos em uma só vista.',
+          alt: 'Dashboard do Nora OS com Pulso Nora e Nori',
+          caption:
+            'Pulso Nora, Nori, XP, missoes do dia e resumo de habitos em uma so vista.',
         },
         {
           id: 'copilot',
@@ -1221,7 +1241,7 @@ export const copy = {
           src: 'screenshots/screenshot-copiloto.png',
           alt: 'Painel do copiloto IA local',
           caption:
-            'Copiloto IA local. Respostas em linguagem natural sobre seus dados reais, sem enviar nada para a nuvem.',
+            'Copiloto IA local com acoes avancadas desbloqueaveis a partir de Nori nivel 6, sem enviar nada para a nuvem.',
         },
         {
           id: 'themes',
@@ -1256,7 +1276,7 @@ export const copy = {
         {
           title: 'CoreAPI',
           description:
-            'Acesso completo a storage, EventBus, gamificação, IA context e settings. Uma API estável, tipada e testada.',
+            'Acesso completo a storage, EventBus, Pulso Nora, IA context e settings. Uma API estavel, tipada e testada.',
           linkText: 'docs/PLUGIN_API',
         },
         {

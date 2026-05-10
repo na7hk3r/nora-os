@@ -28,6 +28,7 @@ const profileBridge = {
 const ollamaBridge = {
   health: () => electron.ipcRenderer.invoke("ollama:health"),
   listModels: () => electron.ipcRenderer.invoke("ollama:list-models"),
+  pullModel: (model) => electron.ipcRenderer.invoke("ollama:pull-model", model),
   generate: (req) => electron.ipcRenderer.invoke("ollama:generate", req)
 };
 const notificationsBridge = {

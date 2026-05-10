@@ -5,6 +5,7 @@ import { useWorkStore } from '@plugins/work/store'
 import { FITNESS_EVENTS } from '@plugins/fitness/events'
 import { WORK_EVENTS } from '@plugins/work/events'
 import { CORE_EVENTS } from '@core/events/events'
+import { getNoriStage } from './pulsoNora'
 
 const ACTION_EVENTS: Set<string> = new Set([
   FITNESS_EVENTS.DAILY_ENTRY_SAVED,
@@ -31,11 +32,12 @@ interface LevelTitleRange {
 }
 
 const LEVEL_TITLES: LevelTitleRange[] = [
-  { min: 1, max: 3, title: 'Aprendiz' },
-  { min: 4, max: 7, title: 'Practicante' },
-  { min: 8, max: 14, title: 'Ejecutor' },
-  { min: 15, max: 24, title: 'Maestro' },
-  { min: 25, max: Number.MAX_SAFE_INTEGER, title: 'Elite' },
+  { min: 1, max: 3, title: 'Chispa inicial' },
+  { min: 4, max: 6, title: 'Companero de ritmo' },
+  { min: 7, max: 9, title: 'Guardian del pulso' },
+  { min: 10, max: 12, title: 'Oraculo operativo' },
+  { min: 13, max: 14, title: 'Nucleo vivo' },
+  { min: 15, max: Number.MAX_SAFE_INTEGER, title: 'Sincronia total' },
 ]
 
 export type LevelTier = 'bronze' | 'silver' | 'gold' | 'platinum'
@@ -49,13 +51,15 @@ export function isSameDateKey(a: string, b: string): boolean {
 }
 
 export function getLevelTier(level: number): LevelTier {
-  if (level < 5) return 'bronze'
-  if (level < 10) return 'silver'
-  if (level < 15) return 'gold'
+  if (level < 4) return 'bronze'
+  if (level < 8) return 'silver'
+  if (level < 12) return 'gold'
   return 'platinum'
 }
 
 export function getLevelTitle(level: number): string {
+  const stage = getNoriStage(level)
+  if (stage?.title) return stage.title
   for (const entry of LEVEL_TITLES) {
     if (level >= entry.min && level <= entry.max) {
       return entry.title

@@ -1,133 +1,160 @@
-# Sistema de Gamificación
+# Pulso Nora
 
-## Visión general
+## Vision general
 
-El sistema de gamificación provee retroalimentación positiva al usuario por sus acciones en la aplicación. Está implementado en `src/core/gamification/gamificationStore.ts` y es accesible desde cualquier plugin via `api.gamification`.
+Pulso Nora es el sistema vivo de progreso de Nora OS. Reemplaza la gamificacion
+lineal anterior por una mascota evolutiva llamada Nori, 15 niveles maximos,
+curva de XP mas lenta y recompensas visibles que activan mejoras de UI e IA.
 
-## Mecánicas
+La fuente de verdad sigue siendo el XP total persistido. El nivel se recalcula
+desde ese XP en cada carga, por lo que los perfiles antiguos conservan sus
+puntos pero se ajustan automaticamente a la nueva curva.
 
-### Puntos de experiencia (XP)
+## Archivos principales
 
-Cada acción relevante otorga o resta puntos. Los puntos se acumulan y **nunca se resetean** (el historial es permanente).
+- `src/core/gamification/pulsoNora.ts`: configuracion de niveles, etapas,
+  sprites, recompensas y helpers.
+- `src/core/gamification/gamificationStore.ts`: estado persistido, historial,
+  racha, logros y migracion desde snapshots anteriores.
+- `src/core/ui/components/NoriSprite.tsx`: sprite reusable para sidebar,
+  progreso y level-up.
+- `src/core/ui/GlobalProgress.tsx`: panel principal de Pulso Nora.
+- `src/core/ui/Sidebar.tsx`: resumen compacto de Nori, nivel, XP y racha.
+- `public/nora-evo/nori-01.png` ... `public/nora-evo/nori-15.png`: evoluciones
+  recortadas desde el sprite sheet original.
 
-```
-Nivel = floor(puntos_totales / 100) + 1
-```
+## Curva de niveles
 
-Por ejemplo: 250 puntos → Nivel 3 (con 50/100 hacia el nivel 4).
+Pulso Nora tiene 15 niveles. Los valores son XP acumulado minimo para entrar a
+cada nivel:
 
-### Racha (streak)
+| Nivel | XP acumulado |
+| --- | ---: |
+| 1 | 0 |
+| 2 | 120 |
+| 3 | 280 |
+| 4 | 480 |
+| 5 | 730 |
+| 6 | 1030 |
+| 7 | 1380 |
+| 8 | 1780 |
+| 9 | 2230 |
+| 10 | 2730 |
+| 11 | 3280 |
+| 12 | 3880 |
+| 13 | 4530 |
+| 14 | 5230 |
+| 15 | 5980 |
 
-Días consecutivos con al menos una acción registrada. Se muestra en la barra de gamificación del sidebar.
+En nivel 15 el progreso queda al 100% y no se muestran previews bloqueados.
 
-Desde la versión `1.2.0`, la racha y misiones diarias persisten junto con el resto del snapshot de gamificación.
+## Helpers publicos
 
-### Logros (achievements)
-
-Los logros se desbloquean una sola vez y quedan marcados permanentemente. Cada logro tiene un ícono de Lucide React asociado.
-
-## Tabla de XP por acción
-
-| Fuente | Acción | XP |
-|--------|--------|----|
-| **Fitness** | Entrada diaria guardada | +5 |
-| **Fitness** | Entrenamiento completado | +25 |
-| **Work** | Tarea completada (movida a "Hecho") | +10 |
-| **Work** | Sesión de foco completada | +5 |
-| **Work** | Sesión de foco interrumpida | −2 |
-| **Work** | Nota creada | +3 |
-| **Finance** | Transacción registrada | +2 |
-| **Finance** | Recurrente creada | +5 |
-| **Finance** | Presupuesto creado | +5 |
-| **Habits** | Hábito loggeado | +2 |
-| **Habits** | Meta del período cumplida | +5 |
-| **Journal** | Entrada nueva | +5 |
-| **Journal** | Entrada actualizada | +2 |
-| **Journal** | Mood loggeado | +1 |
-| **Knowledge** | Highlight capturado | +3 |
-| **Knowledge** | Flashcard repasada | +2 |
-| **Knowledge** | Recurso terminado | +15 |
-| **Tiempo** | Entry detenida (≥5 min) | +2 |
-| **Goals** | Key Result completado | +20 |
-| **Goals** | Objective completado | +100 |
-| **Core Planner** | Tarea de complejidad baja completada | +5 |
-| **Core Planner** | Tarea de complejidad media completada | +10 |
-| **Core Planner** | Tarea de complejidad alta completada | +16 |
-
-> El XP no lo otorga el core: cada plugin escucha sus propios eventos en `init(api)` y llama a `api.gamification.addPoints(amount, reason)`.
-
-Las tareas del Planner core cuentan además como misión diaria del sistema mediante `CORE_PLANNER_TASK_COMPLETED`.
-
-## Logros disponibles
-
-| ID | Ícono | Título | Condición |
-|----|-------|--------|-----------|
-| `first-entry` | `CheckCircle2` | Primer registro | 1 entrada total |
-| `week-streak` | `Flame` | Racha semanal | 7 días de racha |
-| `month-streak` | `Star` | Racha mensual | 30 días de racha |
-| `centurion` | `Gem` | Centurión | 100 puntos totales |
-| `workout-10` | `PersonStanding` | Deportista | 10 entrenamientos |
-| `tasks-25` | `Target` | Productivo | 25 tareas completadas |
-
-## API del store
-
-```typescript
-import { useGamificationStore } from '@core/gamification/gamificationStore'
-
-const { points, level, streak, history, achievements, unlockedIds } = useGamificationStore()
-
-// Agregar puntos (puede ser negativo)
-useGamificationStore.getState().addPoints(10, 'Tarea completada')
-
-// Actualizar racha
-useGamificationStore.getState().setStreak(7)
-
-// Desbloquear logro manualmente
-useGamificationStore.getState().unlockAchievement('first-entry')
-
-// Verificar logros por stats
-useGamificationStore.getState().checkAchievements({
-  totalEntries: 5,
-  dailyStreak: 3,
-  totalPoints: 150,
-  totalWorkouts: 2,
-  tasksCompleted: 1,
-})
-
-// Cargar snapshot persistido desde SQLite
-await useGamificationStore.getState().loadFromStorage()
+```ts
+import {
+  getNoriLevel,
+  getNoriProgress,
+  getNoriStage,
+  getNoriSprite,
+  getUnlockedRewards,
+  isRewardUnlocked,
+} from '@core/gamification/pulsoNora'
 ```
 
-## API desde plugins
+- `getNoriLevel(points)`: devuelve el nivel 1..15 segun XP acumulado.
+- `getNoriProgress(points)`: devuelve nivel actual, XP del nivel, XP restante,
+  porcentaje y siguiente nivel.
+- `getNoriStage(level)`: nombre y copy de la etapa evolutiva.
+- `getNoriSprite(level)`: ruta publica del sprite `nori-XX.png`.
+- `getUnlockedRewards(level)`: recompensas activas hasta ese nivel.
+- `isRewardUnlocked(id, level)`: gating para UI o IA.
 
-Usar `api.gamification` en `init()` o en handlers de eventos:
+## Recompensas
 
-```typescript
-// Sin verificación de logros
-api.gamification.addPoints(5, 'Entrada diaria guardada')
+Pulso Nora no bloquea funciones basicas existentes. Lo que desbloquea son
+capas visibles, comportamiento proactivo y modos avanzados de IA.
 
-// Con verificación de logros
-api.gamification.addPoints(25, 'Entrenamiento completado')
-// Internamente llama checkAchievements con stats actuales
-```
+| Nivel | Desbloqueo |
+| --- | --- |
+| 1 | Nori despierta, progreso base y misiones XP. |
+| 2 | Brief diario con tono Pulso Nora. |
+| 3 | Proxima meta/logro destacado. |
+| 4 | Empujones de foco IA. |
+| 5 | Review semanal IA. |
+| 6 | Acciones ejecutables del copiloto. |
+| 7 | Contexto cruzado entre modulos. |
+| 8 | Alertas proactivas IA. |
+| 9 | Plan de recuperacion diario. |
+| 10 | Lectura de patrones semanales. |
+| 11 | Sugerencias mas personalizadas por racha. |
+| 12 | Priorizacion avanzada de tareas. |
+| 13 | Recomendaciones multi-modulo. |
+| 14 | Modo coach completo. |
+| 15 | Nori sincronizado, IA completa y estado maximo. |
 
-## Historial de transacciones
+## Tabla de XP por accion
 
-Cada llamada a `addPoints` registra una entrada en el historial:
+| Fuente | Accion | XP |
+| --- | --- | ---: |
+| Fitness | Entrada diaria guardada | +5 |
+| Fitness | Entrenamiento completado | +25 |
+| Work | Tarea completada | +10 |
+| Work | Sesion de foco completada | +5 |
+| Work | Sesion de foco interrumpida | -2 |
+| Work | Nota creada | +3 |
+| Finance | Transaccion registrada | +2 |
+| Finance | Recurrente creada | +5 |
+| Finance | Presupuesto creado | +5 |
+| Habits | Habito loggeado | +2 |
+| Habits | Meta del periodo cumplida | +5 |
+| Journal | Entrada nueva | +5 |
+| Journal | Entrada actualizada | +2 |
+| Journal | Mood loggeado | +1 |
+| Knowledge | Highlight capturado | +3 |
+| Knowledge | Flashcard repasada | +2 |
+| Knowledge | Recurso terminado | +15 |
+| Tiempo | Entry detenida de 5 min o mas | +2 |
+| Goals | Key Result completado | +20 |
+| Goals | Objective completado | +100 |
+| Core Planner | Tarea baja completada | +5 |
+| Core Planner | Tarea media completada | +10 |
+| Core Planner | Tarea alta completada | +16 |
 
-```typescript
-interface XPEntry {
-  amount: number    // puede ser negativo
-  reason: string    // descripción legible
-  date: string      // ISO 8601
-}
-```
+Cada plugin escucha sus propios eventos y llama a
+`api.gamification.addPoints(amount, reason)`.
 
-El componente `GlobalProgress` muestra el historial agrupado por categoría (Fitness / Work / General) calculado a partir del campo `reason`.
+## UI
 
-El snapshot persistido de gamificación se guarda en `settings` bajo la clave `gamificationState` con esta forma:
+`GlobalProgress` muestra a Nori libre, en mayor escala, con etapa evolutiva,
+barra de XP, preview bloqueado de la siguiente evolucion y recompensas. Al
+clickear el sprite abre una tabla pop-up con todas las evoluciones desbloqueadas
+y solo una preview oculta del siguiente nivel.
 
-```typescript
+`Sidebar` muestra una version compacta de Nori con nivel, progreso de XP y
+racha activa.
+
+`GamificationNotificationHub` usa la evolucion de Nori y los desbloqueos del
+nuevo nivel dentro del overlay de level-up.
+
+## IA y gating
+
+El contexto global de IA incluye `systemName`, `companionName`, nivel de Nori,
+etapa, progreso, XP restante y recompensas activas.
+
+Los servicios deben consultar recompensas antes de activar comportamiento
+avanzado. Ejemplos actuales:
+
+- `dailyBriefService`: tono Pulso Nora desde nivel 2.
+- `aiSuggestionsService`: nudge de foco desde nivel 4 y review semanal desde
+  nivel 5.
+- `copilotChatService`: acciones ejecutables desde nivel 6.
+- `CopilotPanel`: bloquea la ejecucion de acciones si Nori no llego a nivel 6.
+
+## Persistencia y migracion
+
+El snapshot persistido vive en `settings.gamificationState`.
+
+```ts
 interface PersistedGamificationState {
   points: number
   level: number
@@ -137,38 +164,16 @@ interface PersistedGamificationState {
 }
 ```
 
-## Componentes de UI
+`level` se mantiene por compatibilidad con perfiles antiguos, pero al cargar se
+recalcula desde `points` usando `getNoriLevel(points)`.
 
-### `GamificationBar`
+## Tests
 
-Barra compacta en el sidebar con nivel, puntos, racha y barra de progreso.
+La cobertura principal vive en:
 
-### `GlobalProgress`
+- `src/core/gamification/pulsoNora.test.ts`
+- `src/core/gamification/gamificationStore.test.ts`
+- `src/core/services/__tests__/copilotChatService.test.ts`
 
-Panel expandido en el Dashboard que incluye:
-- Nivel y puntos totales
-- Racha de días
-- Barra de progreso con marcadores en 25/50/75%
-- Desglose de XP por categoría (chips)
-- Grid de todos los logros (grises si no desbloqueados)
-
-La UI consume directamente el snapshot persistido restaurado al bootstrap, por lo que el progreso no se pierde al reiniciar la app.
-
-## Extensión del sistema
-
-Para añadir un nuevo logro:
-
-1. Agregar la entrada en el array `DEFAULT_ACHIEVEMENTS` dentro de `gamificationStore.ts`.
-2. Añadir el ícono correspondiente en `ACH_ICON_MAP` en `GlobalProgress.tsx`.
-3. Agregar la condición en `checkAchievements()` dentro del store.
-
-```typescript
-// En gamificationStore.ts — DEFAULT_ACHIEVEMENTS:
-{
-  id: 'focus-master',
-  title: 'Maestro del foco',
-  description: 'Completá 20 sesiones de foco',
-  icon: 'TimerReset',
-  condition: (stats) => (stats.completedFocusSessions ?? 0) >= 20,
-}
-```
+Casos cubiertos: curva XP, limites exactos, progreso entre niveles, maximo 15,
+recompensas por nivel, migracion desde estado viejo y gating de acciones IA.

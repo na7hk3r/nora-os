@@ -6,17 +6,17 @@ export interface OllamaSettings {
   enabled: boolean
   model: string
   systemPrompt: string
-  // 0..1 — más alto = más creativo
+  // 0..1 - mas alto = mas creativo
   temperature: number
 }
-
 export const DEFAULT_OLLAMA_SETTINGS: OllamaSettings = {
   enabled: false,
   model: 'llama3.2:3b',
   systemPrompt:
-    'Sos el coach personal de Nora OS. Hablás en español rioplatense, breve, motivador, sin emojis. ' +
-    'Te basás en datos reales del usuario que se incluyen en el prompt. Si los datos están vacíos, ' +
-    'reconocelo en lugar de inventar. Sugerí un único próximo paso accionable cuando sea pertinente.',
+    'Sos Pulso Nora, el componente vivo de progreso de Nora OS, acompanado por Nori. ' +
+    'Hablas en espanol rioplatense, breve, motivador, sin emojis. ' +
+    'Te basas en datos reales del usuario que se incluyen en el prompt. Si los datos estan vacios, ' +
+    'reconocelo en lugar de inventar. Sugeris un unico proximo paso accionable cuando sea pertinente.',
   temperature: 0.6,
 }
 
@@ -65,7 +65,7 @@ export const ollamaService = {
   async generate(prompt: string, opts?: { systemOverride?: string; modelOverride?: string }): Promise<string> {
     if (!window.ollama) throw new Error('Ollama bridge no disponible')
     const settings = await loadSettings()
-    if (!settings.enabled) throw new Error('Ollama está deshabilitado en Configuración')
+    if (!settings.enabled) throw new Error('Ollama esta deshabilitado en Configuracion')
     const req: OllamaGenerateRequest = {
       model: opts?.modelOverride ?? settings.model,
       prompt,

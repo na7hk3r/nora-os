@@ -3,6 +3,8 @@ import { Sparkles, RefreshCw, BarChart3 } from 'lucide-react'
 import { aiContextService, type UserContextSnapshot } from '@core/services/aiContextService'
 import { aiSuggestionsService } from '@core/services/aiSuggestionsService'
 import { ollamaService } from '@core/services/ollamaService'
+import { useGamificationStore } from '@core/gamification/gamificationStore'
+import { PULSO_NORA_COMPANION_NAME, PULSO_NORA_SYSTEM_NAME, isRewardUnlocked } from '@core/gamification/pulsoNora'
 import { GlobalProgress } from '../GlobalProgress'
 import { RecentActivityFeed } from '../RecentActivityFeed'
 
@@ -24,6 +26,8 @@ export function ReviewPage() {
   const [loadingAi, setLoadingAi] = useState(false)
   const [aiError, setAiError] = useState<string>('')
   const [ollamaReady, setOllamaReady] = useState<{ enabled: boolean; healthy: boolean; reason?: string }>({ enabled: false, healthy: false })
+  const level = useGamificationStore((s) => s.level)
+  const weeklyReviewUnlocked = isRewardUnlocked('weekly-review', level)
 
   useEffect(() => {
     void aiContextService.snapshot().then(setSnapshot).catch(() => setSnapshot(null))
@@ -94,9 +98,9 @@ export function ReviewPage() {
           </section>
 
           <section className="rounded-2xl border border-border bg-surface-light/90 p-5 shadow-xl">
-            <h2 className="mb-3 text-sm font-semibold text-white">Gamificación</h2>
+            <h2 className="mb-3 text-sm font-semibold text-white">{PULSO_NORA_SYSTEM_NAME}</h2>
             <div className="grid grid-cols-3 gap-2">
-              {summarizeNumber('Nivel', snapshot.gamification.level)}
+              {summarizeNumber(PULSO_NORA_COMPANION_NAME, snapshot.gamification.level)}
               {summarizeNumber('XP', snapshot.gamification.points)}
               {summarizeNumber('Racha', snapshot.gamification.streak, 'd')}
             </div>
@@ -112,13 +116,18 @@ export function ReviewPage() {
           </div>
           <button
             onClick={generate}
-            disabled={loadingAi || !ollamaReady.enabled}
+            disabled={loadingAi || !ollamaReady.enabled || !weeklyReviewUnlocked}
             className="inline-flex items-center gap-2 rounded-lg border border-border bg-surface px-3 py-1.5 text-xs text-muted transition-colors hover:text-white disabled:opacity-40"
           >
             <RefreshCw size={12} className={loadingAi ? 'animate-spin' : ''} />
             {loadingAi ? 'Pensando...' : 'Generar review'}
           </button>
         </div>
+        {!weeklyReviewUnlocked && (
+          <p className="text-xs text-muted">
+            Review semanal IA se desbloquea cuando {PULSO_NORA_COMPANION_NAME} llega a nivel 5.
+          </p>
+        )}
         {!ollamaReady.enabled && (
           <p className="text-xs text-muted">
             Ollama está deshabilitado. Activalo desde Configuración → Ollama para obtener análisis con IA local.

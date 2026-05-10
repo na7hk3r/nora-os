@@ -1,6 +1,11 @@
 import { aiContextService } from './aiContextService'
 import { ollamaService } from './ollamaService'
 import { storageAPI } from '@core/storage/StorageAPI'
+import {
+  PULSO_NORA_COMPANION_NAME,
+  PULSO_NORA_SYSTEM_NAME,
+  isRewardUnlocked,
+} from '@core/gamification/pulsoNora'
 
 const SETTINGS_KEY_PREFIX = 'core:dailyBrief:'
 
@@ -10,7 +15,6 @@ export interface DailyBrief {
   source: 'ai' | 'fallback'
   generatedAt: string
 }
-
 function todayKey(): string {
   const d = new Date()
   const y = d.getFullYear()
@@ -37,7 +41,11 @@ async function readStored(date: string): Promise<StoredBrief | null> {
     [settingKey(date)],
   )
   if (!rows[0]) return null
-  try { return JSON.parse(rows[0].value) as StoredBrief } catch { return null }
+  try {
+    return JSON.parse(rows[0].value) as StoredBrief
+  } catch {
+    return null
+  }
 }
 
 async function writeStored(date: string, value: StoredBrief): Promise<void> {
@@ -48,24 +56,29 @@ async function writeStored(date: string, value: StoredBrief): Promise<void> {
   )
 }
 
-function buildPrompt(contextText: string): string {
+function buildPrompt(contextText: string, level: number): string {
+  const toneLine = isRewardUnlocked('daily-brief-tone', level)
+    ? `${PULSO_NORA_SYSTEM_NAME}: habla como ${PULSO_NORA_COMPANION_NAME}, una presencia viva dentro de Nora OS.`
+    : `${PULSO_NORA_SYSTEM_NAME}: manten el brief simple; el tono completo de ${PULSO_NORA_COMPANION_NAME} se activa en nivel 2.`
+
   return [
     'CONTEXTO REAL DEL USUARIO:',
     contextText,
     '',
-    'TAREA: Devolveme UNA sola línea (máximo 14 palabras) con el próximo paso accionable más útil para hoy.',
-    'Tono: español rioplatense con vos. Sin emojis, sin markdown, sin signos de exclamación, sin moralizar.',
-    'Si no hay datos relevantes, sugerí registrar la primera acción del día.',
+    toneLine,
+    'TAREA: Devolveme UNA sola linea (maximo 14 palabras) con el proximo paso accionable mas util para hoy.',
+    'Tono: espanol rioplatense con vos. Sin emojis, sin markdown, sin signos de exclamacion, sin moralizar.',
+    'Si no hay datos relevantes, sugeri registrar la primera accion del dia.',
   ].join('\n')
 }
 
 function fallbackLine(): string {
-  return 'Empezá registrando la primera acción del día para anclar el ritmo.'
+  return 'Empeza registrando la primera accion del dia para anclar el ritmo.'
 }
 
 function trimToOneLine(raw: string): string {
   const first = raw.split(/\r?\n/).map((l) => l.trim()).find((l) => l.length > 0) ?? ''
-  return first.replace(/^["“'`*\-•\d.\s]+/, '').slice(0, 180).trim()
+  return first.replace(/^["'`*\-\d.\s]+/, '').slice(0, 180).trim()
 }
 
 export const dailyBriefService = {
@@ -83,7 +96,9 @@ export const dailyBriefService = {
     const date = todayKey()
     const stored = await readStored(date)
     const base: StoredBrief = stored ?? {
-      text: '', source: 'fallback', generatedAt: new Date().toISOString(),
+      text: '',
+      source: 'fallback',
+      generatedAt: new Date().toISOString(),
     }
     await writeStored(date, { ...base, dismissedAt: new Date().toISOString() })
   },
@@ -94,23 +109,33 @@ export const dailyBriefService = {
       const cached = await this.getCached()
       if (cached) return cached
     }
+
     const snapshot = await aiContextService.snapshot()
     const contextText = aiContextService.asPromptContext(snapshot)
     let text = ''
     let source: 'ai' | 'fallback' = 'fallback'
+
     try {
       const ready = await ollamaService.isReady()
       if (ready.enabled && ready.healthy) {
-        const raw = await ollamaService.generate(buildPrompt(contextText))
+        const raw = await ollamaService.generate(buildPrompt(contextText, snapshot.gamification.level))
         const line = trimToOneLine(raw)
-        if (line.length > 0) { text = line; source = 'ai' }
+        if (line.length > 0) {
+          text = line
+          source = 'ai'
+        }
       }
     } catch {
-      // ignoramos: caemos al fallback
+      // Fallback silencioso: el brief no debe bloquear el arranque.
     }
+
     if (!text) text = fallbackLine()
     const brief: DailyBrief = { date, text, source, generatedAt: new Date().toISOString() }
     await writeStored(date, { text: brief.text, source: brief.source, generatedAt: brief.generatedAt })
     return brief
   },
+}
+
+export const __dailyBriefInternals = {
+  buildPrompt,
 }

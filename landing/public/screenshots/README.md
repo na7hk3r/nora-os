@@ -2,8 +2,8 @@
 
 PNGs reales que usa la landing:
 
-- `screenshot-dashboard.png` - Vista del dashboard principal.
-- `screenshot-copiloto.png` - Panel del copiloto IA local.
+- `screenshot-dashboard.png` - Vista del dashboard principal con Progreso/Pulso Nora, Nori visible, barra de XP y preview bloqueado de la siguiente evolucion.
+- `screenshot-copiloto.png` - Panel del copiloto IA local; desde Nori nivel 6 puede mostrar acciones ejecutables desbloqueadas.
 - `screenshot-work.png` - Plugin Work.
 - `screenshot-temas.png` - Tema oscuro.
 - `screenshot-temas-light.png` - Tema claro.
