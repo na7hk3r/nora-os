@@ -1778,6 +1778,77 @@ function registerDbEncryptionIpc() {
     }
   });
 }
+let focusWindow = null;
+function focusMainWindow(getMainWindow) {
+  const mainWindow2 = getMainWindow();
+  if (!mainWindow2 || mainWindow2.isDestroyed()) return;
+  if (mainWindow2.isMinimized()) mainWindow2.restore();
+  mainWindow2.show();
+  mainWindow2.focus();
+}
+function loadFocusRoute(window, options) {
+  if (options.rendererUrl) {
+    const base = options.rendererUrl.replace(/\/$/, "");
+    void window.loadURL(`${base}/#/work/focus-mini`);
+    return;
+  }
+  void window.loadURL(`${url.pathToFileURL(options.rendererFile).toString()}#/work/focus-mini`);
+}
+function openFocusWindow(getMainWindow, options) {
+  if (focusWindow && !focusWindow.isDestroyed()) {
+    focusWindow.show();
+    focusWindow.focus();
+    return;
+  }
+  focusWindow = new electron.BrowserWindow({
+    width: 376,
+    height: 342,
+    minWidth: 340,
+    minHeight: 310,
+    title: "Nora Focus",
+    frame: false,
+    resizable: true,
+    alwaysOnTop: true,
+    skipTaskbar: false,
+    backgroundColor: "#111111",
+    show: false,
+    webPreferences: {
+      preload: options.preloadPath,
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: true
+    }
+  });
+  focusWindow.setAlwaysOnTop(true, "floating");
+  focusWindow.on("ready-to-show", () => focusWindow?.show());
+  focusWindow.on("closed", () => {
+    focusWindow = null;
+  });
+  loadFocusRoute(focusWindow, options);
+  focusMainWindow(getMainWindow);
+}
+function registerWorkFocusWindowIpc(getMainWindow, options) {
+  electron.ipcMain.handle("work-focus-window:open", () => {
+    openFocusWindow(getMainWindow, options);
+  });
+  electron.ipcMain.handle("work-focus-window:close", () => {
+    focusWindow?.close();
+  });
+  electron.ipcMain.handle("work-focus-window:toggle", () => {
+    if (focusWindow && !focusWindow.isDestroyed()) {
+      focusWindow.close();
+      return;
+    }
+    openFocusWindow(getMainWindow, options);
+  });
+  electron.ipcMain.handle("work-focus-window:focus-main", () => {
+    focusMainWindow(getMainWindow);
+  });
+}
+function closeWorkFocusWindow() {
+  focusWindow?.close();
+  focusWindow = null;
+}
 const SETTINGS_KEY = "scheduledBackup";
 const STATUS_KEY = "scheduledBackupStatus";
 const DEFAULT_CONFIG = {
@@ -2050,6 +2121,7 @@ function createWindow() {
     minWidth: 900,
     minHeight: 600,
     title: "Nora OS",
+    autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, "../preload/index.js"),
       contextIsolation: true,
@@ -2059,6 +2131,7 @@ function createWindow() {
     titleBarStyle: "hiddenInset",
     show: false
   });
+  mainWindow.setMenuBarVisibility(false);
   mainWindow.on("ready-to-show", () => {
     mainWindow?.show();
   });
@@ -2091,6 +2164,9 @@ electron.app.on("web-contents-created", (_event, contents) => {
   });
 });
 electron.app.whenReady().then(() => {
+  if (process.platform !== "darwin") {
+    electron.Menu.setApplicationMenu(null);
+  }
   const db = DatabaseService.getInstance();
   db.initialize();
   const authService = new AuthService(db);
@@ -2104,6 +2180,11 @@ electron.app.whenReady().then(() => {
   registerScheduledBackupIpc(db);
   registerAppUpdateIpc(() => mainWindow);
   registerDbEncryptionIpc();
+  registerWorkFocusWindowIpc(() => mainWindow, {
+    preloadPath: path.join(__dirname, "../preload/index.js"),
+    rendererFile: path.join(__dirname, "../renderer/index.html"),
+    rendererUrl
+  });
   bootScheduledBackup(db);
   createWindow();
   electron.app.on("activate", () => {
@@ -2113,6 +2194,7 @@ electron.app.whenReady().then(() => {
   });
 });
 electron.app.on("window-all-closed", () => {
+  closeWorkFocusWindow();
   shutdownScheduledBackup();
   shutdownAppUpdateIpc();
   if (process.platform !== "darwin") {

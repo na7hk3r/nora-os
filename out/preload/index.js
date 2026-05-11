@@ -63,6 +63,12 @@ const dbEncryptionBridge = {
   checkStrength: (passphrase) => electron.ipcRenderer.invoke("dbencryption:check-strength", passphrase),
   unlock: (passphrase) => electron.ipcRenderer.invoke("dbencryption:unlock", passphrase)
 };
+const workFocusWindowBridge = {
+  open: () => electron.ipcRenderer.invoke("work-focus-window:open"),
+  close: () => electron.ipcRenderer.invoke("work-focus-window:close"),
+  toggle: () => electron.ipcRenderer.invoke("work-focus-window:toggle"),
+  focusMain: () => electron.ipcRenderer.invoke("work-focus-window:focus-main")
+};
 electron.contextBridge.exposeInMainWorld("storage", storageBridge);
 electron.contextBridge.exposeInMainWorld("auth", authBridge);
 electron.contextBridge.exposeInMainWorld("backup", backupBridge);
@@ -73,3 +79,4 @@ electron.contextBridge.exposeInMainWorld("diagnostic", diagnosticBridge);
 electron.contextBridge.exposeInMainWorld("appUpdate", appUpdateBridge);
 electron.contextBridge.exposeInMainWorld("scheduledBackup", scheduledBackupBridge);
 electron.contextBridge.exposeInMainWorld("dbEncryption", dbEncryptionBridge);
+electron.contextBridge.exposeInMainWorld("workFocusWindow", workFocusWindowBridge);

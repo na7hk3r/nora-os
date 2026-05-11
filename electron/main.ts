@@ -1,4 +1,4 @@
-import { app, BrowserWindow, shell } from 'electron'
+import { app, BrowserWindow, Menu, shell } from 'electron'
 import { join } from 'path'
 import { URL } from 'url'
 import { registerStorageIpc } from './services/storage-ipc'
@@ -77,6 +77,7 @@ function createWindow(): void {
     minWidth: 900,
     minHeight: 600,
     title: 'Nora OS',
+    autoHideMenuBar: true,
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
       contextIsolation: true,
@@ -86,6 +87,7 @@ function createWindow(): void {
     titleBarStyle: 'hiddenInset',
     show: false,
   })
+  mainWindow.setMenuBarVisibility(false)
 
   mainWindow.on('ready-to-show', () => {
     mainWindow?.show()
@@ -133,6 +135,10 @@ app.on('web-contents-created', (_event, contents) => {
 })
 
 app.whenReady().then(() => {
+  if (process.platform !== 'darwin') {
+    Menu.setApplicationMenu(null)
+  }
+
   const db = DatabaseService.getInstance()
   db.initialize()
   const authService = new AuthService(db)
