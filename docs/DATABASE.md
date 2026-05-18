@@ -38,7 +38,12 @@ Pares clave-valor para configuración persistida.
 | `sidebarCollapsed` | `"true"` / `"false"` | Estado del sidebar |
 | `onboardingComplete` | `"true"` / `"false"` | Si completó el onboarding |
 | `activePlugins` | JSON array | IDs de plugins activos |
-| `gamificationState` | JSON object | Snapshot persistido de gamificación (`points`, `level`, `streak`, `history`, `unlockedIds`) |
+| `gamificationState` | JSON object | Snapshot persistido de gamificacion (`points`, `level`, `streak`, `history`, `unlockedIds`). `points` y `level` se preservan como fuente de verdad; la curva de XP solo puede subir el nivel visible, no bajarlo. |
+
+Durante el arranque de Nora OS, si la instalacion actual no tiene datos o si
+Pulso Nora quedo con menos progreso que una instalacion legacy, se recupera el
+snapshot de gamificacion desde `{userData}/../Personal OS/data` o
+`{userData}/../personal-os/data` sin borrar ni sobrescribir datos actuales.
 
 ### `events_log`
 

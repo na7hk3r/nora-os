@@ -33,12 +33,14 @@ const SALT_LEN = 16
 const IV_LEN = 12
 const TAG_LEN = 16
 const PROFILE_SCHEMA_VERSION = 1
+const GAMIFICATION_SETTINGS_KEY = 'gamificationState'
 
 const ALLOWED_SETTING_KEYS = new Set([
   'theme',
   'sidebarCollapsed',
   'activePlugins',
   'profile.bigGoal',
+  GAMIFICATION_SETTINGS_KEY,
 ])
 
 interface ProfileSnapshot {
@@ -56,6 +58,32 @@ interface ProfileSnapshot {
   settings: Record<string, string>
   activePlugins: string[]
   gamification: { totalXp: number; level: number } | null
+}
+
+function parseGamificationSetting(value: string | undefined): ProfileSnapshot['gamification'] {
+  if (!value) return null
+  try {
+    const parsed = JSON.parse(value) as { points?: unknown; level?: unknown }
+    const totalXp = Number(parsed.points ?? 0)
+    const level = Number(parsed.level ?? 1)
+    return {
+      totalXp: Number.isFinite(totalXp) ? Math.max(0, Math.floor(totalXp)) : 0,
+      level: Number.isFinite(level) ? Math.max(1, Math.floor(level)) : 1,
+    }
+  } catch {
+    return null
+  }
+}
+
+function buildGamificationSetting(gamification: ProfileSnapshot['gamification']): string | null {
+  if (!gamification) return null
+  return JSON.stringify({
+    points: gamification.totalXp ?? 0,
+    level: gamification.level ?? 1,
+    streak: 0,
+    history: [],
+    unlockedIds: [],
+  })
 }
 
 function deriveKey(passphrase: string, salt: Buffer): Buffer {
@@ -132,15 +160,7 @@ function buildSnapshot(db: DatabaseService): ProfileSnapshot {
     }
   }
 
-  let gamification: ProfileSnapshot['gamification'] = null
-  try {
-    const gRow = (db.query(
-      'SELECT total_xp as totalXp, level FROM gamification_stats WHERE id = 1',
-    ) as Array<{ totalXp: number; level: number }>)[0]
-    if (gRow) gamification = { totalXp: gRow.totalXp ?? 0, level: gRow.level ?? 1 }
-  } catch {
-    // table may not exist if plugin never ran
-  }
+  const gamification = parseGamificationSetting(settings[GAMIFICATION_SETTINGS_KEY])
 
   return {
     schemaVersion: PROFILE_SCHEMA_VERSION,
@@ -190,6 +210,16 @@ function applySnapshot(db: DatabaseService, snapshot: ProfileSnapshot): void {
     db.execute("INSERT OR REPLACE INTO settings (key, value) VALUES ('profile.bigGoal', ?)", [
       snapshot.profile.bigGoal,
     ])
+  }
+
+  if (snapshot.gamification && !snapshot.settings?.[GAMIFICATION_SETTINGS_KEY]) {
+    const value = buildGamificationSetting(snapshot.gamification)
+    if (value) {
+      db.execute('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)', [
+        GAMIFICATION_SETTINGS_KEY,
+        value,
+      ])
+    }
   }
 }
 
@@ -268,4 +298,10 @@ export function registerProfileIpc(db: DatabaseService): void {
     applySnapshot(db, snapshot)
     return { ok: true, summary: summarize(snapshot) }
   })
+}
+
+export const __testing = {
+  buildSnapshot,
+  applySnapshot,
+  parseGamificationSetting,
 }

@@ -201,9 +201,9 @@ export const aiContextService = {
   async snapshot(): Promise<UserContextSnapshot> {
     const profile = useCoreStore.getState().profile
     const gam = useGamificationStore.getState()
-    const noriProgress = getNoriProgress(gam.points)
-    const noriStage = getNoriStage(noriProgress.level)
-    const unlockedRewards = getUnlockedRewards(noriProgress.level)
+    const noriProgress = getNoriProgress(gam.points, gam.level)
+    const noriStage = getNoriStage(gam.level)
+    const unlockedRewards = getUnlockedRewards(gam.level)
     const providers = getAIContextProviders()
     const [fitness, work, planner, recent, ...providerResults] = await Promise.all([
       getFitnessSnapshot().catch(() => undefined),
@@ -236,7 +236,7 @@ export const aiContextService = {
       gamification: {
         systemName: PULSO_NORA_SYSTEM_NAME,
         companionName: PULSO_NORA_COMPANION_NAME,
-        level: noriProgress.level,
+        level: gam.level,
         maxLevel: noriProgress.maxLevel,
         points: gam.points,
         streak: gam.streak,

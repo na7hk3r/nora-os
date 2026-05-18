@@ -243,12 +243,17 @@ export function getNoriSprite(level: number): string {
   return `${normalizedBase}nora-evo/nori-${String(safeLevel).padStart(2, '0')}.png`
 }
 
-export function getNoriProgress(points: number): NoriProgress {
+export function getNoriProgress(points: number, storedLevel?: number): NoriProgress {
   const xp = Math.max(0, Math.floor(Number(points) || 0))
-  const level = getNoriLevel(xp)
-  const isMaxLevel = level >= NORA_MAX_LEVEL
-  const currentLevelXp = NORA_LEVEL_XP[level - 1]
-  const nextLevelXp = isMaxLevel ? null : NORA_LEVEL_XP[level]
+  const derivedLevel = getNoriLevel(xp)
+  const normalizedStoredLevel = Number.isFinite(Number(storedLevel))
+    ? Math.max(1, Math.floor(Number(storedLevel)))
+    : derivedLevel
+  const level = Math.max(normalizedStoredLevel, derivedLevel)
+  const cappedLevel = clampLevel(level)
+  const isMaxLevel = cappedLevel >= NORA_MAX_LEVEL
+  const currentLevelXp = NORA_LEVEL_XP[cappedLevel - 1]
+  const nextLevelXp = isMaxLevel ? null : NORA_LEVEL_XP[cappedLevel]
   const xpForLevel = nextLevelXp == null ? 0 : nextLevelXp - currentLevelXp
   const xpInLevel = nextLevelXp == null ? 0 : Math.max(0, xp - currentLevelXp)
   const xpToNextLevel = nextLevelXp == null ? 0 : Math.max(0, nextLevelXp - xp)

@@ -207,6 +207,13 @@ const DAILY_MISSION_TEMPLATES: DailyMissionTemplate[] = [
 
 const SETTINGS_KEY = 'gamificationState'
 
+function getStoredOrDerivedLevel(rawLevel: unknown, points: number): number {
+  const derivedLevel = getNoriLevel(points)
+  const storedLevel = Number(rawLevel)
+  if (!Number.isFinite(storedLevel)) return derivedLevel
+  return Math.max(1, Math.floor(storedLevel), derivedLevel)
+}
+
 function getPersistableState(state: Pick<GamificationState, 'points' | 'level' | 'streak' | 'history' | 'unlockedIds' | 'dailyMissions' | 'dailyMissionsDate' | 'missionsCompletedDate' | 'sweptMissionIds' | 'sweptMissionsDate' | 'lastActionAt'>): PersistedGamificationState {
   return {
     points: state.points,
@@ -390,7 +397,7 @@ export const useGamificationStore = create<GamificationState>((set, get) => ({
       const multiplier = amount > 0 ? getXpMultiplierForStreak(s.streak) : 1
       const effectiveAmount = amount > 0 ? Math.round(amount * multiplier) : amount
       const newPoints = Math.max(0, s.points + effectiveAmount)
-      const newLevel = getNoriLevel(newPoints)
+      const newLevel = Math.max(s.level, getNoriLevel(newPoints))
       const levelUp = newLevel > s.level
 
       if (levelUp) {
@@ -637,7 +644,7 @@ export const useGamificationStore = create<GamificationState>((set, get) => ({
 
       const parsed = JSON.parse(raw) as Partial<PersistedGamificationState>
       const points = Number(parsed.points ?? 0)
-      const level = getNoriLevel(points)
+      const level = getStoredOrDerivedLevel(parsed.level, points)
       const streak = Number(parsed.streak ?? 0)
       const history = Array.isArray(parsed.history) ? parsed.history.slice(0, 180) : []
       const unlockedIds = Array.isArray(parsed.unlockedIds) ? parsed.unlockedIds : []

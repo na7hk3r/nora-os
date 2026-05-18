@@ -44,6 +44,16 @@ describe('Pulso Nora progression', () => {
     expect(progress.percent).toBe(100)
   })
 
+  it('keeps a persisted level while capping assets and progress math internally', () => {
+    const progress = getNoriProgress(1030, 99)
+
+    expect(progress.level).toBe(99)
+    expect(progress.isMaxLevel).toBe(true)
+    expect(progress.nextLevelXp).toBeNull()
+    expect(progress.percent).toBe(100)
+    expect(getNoriSprite(99)).toBe('/nora-evo/nori-15.png')
+  })
+
   it('resolves sprite paths for each evolution', () => {
     expect(getNoriSprite(1)).toBe('/nora-evo/nori-01.png')
     expect(getNoriSprite(15)).toBe('/nora-evo/nori-15.png')

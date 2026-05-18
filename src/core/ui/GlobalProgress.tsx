@@ -79,7 +79,7 @@ export function GlobalProgress() {
   const { points, level, streak, history, unlockedIds, achievements } = useGamificationStore()
   const [achievementsExpanded, setAchievementsExpanded] = useState(false)
   const [evolutionsOpen, setEvolutionsOpen] = useState(false)
-  const progress = getNoriProgress(points)
+  const progress = getNoriProgress(points, level)
   const stage = getNoriStage(level)
   const stats = buildGamificationStats(points, streak, history)
   const xpByDay = getXpHistoryByDay(history, 7)

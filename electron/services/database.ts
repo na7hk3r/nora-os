@@ -1,8 +1,32 @@
 import Database from 'better-sqlite3'
 import { app } from 'electron'
-import { join } from 'path'
-import { existsSync, mkdirSync, renameSync, copyFileSync, readFileSync, writeFileSync, unlinkSync } from 'fs'
+import { join, resolve } from 'path'
+import {
+  copyFileSync,
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  renameSync,
+  statSync,
+  unlinkSync,
+  writeFileSync,
+} from 'fs'
 import { encryptFile, decryptFile, isEncryptedFile, isPassphraseStrongEnough, EncryptionError } from './encryption'
+
+const GAMIFICATION_SETTINGS_KEY = 'gamificationState'
+const LEGACY_USER_DATA_DIR_NAMES = ['Personal OS', 'personal-os'] as const
+
+interface PersistedGamificationSnapshot {
+  points: number
+  level: number
+  [key: string]: unknown
+}
+
+interface GamificationCandidate {
+  source: string
+  state: PersistedGamificationSnapshot
+}
 
 const CORE_SCHEMA = `
   CREATE TABLE IF NOT EXISTS profile (
@@ -130,6 +154,140 @@ const AUTH_SCHEMA = `
   CREATE INDEX IF NOT EXISTS idx_sessions_revoked_at ON sessions(revoked_at);
 `
 
+function normalizePathForCompare(path: string): string {
+  return resolve(path).toLowerCase()
+}
+
+function parseGamificationSnapshot(raw: unknown): PersistedGamificationSnapshot | null {
+  if (typeof raw !== 'string' || raw.trim().length === 0) return null
+
+  try {
+    const parsed = JSON.parse(raw) as Record<string, unknown>
+    if (!parsed || typeof parsed !== 'object') return null
+
+    const points = Number(parsed.points ?? 0)
+    const level = Number(parsed.level ?? 1)
+
+    return {
+      ...parsed,
+      points: Number.isFinite(points) ? Math.max(0, Math.floor(points)) : 0,
+      level: Number.isFinite(level) ? Math.max(1, Math.floor(level)) : 1,
+    }
+  } catch {
+    return null
+  }
+}
+
+function mergeArrayValues(left: unknown, right: unknown): unknown[] | undefined {
+  const values = [
+    ...(Array.isArray(left) ? left : []),
+    ...(Array.isArray(right) ? right : []),
+  ]
+  if (values.length === 0) return undefined
+
+  const seen = new Set<string>()
+  return values.filter((value) => {
+    const key = JSON.stringify(value)
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
+}
+
+function mergeGamificationSnapshots(
+  current: PersistedGamificationSnapshot | null,
+  candidate: PersistedGamificationSnapshot,
+): PersistedGamificationSnapshot {
+  if (!current) return candidate
+
+  const candidateIsRicher =
+    candidate.points > current.points ||
+    candidate.level > current.level
+
+  const merged: PersistedGamificationSnapshot = {
+    ...(candidateIsRicher ? candidate : current),
+    points: Math.max(current.points, candidate.points),
+    level: Math.max(current.level, candidate.level),
+  }
+
+  const history = mergeArrayValues(current.history, candidate.history)
+  if (history) merged.history = history.slice(0, 180)
+
+  const unlockedIds = mergeArrayValues(current.unlockedIds, candidate.unlockedIds)
+  if (unlockedIds) merged.unlockedIds = unlockedIds.filter((id) => typeof id === 'string')
+
+  return merged
+}
+
+function isGamificationCandidateRicher(
+  current: PersistedGamificationSnapshot | null,
+  candidate: PersistedGamificationSnapshot,
+): boolean {
+  if (!current) return candidate.points > 0 || candidate.level > 1
+  return candidate.points > current.points || candidate.level > current.level
+}
+
+function readGamificationFromDbFile(dbPath: string, source: string): GamificationCandidate | null {
+  if (!existsSync(dbPath) || isEncryptedFile(dbPath)) return null
+
+  let db: Database.Database | null = null
+  try {
+    db = new Database(dbPath, { readonly: true, fileMustExist: true })
+    const row = db
+      .prepare('SELECT value FROM settings WHERE key = ? LIMIT 1')
+      .get(GAMIFICATION_SETTINGS_KEY) as { value?: string } | undefined
+    const state = parseGamificationSnapshot(row?.value)
+    return state ? { source, state } : null
+  } catch {
+    return null
+  } finally {
+    try {
+      db?.close()
+    } catch {
+      // ignore close failures from corrupt legacy files
+    }
+  }
+}
+
+function getUsernameForUser(authDb: Database.Database | null, userId: string): string | null {
+  if (!authDb) return null
+  try {
+    const row = authDb
+      .prepare('SELECT username FROM users WHERE id = ? LIMIT 1')
+      .get(userId) as { username?: string } | undefined
+    return typeof row?.username === 'string' ? row.username : null
+  } catch {
+    return null
+  }
+}
+
+function getLegacyUserIdByUsername(dataDir: string, username: string): string | null {
+  const authPath = join(dataDir, 'auth.db')
+  if (!existsSync(authPath)) return null
+
+  let db: Database.Database | null = null
+  try {
+    db = new Database(authPath, { readonly: true, fileMustExist: true })
+    const row = db
+      .prepare('SELECT id FROM users WHERE username = ? LIMIT 1')
+      .get(username) as { id?: string } | undefined
+    return typeof row?.id === 'string' ? row.id : null
+  } catch {
+    return null
+  } finally {
+    try {
+      db?.close()
+    } catch {
+      // ignore
+    }
+  }
+}
+
+function copyMissingFile(source: string, target: string): void {
+  if (!existsSync(source) || existsSync(target)) return
+  copyFileSync(source, target)
+}
+
 export class DatabaseService {
   private static instance: DatabaseService
   private authDb: Database.Database | null = null
@@ -154,6 +312,8 @@ export class DatabaseService {
       mkdirSync(dbDir, { recursive: true })
     }
 
+    this.copyLegacyDataDirIfNeeded(dbDir)
+
     const authDbPath = join(dbDir, 'auth.db')
     this.authDb = new Database(authDbPath)
     this.authDb.pragma('journal_mode = WAL')
@@ -161,6 +321,55 @@ export class DatabaseService {
     this.authDb.pragma('busy_timeout = 5000')
     this.authDb.exec(AUTH_SCHEMA)
     this.dataDir = dbDir
+  }
+
+  private getLegacyDataDirs(currentDataDir: string): string[] {
+    const current = normalizePathForCompare(currentDataDir)
+    const appDataPath = app.getPath('appData')
+    const dirs = LEGACY_USER_DATA_DIR_NAMES
+      .map((name) => join(appDataPath, name, 'data'))
+      .filter((dir) => normalizePathForCompare(dir) !== current)
+      .filter((dir, index, arr) => arr.findIndex((item) => normalizePathForCompare(item) === normalizePathForCompare(dir)) === index)
+      .filter((dir) => existsSync(dir))
+
+    return dirs
+  }
+
+  private getLegacyDataDirScore(dataDir: string): number {
+    let score = 0
+    try {
+      for (const file of readdirSync(dataDir)) {
+        const fullPath = join(dataDir, file)
+        if (!statSync(fullPath).isFile()) continue
+        score += 1
+        if (file === 'auth.db') score += 10
+        if (/^personal-os-user-.+\.db$/.test(file)) score += 5
+        if (file === 'personal-os.db') score += 3
+      }
+    } catch {
+      return 0
+    }
+    return score
+  }
+
+  private copyLegacyDataDirIfNeeded(targetDataDir: string): void {
+    const targetAuthPath = join(targetDataDir, 'auth.db')
+    if (existsSync(targetAuthPath)) return
+
+    const sourceDir = this.getLegacyDataDirs(targetDataDir)
+      .sort((left, right) => this.getLegacyDataDirScore(right) - this.getLegacyDataDirScore(left))[0]
+    if (!sourceDir || !existsSync(join(sourceDir, 'auth.db'))) return
+
+    try {
+      for (const file of readdirSync(sourceDir)) {
+        const sourcePath = join(sourceDir, file)
+        if (!statSync(sourcePath).isFile()) continue
+        copyMissingFile(sourcePath, join(targetDataDir, file))
+      }
+      console.info(`[DatabaseService] copied missing legacy data from ${sourceDir}`)
+    } catch (err) {
+      console.warn('[DatabaseService] legacy data copy failed:', err)
+    }
   }
 
   getLegacyDbPath(): string {
@@ -237,7 +446,79 @@ export class DatabaseService {
     this.userDb.pragma('busy_timeout = 5000')
     this.userDb.exec(CORE_SCHEMA)
     this.activeUserId = userId
+    this.recoverGamificationStateFromLegacy(userId)
     this.purgeOldEvents()
+  }
+
+  private readCurrentGamificationState(): PersistedGamificationSnapshot | null {
+    if (!this.userDb) return null
+    try {
+      const row = this.userDb
+        .prepare('SELECT value FROM settings WHERE key = ? LIMIT 1')
+        .get(GAMIFICATION_SETTINGS_KEY) as { value?: string } | undefined
+      return parseGamificationSnapshot(row?.value)
+    } catch {
+      return null
+    }
+  }
+
+  private collectLegacyGamificationCandidates(userId: string): GamificationCandidate[] {
+    if (!this.dataDir) return []
+
+    const candidates: GamificationCandidate[] = []
+    const username = getUsernameForUser(this.authDb, userId)
+
+    for (const legacyDir of this.getLegacyDataDirs(this.dataDir)) {
+      const sameIdCandidate = readGamificationFromDbFile(
+        join(legacyDir, `personal-os-user-${userId}.db`),
+        `${legacyDir}:same-user-id`,
+      )
+      if (sameIdCandidate) candidates.push(sameIdCandidate)
+
+      if (username) {
+        const legacyUserId = getLegacyUserIdByUsername(legacyDir, username)
+        if (legacyUserId && legacyUserId !== userId) {
+          const usernameCandidate = readGamificationFromDbFile(
+            join(legacyDir, `personal-os-user-${legacyUserId}.db`),
+            `${legacyDir}:username:${username}`,
+          )
+          if (usernameCandidate) candidates.push(usernameCandidate)
+        }
+      }
+
+      const singleUserCandidate = readGamificationFromDbFile(
+        join(legacyDir, 'personal-os.db'),
+        `${legacyDir}:single-user`,
+      )
+      if (singleUserCandidate) candidates.push(singleUserCandidate)
+    }
+
+    return candidates
+  }
+
+  private recoverGamificationStateFromLegacy(userId: string): void {
+    if (!this.userDb) return
+
+    const current = this.readCurrentGamificationState()
+    let best: GamificationCandidate | null = null
+    let merged = current
+
+    for (const candidate of this.collectLegacyGamificationCandidates(userId)) {
+      if (!isGamificationCandidateRicher(merged, candidate.state)) continue
+      merged = mergeGamificationSnapshots(merged, candidate.state)
+      best = candidate
+    }
+
+    if (!best || !merged || !isGamificationCandidateRicher(current, merged)) return
+
+    try {
+      this.userDb
+        .prepare('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)')
+        .run(GAMIFICATION_SETTINGS_KEY, JSON.stringify(merged))
+      console.info(`[DatabaseService] recovered ${GAMIFICATION_SETTINGS_KEY} from ${best.source}`)
+    } catch (err) {
+      console.warn('[DatabaseService] gamification recovery failed:', err)
+    }
   }
 
   /**

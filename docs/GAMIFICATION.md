@@ -6,9 +6,10 @@ Pulso Nora es el sistema vivo de progreso de Nora OS. Reemplaza la gamificacion
 lineal anterior por una mascota evolutiva llamada Nori, 15 niveles maximos,
 curva de XP mas lenta y recompensas visibles que activan mejoras de UI e IA.
 
-La fuente de verdad sigue siendo el XP total persistido. El nivel se recalcula
-desde ese XP en cada carga, por lo que los perfiles antiguos conservan sus
-puntos pero se ajustan automaticamente a la nueva curva.
+La fuente de verdad es el snapshot persistido: XP total y nivel visible. En cada
+carga, la curva de XP puede subir el nivel si corresponde, pero nunca lo baja.
+Esto protege perfiles antiguos y updates desde Personal OS/Nora OS donde el
+nivel guardado podia no coincidir con la curva actual.
 
 ## Archivos principales
 
@@ -62,8 +63,9 @@ import {
 ```
 
 - `getNoriLevel(points)`: devuelve el nivel 1..15 segun XP acumulado.
-- `getNoriProgress(points)`: devuelve nivel actual, XP del nivel, XP restante,
-  porcentaje y siguiente nivel.
+- `getNoriProgress(points, level?)`: devuelve nivel actual, XP del nivel, XP
+  restante, porcentaje y siguiente nivel. Puede recibir el nivel visible
+  persistido para evitar recalcular hacia abajo desde XP.
 - `getNoriStage(level)`: nombre y copy de la etapa evolutiva.
 - `getNoriSprite(level)`: ruta publica del sprite `nori-XX.png`.
 - `getUnlockedRewards(level)`: recompensas activas hasta ese nivel.
@@ -164,8 +166,9 @@ interface PersistedGamificationState {
 }
 ```
 
-`level` se mantiene por compatibilidad con perfiles antiguos, pero al cargar se
-recalcula desde `points` usando `getNoriLevel(points)`.
+`level` se preserva como nivel visible. Si falta, se deriva desde `points`; si
+`points` desbloquea un nivel mayor, sube. Sprites y recompensas se capean a las
+15 evoluciones actuales para no romper assets.
 
 ## Tests
 
@@ -174,6 +177,9 @@ La cobertura principal vive en:
 - `src/core/gamification/pulsoNora.test.ts`
 - `src/core/gamification/gamificationStore.test.ts`
 - `src/core/services/__tests__/copilotChatService.test.ts`
+- `src/test/database-recovery.test.ts`
+- `src/test/profile-ipc.test.ts`
+- `src/core/i18n/i18n.test.tsx`
 
 Casos cubiertos: curva XP, limites exactos, progreso entre niveles, maximo 15,
 recompensas por nivel, migracion desde estado viejo y gating de acciones IA.

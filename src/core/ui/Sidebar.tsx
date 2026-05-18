@@ -275,7 +275,7 @@ export function Sidebar() {
   const [sidebarNavState, setSidebarNavState] = useState<SidebarNavState>(DEFAULT_SIDEBAR_NAV_STATE)
   const [sidebarNavLoaded, setSidebarNavLoaded] = useState(false)
   const headerTitle = profileName?.trim() ? profileName.trim().split(' ')[0] : 'Nora OS'
-  const noriProgress = getNoriProgress(points)
+  const noriProgress = getNoriProgress(points, level)
   const noriStage = getNoriStage(level)
 
   // Re-derive nav items only when plugin UI changes. Keeping this array stable

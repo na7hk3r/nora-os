@@ -4,6 +4,7 @@ import {
   detectInitialLanguage,
   I18N_STORAGE_KEY,
   I18nProvider,
+  translateStaticUiText,
   useI18n,
 } from './index'
 import { LanguageSelector } from './LanguageSelector'
@@ -22,6 +23,10 @@ function I18nProbe() {
       <LanguageSelector />
     </div>
   )
+}
+
+function InlineSpanishProbe() {
+  return <button title="Cerrar sesión">Actualización lista</button>
 }
 
 describe('i18n', () => {
@@ -87,5 +92,25 @@ describe('i18n', () => {
 
     expect(screen.getByTestId('date').textContent).toMatch(/mayo/i)
     expect(screen.getByTestId('number').textContent).not.toBe(englishNumber)
+  })
+
+  it('normalizes known inline desktop copy while English is active', async () => {
+    window.localStorage.setItem(I18N_STORAGE_KEY, 'en')
+
+    render(
+      <I18nProvider>
+        <InlineSpanishProbe />
+      </I18nProvider>,
+    )
+
+    await waitFor(() => {
+      expect(screen.getByRole('button')).toHaveTextContent('Update ready')
+      expect(screen.getByRole('button')).toHaveAttribute('title', 'Sign out')
+    })
+  })
+
+  it('translates static UI text through the English catalog', () => {
+    expect(translateStaticUiText('en', 'Actualización lista')).toBe('Update ready')
+    expect(translateStaticUiText('es', 'Actualización lista')).toBe('Actualización lista')
   })
 })
