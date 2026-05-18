@@ -66,7 +66,8 @@ describe('dashboard layout helpers', () => {
   })
 
   it('keeps dashboard tile spans within the discrete grid shapes', () => {
-    expect(getDashboardTileSpanClasses({ w: 3, h: 1 })).toContain('xl:col-span-2')
+    expect(getDashboardTileSpanClasses({ w: 3, h: 1 })).toContain('dashboard-tile-w-2')
+    expect(getDashboardTileSpanClasses({ w: 1, h: 1 })).toContain('dashboard-tile-w-1')
     expect(getDashboardTileSpanClasses({ w: 1, h: 1 })).toContain('row-span-3')
     expect(getDashboardTileSpanClasses({ w: 1, h: 2 })).toContain('row-span-6')
     expect(getDashboardTileSpanClasses({ w: 1, h: 2 })).toContain('min-h-[456px]')

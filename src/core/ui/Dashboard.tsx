@@ -45,6 +45,7 @@ import { RecentActivityFeed } from './RecentActivityFeed'
 import { DashboardFooter } from './DashboardFooter'
 import { PluginIcon } from './components/PluginIcon'
 import { useCoreStore } from '../state/coreStore'
+import { resolveI18nString, useI18n } from '@core/i18n'
 
 const DASHBOARD_LAYOUT_SETTINGS_KEY = 'dashboardLayoutState'
 const PROGRESS_MOVED_NOTICE_KEY = 'core:progressMoved:notified:v1'
@@ -99,8 +100,8 @@ const DASHBOARD_DND_MEASURING: MeasuringConfiguration = {
 }
 
 const COL_SPAN_CLASSES: Record<number, string> = {
-  1: 'col-span-1 md:col-span-1 xl:col-span-1',
-  2: 'col-span-1 md:col-span-2 xl:col-span-2',
+  1: 'dashboard-tile-w-1',
+  2: 'dashboard-tile-w-2',
 }
 
 const ROW_SPAN_CLASSES: Record<number, string> = {
@@ -265,6 +266,7 @@ function DashboardTileCard({
   isDropTarget = false,
   isOverlay = false,
 }: DashboardTileCardProps) {
+  const { t } = useI18n()
   const Component = tile.component
 
   return (
@@ -279,7 +281,7 @@ function DashboardTileCard({
               : 'hover:border-accent/40 hover:shadow-xl'
       }`}
     >
-      <div className="mb-3 flex w-full items-start justify-between gap-2 text-left">
+      <div className="mb-3 flex w-full flex-wrap items-start justify-between gap-2 text-left">
         <div className="flex min-w-0 items-start gap-2">
           {dragHandle}
           <div className="min-w-0">
@@ -292,7 +294,7 @@ function DashboardTileCard({
                 onClick={() => onNavigate('/review')}
                 className="mt-0.5 text-left text-micro text-muted/70 transition-colors hover:text-accent-light"
               >
-                Ver historial completo →
+                {t.dashboard.fullHistory}
               </button>
             )}
           </div>
@@ -306,7 +308,7 @@ function DashboardTileCard({
                 onClick={() => onNavigate(tile.path!)}
                 className="shrink-0 rounded-md border border-border/70 px-2 py-1 text-micro text-muted transition-colors hover:border-accent/40 hover:text-accent-light"
               >
-                Ver módulo
+                {t.dashboard.viewModule}
               </button>
             )}
             {tile.kind === 'widget' && (
@@ -315,9 +317,9 @@ function DashboardTileCard({
                   type="button"
                   onClick={() => onToggleExpand(tile.id)}
                   className="shrink-0 rounded-md border border-border/70 px-2 py-1 text-micro text-muted transition-colors hover:border-accent/40 hover:text-accent-light"
-                  title={tile.expanded ? 'Volver tamaño normal' : 'Expandir módulo'}
+                  title={tile.expanded ? t.dashboard.restoreSize(tile.title) : t.dashboard.expandModule}
                   aria-label={
-                    tile.expanded ? `Restaurar tamaño de ${tile.title}` : `Expandir ${tile.title}`
+                    tile.expanded ? t.dashboard.restoreSize(tile.title) : t.dashboard.expandTile(tile.title)
                   }
                 >
                   {tile.expanded ? <Minimize2 size={13} /> : <Maximize2 size={13} />}
@@ -326,8 +328,8 @@ function DashboardTileCard({
                   type="button"
                   onClick={() => onToggleModule(tile.id)}
                   className="shrink-0 rounded-md border border-border/70 px-2 py-1 text-micro text-muted transition-colors hover:border-accent/40 hover:text-accent-light"
-                  title="Colapsar módulo"
-                  aria-label={`Colapsar ${tile.title}`}
+                  title={t.dashboard.collapseModule}
+                  aria-label={t.dashboard.collapseTile(tile.title)}
                 >
                   <ChevronUp size={13} />
                 </button>
@@ -338,9 +340,9 @@ function DashboardTileCard({
                 type="button"
                 onClick={onToggleActivity}
                 className="shrink-0 rounded-md border border-border/70 px-2 py-1 text-micro text-muted transition-colors hover:border-accent/40 hover:text-accent-light"
-                title={activityCollapsed ? 'Expandir módulo' : 'Colapsar módulo'}
+                title={activityCollapsed ? t.dashboard.expandModule : t.dashboard.collapseModule}
                 aria-label={
-                  activityCollapsed ? 'Expandir actividad reciente' : 'Colapsar actividad reciente'
+                  activityCollapsed ? t.dashboard.expandTile(t.dashboard.recentActivity) : t.dashboard.collapseTile(t.dashboard.recentActivity)
                 }
               >
                 {activityCollapsed ? <ChevronDown size={13} /> : <ChevronUp size={13} />}
@@ -371,6 +373,7 @@ function DashboardTileCard({
 
 function SortableDashboardTile(props: SortableDashboardTileProps) {
   const { tile } = props
+  const { t } = useI18n()
   const {
     attributes,
     listeners,
@@ -411,8 +414,8 @@ function SortableDashboardTile(props: SortableDashboardTileProps) {
             {...attributes}
             {...listeners}
             className="mt-0.5 shrink-0 cursor-grab touch-none rounded-md p-1 text-muted/55 transition-colors hover:bg-surface-lighter hover:text-accent-light active:cursor-grabbing"
-            aria-label={`Mover ${tile.title}`}
-            title="Arrastrar para reordenar"
+            aria-label={t.dashboard.moveTile(tile.title)}
+            title={t.sidebar.dragToReorder}
             data-dashboard-drag-handle={tile.id}
           >
             <GripVertical size={14} />
@@ -425,6 +428,7 @@ function SortableDashboardTile(props: SortableDashboardTileProps) {
 
 export function Dashboard() {
   const navigate = useNavigate()
+  const { t, language } = useI18n()
   useCoreStore((s) => s.pluginUiVersion)
   const [collapsedModules, setCollapsedModules] = useState<Record<string, boolean>>({})
   const [expandedModuleId, setExpandedModuleId] = useState<string | null>(null)
@@ -468,7 +472,7 @@ export function Dashboard() {
   const activityTile: DashboardTile = {
     id: ACTIVITY_TILE_ID,
     kind: 'activity',
-    title: 'Actividad reciente',
+    title: t.dashboard.recentActivity,
     path: '/review',
     compact: activityCollapsed,
     size: getDashboardTileSize(activityCollapsed ? DEFAULT_TILE_SIZE : ACTIVITY_TILE_SIZE),
@@ -481,7 +485,7 @@ export function Dashboard() {
         return {
           id: widget.id,
           kind: 'widget',
-          title: widget.title,
+          title: resolveI18nString(language, widget.title, widget.titleKey ?? `plugins.widgets.${widget.id}`),
           path: pluginPath[widget.pluginId],
           component: widget.component,
           expanded,
@@ -621,22 +625,22 @@ export function Dashboard() {
           <TrendingUp size={16} className="mt-0.5 shrink-0 text-accent-light" />
           <div className="flex-1">
             <p className="text-foreground">
-              Tu progreso global ahora vive en{' '}
+              {t.dashboard.progressMovedPrefix}{' '}
               <Link
                 to="/review"
                 className="font-semibold text-accent-light underline-offset-2 hover:underline"
               >
-                Progreso
+                {t.dashboard.progressMovedLink}
               </Link>
-              . El Dashboard se enfoca en lo que tenés que hacer hoy.
+              {t.dashboard.progressMovedSuffix}
             </p>
           </div>
           <button
             type="button"
             onClick={dismissProgressNotice}
             className="shrink-0 rounded-md p-1 text-muted transition-colors hover:bg-surface-lighter hover:text-white"
-            aria-label="Cerrar aviso"
-            title="Cerrar"
+            aria-label={t.dashboard.closeNotice}
+            title={t.common.close}
           >
             <X size={14} />
           </button>
@@ -650,13 +654,13 @@ export function Dashboard() {
       {widgets.length > 0 ? (
         <div className="space-y-3">
           {collapsedWidgets.length > 0 && (
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-3">
+            <div className="workspace-auto-grid-sm gap-2">
               {collapsedWidgets.map((widget) => {
                 const path = pluginPath[widget.pluginId]
                 return (
                   <div
                     key={widget.id}
-                    className="flex min-h-[54px] items-center justify-between gap-3 rounded-xl border border-border bg-surface-light/70 px-3 py-2 shadow-md"
+                    className="flex min-h-[54px] min-w-0 flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-surface-light/70 px-3 py-2 shadow-md"
                   >
                     <h3 className="min-w-0 truncate text-sm font-medium text-muted">
                       {widget.title}
@@ -668,7 +672,7 @@ export function Dashboard() {
                           onClick={() => navigate(path)}
                           className="rounded-md border border-border/70 px-2 py-1 text-micro text-muted transition-colors hover:border-accent/40 hover:text-accent-light"
                         >
-                          Ver módulo
+                          {t.dashboard.viewModule}
                         </button>
                       )}
                       <button
@@ -699,7 +703,7 @@ export function Dashboard() {
               items={dashboardTiles.map((tile) => tile.id)}
               strategy={rectSortingStrategy}
             >
-              <div className="grid grid-flow-dense auto-rows-[64px] grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+              <div className="dashboard-grid gap-4">
                 {dashboardTiles.map((tile) => (
                   <SortableDashboardTile
                     key={tile.id}
@@ -746,21 +750,21 @@ export function Dashboard() {
           </DndContext>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-          <div className="flex flex-col rounded-2xl border border-border bg-surface-light/60 p-8 xl:col-span-2">
+        <div className="workspace-auto-grid-lg gap-4">
+          <div className="dashboard-tile-w-2 flex flex-col rounded-2xl border border-border bg-surface-light/60 p-8">
             <div className="flex items-center gap-3">
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-border bg-surface">
                 <Puzzle size={24} className="text-muted" />
               </div>
               <div className="min-w-0">
-                <p className="font-semibold text-white">Sin módulos activos</p>
+                <p className="font-semibold text-white">{t.dashboard.noActiveModulesTitle}</p>
                 <p className="text-sm text-muted">
-                  Activá al menos un plugin para ver contenido en el dashboard
+                  {t.dashboard.noActiveModulesBody}
                 </p>
               </div>
             </div>
 
-            <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="workspace-auto-grid gap-3 mt-6">
               {allPlugins.map((plugin) => (
                 <div
                   key={plugin.manifest.id}
@@ -775,10 +779,10 @@ export function Dashboard() {
                   </span>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium text-white">
-                      {plugin.manifest.name}
+                      {resolveI18nString(language, plugin.manifest.name, plugin.manifest.nameKey ?? `plugins.meta.${plugin.manifest.id}.name`)}
                     </p>
                     <p className="mt-0.5 line-clamp-2 text-xs text-muted">
-                      {plugin.manifest.description}
+                      {resolveI18nString(language, plugin.manifest.description, plugin.manifest.descriptionKey ?? `plugins.meta.${plugin.manifest.id}.description`)}
                     </p>
                   </div>
                   <span
@@ -788,7 +792,7 @@ export function Dashboard() {
                         : 'bg-slate-500/10 text-slate-400'
                     }`}
                   >
-                    {plugin.status === 'active' ? 'activo' : 'inactivo'}
+                    {plugin.status === 'active' ? t.common.active : t.common.inactive}
                   </span>
                 </div>
               ))}
@@ -800,19 +804,19 @@ export function Dashboard() {
               className="mt-6 flex items-center justify-center gap-2 self-start rounded-xl bg-accent px-5 py-2.5 text-sm font-medium text-white transition hover:bg-accent/85"
             >
               <SlidersHorizontal size={15} />
-              Ir a Configuración
+              {t.dashboard.goToSettings}
             </button>
 
             <p className="mt-4 flex items-center gap-1.5 text-xs text-muted">
               <Zap size={12} className="text-accent-light" />
-              Tip: activar un plugin agrega widgets, páginas y navegación automáticamente.
+              {t.dashboard.pluginTip}
             </p>
           </div>
 
-          <div className="xl:col-span-1">
+          <div>
             <div className="rounded-xl border border-border bg-surface-light/85 p-4 shadow-lg">
               <div className="mb-3 flex items-center justify-between gap-2">
-                <h3 className="text-sm font-medium text-muted">Actividad reciente</h3>
+                <h3 className="text-sm font-medium text-muted">{t.dashboard.recentActivity}</h3>
               </div>
               <RecentActivityFeed compact />
             </div>

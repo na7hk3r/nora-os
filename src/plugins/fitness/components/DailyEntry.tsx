@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { addDays, format, subDays } from 'date-fns'
-import { es } from 'date-fns/locale'
 import { CalendarDays, Check, ChevronLeft, ChevronRight, Save } from 'lucide-react'
+import { useI18n } from '@core/i18n'
 import { useFitnessStore } from '../store'
 import { FITNESS_EVENTS } from '../events'
 import { eventBus } from '@core/events/EventBus'
@@ -42,13 +42,14 @@ const MEALS: Array<{ field: MealField; label: string }> = [
 ]
 
 export function DailyEntry() {
+  const { formatDate } = useI18n()
   const { entries, addEntry, updateEntry } = useFitnessStore()
   const { settings } = useFitnessSettings()
   const [currentDate, setCurrentDate] = useState(new Date())
   const [savedMessage, setSavedMessage] = useState('')
 
   const dateStr = format(currentDate, 'yyyy-MM-dd')
-  const dayName = format(currentDate, 'EEEE', { locale: es })
+  const dayName = formatDate(currentDate, { weekday: 'long' })
   const existing = entries.find((e) => e.date === dateStr)
   const [form, setForm] = useState<DailyEntryForm>(entryToForm(existing))
 
@@ -122,7 +123,7 @@ export function DailyEntry() {
               <CalendarDays size={12} />
               {dayName}
             </p>
-            <p className="text-sm font-medium text-white">{format(currentDate, "d 'de' MMMM", { locale: es })}</p>
+            <p className="text-sm font-medium text-white">{formatDate(currentDate, { day: 'numeric', month: 'long' })}</p>
           </div>
           <IconButton label="Dia siguiente" onClick={() => setCurrentDate((d) => addDays(d, 1))}>
             <ChevronRight size={15} />

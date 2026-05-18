@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Bell, Save } from 'lucide-react'
+import { useI18n } from '@core/i18n'
 import { storageAPI } from '@core/storage/StorageAPI'
 import { notificationsService, type QuietHours } from '@core/services/notificationsService'
 
@@ -17,6 +18,7 @@ function fromHHMM(v: string): number {
 }
 
 export function NotificationsSection() {
+  const { language, t } = useI18n()
   const [quiet, setQuiet] = useState<QuietHours>(DEFAULT)
   const [savedQuiet, setSavedQuiet] = useState<QuietHours>(DEFAULT)
   const [supported, setSupported] = useState(false)
@@ -37,12 +39,15 @@ export function NotificationsSection() {
     await storageAPI.setSetting(KEY, JSON.stringify(quiet))
     notificationsService.setQuietHours(quiet)
     setSavedQuiet(quiet)
-    setStatus('Guardado')
+    setStatus(t.common.saved)
   }
 
   const testNotify = async () => {
-    await notificationsService.showNow({ title: 'Nora OS', body: 'Notificación de prueba' })
-    setStatus('Notificación enviada')
+    await notificationsService.showNow({
+      title: 'Nora OS',
+      body: language === 'en' ? 'Test notification' : 'Notificacion de prueba',
+    })
+    setStatus(language === 'en' ? 'Notification sent' : 'Notificacion enviada')
   }
 
   const dirty = JSON.stringify(savedQuiet) !== JSON.stringify(quiet)
@@ -51,16 +56,22 @@ export function NotificationsSection() {
     <article className="rounded-2xl border border-border bg-surface-light/85 p-6">
       <div className="flex items-center gap-2">
         <Bell size={18} className="text-accent-light" />
-        <h2 className="text-lg font-semibold">Notificaciones</h2>
+        <h2 className="text-lg font-semibold">{language === 'en' ? 'Notifications' : 'Notificaciones'}</h2>
       </div>
       <p className="mt-1 text-sm text-muted">
-        Notificaciones nativas del sistema para recordatorios programados. Soporte detectado:{' '}
-        <span className={supported ? 'text-emerald-300' : 'text-warning'}>{supported ? 'sí' : 'no'}</span>.
+        {language === 'en'
+          ? 'Native system notifications for scheduled reminders. Support detected: '
+          : 'Notificaciones nativas del sistema para recordatorios programados. Soporte detectado: '}
+        <span className={supported ? 'text-emerald-300' : 'text-warning'}>
+          {supported
+            ? language === 'en' ? 'yes' : 'si'
+            : language === 'en' ? 'no' : 'no'}
+        </span>.
       </p>
 
       <div className="mt-4 space-y-3">
         <label className="flex items-center justify-between rounded-lg border border-border bg-surface px-4 py-3">
-          <span className="text-sm">Activar horas de silencio</span>
+          <span className="text-sm">{language === 'en' ? 'Enable quiet hours' : 'Activar horas de silencio'}</span>
           <input
             type="checkbox"
             checked={quiet.enabled}
@@ -71,7 +82,7 @@ export function NotificationsSection() {
 
         <div className="grid grid-cols-2 gap-3">
           <label className="space-y-1">
-            <span className="text-xs text-muted">Inicio</span>
+            <span className="text-xs text-muted">{language === 'en' ? 'Start' : 'Inicio'}</span>
             <input
               type="time"
               value={toHHMM(quiet.startMinutes)}
@@ -80,7 +91,7 @@ export function NotificationsSection() {
             />
           </label>
           <label className="space-y-1">
-            <span className="text-xs text-muted">Fin</span>
+            <span className="text-xs text-muted">{language === 'en' ? 'End' : 'Fin'}</span>
             <input
               type="time"
               value={toHHMM(quiet.endMinutes)}
@@ -96,13 +107,13 @@ export function NotificationsSection() {
           onClick={() => void save()}
           disabled={!dirty}
           className="flex items-center gap-1.5 rounded-lg bg-accent px-4 py-2 text-xs font-medium text-white hover:bg-accent/85 disabled:opacity-50"
-        ><Save size={13} /> Guardar</button>
+        ><Save size={13} /> {t.common.save}</button>
         <button
           onClick={() => void testNotify()}
           disabled={!supported}
           className="rounded-lg border border-border bg-surface px-3 py-2 text-xs text-muted hover:text-white disabled:opacity-50"
-        >Probar notificación</button>
-        {dirty && <span className="text-xs text-warning">Cambios sin guardar</span>}
+        >{language === 'en' ? 'Test notification' : 'Probar notificacion'}</button>
+        {dirty && <span className="text-xs text-warning">{t.control.appearance.unsaved}</span>}
         {status && <span className="text-xs text-muted">{status}</span>}
       </div>
     </article>

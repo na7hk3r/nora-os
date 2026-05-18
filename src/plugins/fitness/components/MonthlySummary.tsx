@@ -2,8 +2,10 @@ import { BarChart3, CalendarCheck2, Dumbbell, Moon, Utensils } from 'lucide-reac
 import { useFitnessStore } from '../store'
 import { averageField, countWorkoutsMonth, getMealCompliancePercent } from '../utils'
 import { useFitnessSettings } from '../settings'
+import { useI18n } from '@core/i18n'
 
 export function MonthlySummary() {
+  const { formatDate } = useI18n()
   const entries = useFitnessStore((s) => s.entries)
   const { settings } = useFitnessSettings()
 
@@ -20,7 +22,7 @@ export function MonthlySummary() {
   const avgSleep = averageField(monthEntries, 'sleep', 30)
   const avgCigs = averageField(monthEntries, 'cigarettes', 30)
   const totalDays = monthEntries.length
-  const monthName = now.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })
+  const monthName = formatDate(now, { month: 'long', year: 'numeric' })
 
   const stats = [
     { label: 'Dias registrados', value: String(totalDays), icon: CalendarCheck2, tone: 'text-accent-light' },

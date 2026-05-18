@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Download, Upload, ShieldCheck, FileJson, RefreshCw, AlertTriangle, CheckCircle2 } from 'lucide-react'
 import { useCoreStore } from '../../state/coreStore'
 import { useGamificationStore } from '@core/gamification/gamificationStore'
+import { useI18n } from '@core/i18n'
 import { PluginIcon } from '../components/PluginIcon'
 import type { ProfileTransferResult } from '@core/types'
 
@@ -11,16 +12,20 @@ type Status =
   | { kind: 'success'; message: string; detail?: string }
   | { kind: 'error'; message: string }
 
-function formatDate(iso: string | undefined): string {
+function formatDate(
+  iso: string | undefined,
+  formatDateTime: (value: Date | string | number, options?: Intl.DateTimeFormatOptions) => string,
+): string {
   if (!iso) return '—'
   try {
-    return new Date(iso).toLocaleString()
+    return formatDateTime(iso)
   } catch {
     return iso
   }
 }
 
 export function ProfilePage() {
+  const { formatDateTime } = useI18n()
   const profile = useCoreStore((s) => s.profile)
   const updateProfile = useCoreStore((s) => s.updateProfile)
   const persistProfile = useCoreStore((s) => s.persistProfile)
@@ -67,7 +72,7 @@ export function ProfilePage() {
       setStatus({
         kind: 'success',
         message: `Perfil importado (v${result.summary.schemaVersion})`,
-        detail: `Exportado el ${formatDate(result.summary.exportedAt)} · ${result.summary.activePlugins.length} plugins activos`,
+        detail: `Exportado el ${formatDate(result.summary.exportedAt, formatDateTime)} · ${result.summary.activePlugins.length} plugins activos`,
       })
     } else {
       setStatus({

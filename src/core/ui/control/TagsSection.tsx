@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react'
 import { ChevronDown, Plus, Tag, Trash2 } from 'lucide-react'
+import { useI18n } from '@core/i18n'
 import { tagsService, type Tag as TagModel, type TagUsage } from '@core/services/tagsService'
 import { GlobalTagChip } from '@core/ui/components/GlobalTagPicker'
 
 const PRESET_COLORS = ['#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899', '#6b7280']
 
 export function TagsSection() {
+  const { language } = useI18n()
   const [tags, setTags] = useState<TagModel[]>([])
   const [usage, setUsage] = useState<Record<number, TagUsage>>({})
   const [name, setName] = useState('')
@@ -34,7 +36,7 @@ export function TagsSection() {
   }
 
   const removeTag = async (tag: TagModel) => {
-    if (!window.confirm(`Eliminar tag "${tag.name}"?`)) return
+    if (!window.confirm(language === 'en' ? `Delete tag "${tag.name}"?` : `Eliminar tag "${tag.name}"?`)) return
     await tagsService.remove(tag.id)
     refresh()
   }
@@ -54,13 +56,19 @@ export function TagsSection() {
           <Tag size={16} aria-hidden />
         </span>
         <span className="min-w-0 flex-1">
-          <span className="block text-sm font-semibold text-white">Tags globales</span>
+          <span className="block text-sm font-semibold text-white">
+            {language === 'en' ? 'Global tags' : 'Tags globales'}
+          </span>
           <span className="line-clamp-1 text-xs text-muted">
-            Etiquetas compartidas para notas, Work y Planner.
+            {language === 'en'
+              ? 'Shared tags for notes, Work, and Planner.'
+              : 'Etiquetas compartidas para notas, Work y Planner.'}
           </span>
         </span>
         <span className="hidden shrink-0 rounded-full border border-border bg-surface px-2.5 py-1 text-caption text-muted sm:inline">
-          {tags.length} tags · {totalUsage} usos
+          {language === 'en'
+            ? `${tags.length} tags - ${totalUsage} uses`
+            : `${tags.length} tags - ${totalUsage} usos`}
         </span>
         <ChevronDown
           size={17}
@@ -73,7 +81,7 @@ export function TagsSection() {
         <div id="global-tags-body" className="border-t border-border/60 px-4 pb-4 pt-3">
           <div className="flex flex-wrap items-end gap-2">
             <label className="min-w-[14rem] flex-1 space-y-1">
-              <span className="text-xs text-muted">Nuevo tag</span>
+              <span className="text-xs text-muted">{language === 'en' ? 'New tag' : 'Nuevo tag'}</span>
               <input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -100,14 +108,14 @@ export function TagsSection() {
               className="inline-flex items-center gap-1.5 rounded-lg bg-accent px-3 py-2 text-xs font-medium text-white hover:bg-accent/85 disabled:opacity-50"
             >
               <Plus size={12} aria-hidden />
-              Crear
+              {language === 'en' ? 'Create' : 'Crear'}
             </button>
           </div>
           {error && <p className="mt-2 text-xs text-warning">{error}</p>}
 
           <div className="mt-4 flex max-h-56 flex-wrap gap-2 overflow-y-auto pr-1">
             {tags.length === 0 ? (
-              <p className="text-xs text-muted">Sin tags todavia.</p>
+              <p className="text-xs text-muted">{language === 'en' ? 'No tags yet.' : 'Sin tags todavia.'}</p>
             ) : tags.map((tag) => (
               <div key={tag.id} className="inline-flex items-center gap-1 rounded-full">
                 <GlobalTagChip
@@ -118,7 +126,7 @@ export function TagsSection() {
                   type="button"
                   onClick={() => void removeTag(tag)}
                   className="rounded-md p-1 text-muted hover:bg-warning/10 hover:text-warning"
-                  aria-label={`Eliminar tag ${tag.name}`}
+                  aria-label={language === 'en' ? `Delete tag ${tag.name}` : `Eliminar tag ${tag.name}`}
                 >
                   <Trash2 size={11} aria-hidden />
                 </button>

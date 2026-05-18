@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
 import { Sidebar } from './Sidebar'
 import { useCoreStore } from '../state/coreStore'
@@ -7,12 +7,19 @@ import { GamificationNotificationHub } from './GamificationNotificationHub'
 import { AppUpdateBanner } from './components/AppUpdateBanner'
 import { CopilotPanel } from './CopilotPanel'
 import { GlobalShortcuts } from './GlobalShortcuts'
+import { WorkspaceSplitView } from './WorkspaceSplitView'
+import { useI18n } from '@core/i18n'
 
 const COPILOT_COLLAPSED_KEY = 'core:copilotPanel:collapsed'
 
-export function Shell() {
+interface ShellProps {
+  onGlobalShortcut?: () => void
+}
+
+export function Shell({ onGlobalShortcut }: ShellProps) {
   const navigate = useNavigate()
   const location = useLocation()
+  const { t } = useI18n()
   const sidebarCollapsed = useCoreStore((s) => s.settings.sidebarCollapsed)
   const theme = useCoreStore((s) => s.settings.theme)
   const [copilotCollapsed, setCopilotCollapsed] = useState<boolean>(() => {
@@ -85,17 +92,17 @@ export function Shell() {
         href="#main-content"
         className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[100] focus:rounded-md focus:bg-accent focus:px-3 focus:py-2 focus:text-sm focus:font-medium focus:text-white"
       >
-        Saltar al contenido principal
+        {t.shell.skipToContent}
       </a>
       <GamificationNotificationHub />
       <AppUpdateBanner />
-      <GlobalShortcuts />
+      <GlobalShortcuts onShortcutHandled={onGlobalShortcut} />
       <Sidebar />
       <main
         id="main-content"
         role="main"
         tabIndex={-1}
-        className={`min-w-0 flex-1 overflow-y-auto transition-all duration-200 ${
+        className={`min-w-0 flex-1 overflow-hidden transition-all duration-200 ${
           sidebarCollapsed ? 'ml-16' : 'ml-56'
         }`}
       >
@@ -103,19 +110,17 @@ export function Shell() {
           <button
             type="button"
             onClick={goBack}
-            aria-label="Volver atras"
-            title="Volver atras"
+            aria-label={t.shell.goBackAria}
+            title={t.shell.goBackAria}
             className={`fixed top-4 z-30 inline-flex items-center gap-2 rounded-full border border-border bg-surface-light/90 px-3 py-2 text-xs font-medium text-muted shadow-lg shadow-black/20 backdrop-blur transition-all hover:border-accent/50 hover:text-white ${
               sidebarCollapsed ? 'left-20' : 'left-60'
             }`}
           >
             <ArrowLeft size={15} />
-            Volver
+            {t.shell.goBack}
           </button>
         )}
-        <div className="mx-auto max-w-7xl p-4 md:p-6">
-          <Outlet />
-        </div>
+        <WorkspaceSplitView />
       </main>
       <CopilotPanel collapsed={copilotCollapsed} onToggle={toggleCopilot} />
     </div>

@@ -1,12 +1,26 @@
 import { useEffect, useMemo, useState } from 'react'
 import { ShieldAlert, AlertCircle, AlertTriangle, Info, RefreshCw, Wand2, Check } from 'lucide-react'
 import { useAuditStore } from '@core/audit/store'
+import { useI18n } from '@core/i18n'
 import type { Finding, RuleId, Severity } from '@core/audit/types'
 
 const SEVERITY_META: Record<Severity, { label: string; color: string; Icon: typeof AlertCircle }> = {
   error: { label: 'Revisar ahora', color: 'text-red-400 border-red-500/30 bg-red-500/10', Icon: AlertCircle },
   warn: { label: 'Puede esperar', color: 'text-amber-300 border-amber-500/30 bg-amber-500/10', Icon: AlertTriangle },
   info: { label: 'Informativo', color: 'text-sky-300 border-sky-500/30 bg-sky-500/10', Icon: Info },
+}
+
+const SEVERITY_LABELS: Record<'es' | 'en', Record<Severity, string>> = {
+  es: {
+    error: 'Revisar ahora',
+    warn: 'Puede esperar',
+    info: 'Informativo',
+  },
+  en: {
+    error: 'Review now',
+    warn: 'Can wait',
+    info: 'Informational',
+  },
 }
 
 const RULE_META: Record<RuleId, { title: string; impact: string; action: string }> = {
@@ -62,19 +76,90 @@ const RULE_META: Record<RuleId, { title: string; impact: string; action: string 
   },
 }
 
+const RULE_META_EN: typeof RULE_META = {
+  R1: {
+    title: 'Achievements linked to disabled modules',
+    impact: 'Progress may appear even though it no longer belongs to the active flow.',
+    action: 'Review whether you want to reactivate the module or hide that achievement.',
+  },
+  R2: {
+    title: 'Missions with missing dependencies',
+    impact: 'Some missions may become impossible to complete.',
+    action: 'Enable the required modules or change the mission.',
+  },
+  R3: {
+    title: 'Events without a clear source',
+    impact: 'An automation or alert may not fire as expected.',
+    action: 'Review the related module or scan again after opening it.',
+  },
+  R4: {
+    title: 'Alerts from inactive modules',
+    impact: 'You could receive notifications for something you no longer use.',
+    action: 'Apply the safe fix to clear the alert queue.',
+  },
+  R5: {
+    title: 'Invisible screens or widgets',
+    impact: 'Registered elements are present but should not be available.',
+    action: 'Review the module and save its current state.',
+  },
+  R6: {
+    title: 'Inconsistent icons',
+    impact: 'Navigation can be confusing when a module uses icons that do not represent it.',
+    action: 'Apply the safe suggestion when it is available.',
+  },
+  R7: {
+    title: 'Pending module connections',
+    impact: 'A module may be waiting for data from another inactive module.',
+    action: 'Enable the required module or ignore this review if it is intentional.',
+  },
+  R8: {
+    title: 'Inconsistent shortcuts',
+    impact: 'A shortcut could lead to an unavailable area.',
+    action: 'Adjust active modules or ignore the shortcut if you do not use it.',
+  },
+  R9: {
+    title: 'Onboarding pending',
+    impact: 'A module may be incomplete because its initial setup was not finished.',
+    action: 'Open the module or review its settings.',
+  },
+  R10: {
+    title: 'Residual data',
+    impact: 'There is data from modules that are no longer installed or active.',
+    action: 'Create a backup before cleaning up old data.',
+  },
+}
+
 interface FilterState {
   rule: RuleId | 'all'
   pluginId: string
   severity: Severity | 'all'
 }
 
-function healthStatus(counts: Record<Severity, number>) {
-  if (counts.error > 0) return { label: 'Revisar ahora', tone: 'border-red-500/35 bg-red-500/10 text-red-200' }
-  if (counts.warn > 0) return { label: 'Puede esperar', tone: 'border-amber-500/35 bg-amber-500/10 text-amber-100' }
-  return { label: 'Todo bien', tone: 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100' }
+function getRuleMeta(rule: RuleId, language: 'es' | 'en') {
+  return language === 'en' ? RULE_META_EN[rule] : RULE_META[rule]
+}
+
+function healthStatus(counts: Record<Severity, number>, language: 'es' | 'en') {
+  if (counts.error > 0) {
+    return {
+      label: language === 'en' ? 'Review now' : 'Revisar ahora',
+      tone: 'border-red-500/35 bg-red-500/10 text-red-200',
+    }
+  }
+  if (counts.warn > 0) {
+    return {
+      label: language === 'en' ? 'Can wait' : 'Puede esperar',
+      tone: 'border-amber-500/35 bg-amber-500/10 text-amber-100',
+    }
+  }
+  return {
+    label: language === 'en' ? 'All good' : 'Todo bien',
+    tone: 'border-emerald-500/35 bg-emerald-500/10 text-emerald-100',
+  }
 }
 
 export function AuditPanel() {
+  const { formatDateTime, language } = useI18n()
   const report = useAuditStore((s) => s.report)
   const isRunning = useAuditStore((s) => s.isRunning)
   const runAudit = useAuditStore((s) => s.runAudit)
@@ -90,7 +175,7 @@ export function AuditPanel() {
 
   const findings = useMemo(() => report?.findings ?? [], [report])
   const counts = report?.countsBySeverity ?? { error: 0, warn: 0, info: 0 }
-  const status = healthStatus(counts)
+  const status = healthStatus(counts, language)
 
   const pluginIds = useMemo(() => {
     const set = new Set<string>()
@@ -123,10 +208,12 @@ export function AuditPanel() {
         <div className="flex items-center gap-3">
           <ShieldAlert size={20} className="text-accent-light" />
           <div>
-            <h2 className="text-lg font-semibold">Salud del sistema</h2>
+            <h2 className="text-lg font-semibold">{language === 'en' ? 'System health' : 'Salud del sistema'}</h2>
             <p className="text-xs text-muted">
-              Revision de consistencia y posibles ajustes seguros. Ultima revision:{' '}
-              {report ? new Date(report.generatedAt).toLocaleString() : 'sin revisar'}
+              {language === 'en'
+                ? 'Consistency review and possible safe fixes. Last review: '
+                : 'Revision de consistencia y posibles ajustes seguros. Ultima revision: '}
+              {report ? formatDateTime(report.generatedAt) : (language === 'en' ? 'not reviewed' : 'sin revisar')}
             </p>
           </div>
         </div>
@@ -136,15 +223,19 @@ export function AuditPanel() {
           className="flex items-center gap-2 rounded-lg border border-border bg-surface px-3 py-1.5 text-sm hover:bg-surface-lighter disabled:opacity-50"
         >
           <RefreshCw size={14} className={isRunning ? 'animate-spin' : ''} />
-          {isRunning ? 'Revisando...' : 'Volver a revisar'}
+          {isRunning ? (language === 'en' ? 'Reviewing...' : 'Revisando...') : (language === 'en' ? 'Review again' : 'Volver a revisar')}
         </button>
       </header>
 
       <div className={`rounded-xl border px-4 py-3 ${status.tone}`}>
-        <p className="text-xs uppercase tracking-wide opacity-80">Estado principal</p>
+        <p className="text-xs uppercase tracking-wide opacity-80">
+          {language === 'en' ? 'Main status' : 'Estado principal'}
+        </p>
         <p className="mt-1 text-2xl font-semibold">{status.label}</p>
         <p className="mt-1 text-xs opacity-80">
-          {counts.error} para revisar ahora, {counts.warn} que pueden esperar, {counts.info} informativos.
+          {language === 'en'
+            ? `${counts.error} to review now, ${counts.warn} can wait, ${counts.info} informational.`
+            : `${counts.error} para revisar ahora, ${counts.warn} que pueden esperar, ${counts.info} informativos.`}
         </p>
       </div>
 
@@ -152,6 +243,7 @@ export function AuditPanel() {
         {(['error', 'warn', 'info'] as const).map((sev) => {
           const meta = SEVERITY_META[sev]
           const Icon = meta.Icon
+          const label = SEVERITY_LABELS[language][sev]
           return (
             <button
               key={sev}
@@ -159,7 +251,7 @@ export function AuditPanel() {
               className={`flex items-center justify-between rounded-xl border px-4 py-3 text-left transition ${meta.color} ${filter.severity === sev ? 'ring-2 ring-white/30' : ''}`}
             >
               <div>
-                <p className="text-xs uppercase tracking-wide opacity-80">{meta.label}</p>
+                <p className="text-xs uppercase tracking-wide opacity-80">{label}</p>
                 <p className="text-2xl font-semibold">{counts[sev]}</p>
               </div>
               <Icon size={20} />
@@ -174,9 +266,9 @@ export function AuditPanel() {
           onChange={(e) => setFilter((f) => ({ ...f, rule: e.target.value as RuleId | 'all' }))}
           className="rounded-md border border-border bg-surface px-2 py-1.5"
         >
-          <option value="all">Todas las revisiones</option>
+          <option value="all">{language === 'en' ? 'All reviews' : 'Todas las revisiones'}</option>
           {(Object.keys(RULE_META) as RuleId[]).map((r) => (
-            <option key={r} value={r}>{RULE_META[r].title}</option>
+            <option key={r} value={r}>{getRuleMeta(r, language).title}</option>
           ))}
         </select>
         <select
@@ -184,7 +276,7 @@ export function AuditPanel() {
           onChange={(e) => setFilter((f) => ({ ...f, pluginId: e.target.value }))}
           className="rounded-md border border-border bg-surface px-2 py-1.5"
         >
-          <option value="">Todos los modulos</option>
+          <option value="">{language === 'en' ? 'All modules' : 'Todos los modulos'}</option>
           {pluginIds.map((id) => <option key={id} value={id}>{id}</option>)}
         </select>
         {(filter.rule !== 'all' || filter.pluginId || filter.severity !== 'all') && (
@@ -192,7 +284,7 @@ export function AuditPanel() {
             className="text-muted underline hover:text-white"
             onClick={() => setFilter({ rule: 'all', pluginId: '', severity: 'all' })}
           >
-            Limpiar filtros
+            {language === 'en' ? 'Clear filters' : 'Limpiar filtros'}
           </button>
         )}
       </div>
@@ -203,30 +295,35 @@ export function AuditPanel() {
           if (list.length === 0) return null
           const meta = SEVERITY_META[sev]
           const Icon = meta.Icon
+          const label = SEVERITY_LABELS[language][sev]
           return (
             <div key={sev} className="space-y-2">
               <h3 className={`flex items-center gap-2 text-sm font-semibold ${meta.color.split(' ')[0]}`}>
-                <Icon size={14} /> {meta.label} ({list.length})
+                <Icon size={14} /> {label} ({list.length})
               </h3>
               <ul className="space-y-2">
                 {list.map((f) => {
-                  const rule = RULE_META[f.rule]
+                  const rule = getRuleMeta(f.rule, language)
                   return (
                     <li key={f.id} className={`rounded-lg border p-3 text-sm ${meta.color}`}>
                       <div className="flex flex-wrap items-start justify-between gap-2">
                         <div className="min-w-0 flex-1">
                           <p className="font-semibold text-white">{rule.title}</p>
                           <p className="mt-1 text-xs opacity-90">{rule.impact}</p>
-                          <p className="mt-1 text-xs opacity-90">Accion recomendada: {rule.action}</p>
+                          <p className="mt-1 text-xs opacity-90">
+                            {language === 'en' ? 'Recommended action' : 'Accion recomendada'}: {rule.action}
+                          </p>
                           <details className="mt-2 text-xs opacity-80">
-                            <summary className="cursor-pointer text-muted hover:text-white">Ver detalle tecnico</summary>
+                            <summary className="cursor-pointer text-muted hover:text-white">
+                              {language === 'en' ? 'View technical detail' : 'Ver detalle tecnico'}
+                            </summary>
                             <div className="mt-2 space-y-1 rounded-md border border-white/10 bg-black/10 p-2">
-                              <p><span className="font-semibold">Regla:</span> {f.rule}</p>
-                              {f.pluginId && <p><span className="font-semibold">Modulo:</span> {f.pluginId}</p>}
-                              {f.location && <p><span className="font-semibold">Ubicacion:</span> {f.location}</p>}
-                              <p><span className="font-semibold">Mensaje:</span> {f.message}</p>
+                              <p><span className="font-semibold">{language === 'en' ? 'Rule' : 'Regla'}:</span> {f.rule}</p>
+                              {f.pluginId && <p><span className="font-semibold">{language === 'en' ? 'Module' : 'Modulo'}:</span> {f.pluginId}</p>}
+                              {f.location && <p><span className="font-semibold">{language === 'en' ? 'Location' : 'Ubicacion'}:</span> {f.location}</p>}
+                              <p><span className="font-semibold">{language === 'en' ? 'Message' : 'Mensaje'}:</span> {f.message}</p>
                               {f.details?.suggestions ? (
-                                <p><span className="font-semibold">Sugerencias:</span> {(f.details.suggestions as string[]).join(', ')}</p>
+                                <p><span className="font-semibold">{language === 'en' ? 'Suggestions' : 'Sugerencias'}:</span> {(f.details.suggestions as string[]).join(', ')}</p>
                               ) : null}
                             </div>
                           </details>
@@ -236,20 +333,20 @@ export function AuditPanel() {
                             onClick={() => void handleApplyFix(f)}
                             className="flex items-center gap-1.5 rounded-md border border-white/30 bg-white/10 px-2.5 py-1 text-xs hover:bg-white/20"
                           >
-                            <Wand2 size={12} /> Aplicar ajuste seguro
+                            <Wand2 size={12} /> {language === 'en' ? 'Apply safe fix' : 'Aplicar ajuste seguro'}
                           </button>
                         )}
                         {appliedIds.has(f.id) && (
                           <span className="flex items-center gap-1 text-xs text-emerald-300">
-                            <Check size={12} /> Aplicado
+                            <Check size={12} /> {language === 'en' ? 'Applied' : 'Aplicado'}
                           </span>
                         )}
                         <button
                           onClick={() => dismissFinding(f.id)}
                           className="text-xs text-muted underline hover:text-white"
-                          title="Ocultar de esta revision"
+                          title={language === 'en' ? 'Hide from this review' : 'Ocultar de esta revision'}
                         >
-                          Ignorar esta revision
+                          {language === 'en' ? 'Ignore this review' : 'Ignorar esta revision'}
                         </button>
                       </div>
                     </li>
@@ -261,7 +358,7 @@ export function AuditPanel() {
         })}
         {filtered.length === 0 && (
           <p className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-4 text-center text-sm text-emerald-200">
-            Todo bien para los filtros actuales.
+            {language === 'en' ? 'All good for the current filters.' : 'Todo bien para los filtros actuales.'}
           </p>
         )}
       </div>

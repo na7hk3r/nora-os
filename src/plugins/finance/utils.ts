@@ -1,4 +1,5 @@
 import type { Transaction, Recurring, RecurringTemplate, Account, Category } from './types'
+import { getCurrentLocale } from '@core/i18n'
 
 /**
  * Helpers puros para Finance. Sin dependencias de stores ni de IO.
@@ -46,9 +47,10 @@ export function normalizeCurrencyCode(value: unknown, fallback = 'UYU'): string 
 export function formatCents(cents: number, currency: string = 'UYU', opts?: { compact?: boolean }): string {
   const value = cents / CENTS_PER_UNIT
   const normalized = normalizeCurrencyCode(currency)
+  const locale = getCurrentLocale()
   try {
     if (opts?.compact && Math.abs(value) >= 1000) {
-      return new Intl.NumberFormat('es', {
+      return new Intl.NumberFormat(locale, {
         style: 'currency',
         currency: normalized,
         currencyDisplay: 'code',
@@ -56,7 +58,7 @@ export function formatCents(cents: number, currency: string = 'UYU', opts?: { co
         maximumFractionDigits: 1,
       }).format(value)
     }
-    return new Intl.NumberFormat('es', {
+    return new Intl.NumberFormat(locale, {
       style: 'currency',
       currency: normalized,
       currencyDisplay: 'code',

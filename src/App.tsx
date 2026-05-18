@@ -1,16 +1,6 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Shell } from './core/ui/Shell'
-import { Dashboard } from './core/ui/Dashboard'
-const ControlCenter = lazy(() => import('./core/ui/ControlCenter').then((m) => ({ default: m.ControlCenter })))
-const CoreNotesPage = lazy(() => import('./core/ui/pages/NotesPage').then((m) => ({ default: m.CoreNotesPage })))
-const CoreLinksPage = lazy(() => import('./core/ui/pages/LinksPage').then((m) => ({ default: m.CoreLinksPage })))
-const CorePlannerPage = lazy(() => import('./core/ui/pages/PlannerPage').then((m) => ({ default: m.CorePlannerPage })))
-const CalendarPage = lazy(() => import('./core/ui/pages/CalendarPage').then((m) => ({ default: m.CalendarPage })))
-const ReviewPage = lazy(() => import('./core/ui/pages/ReviewPage').then((m) => ({ default: m.ReviewPage })))
-const ShortcutsPage = lazy(() => import('./core/ui/pages/ShortcutsPage').then((m) => ({ default: m.ShortcutsPage })))
-const ThemeGalleryPage = lazy(() => import('./core/ui/pages/ThemeGalleryPage').then((m) => ({ default: m.ThemeGalleryPage })))
-const ProfilePage = lazy(() => import('./core/ui/pages/ProfilePage').then((m) => ({ default: m.ProfilePage })))
 const WorkFocusMiniPage = lazy(() => import('./plugins/work/pages/WorkFocusMiniPage').then((m) => ({ default: m.WorkFocusMiniPage })))
 import { CommandPalette } from './core/ui/CommandPalette'
 import { OnboardingWizard } from './core/ui/onboarding/OnboardingWizard'
@@ -26,10 +16,12 @@ import { ErrorBoundary } from './core/ui/components/ErrorBoundary'
 import { GlobalErrorBoundary } from './core/ui/components/GlobalErrorBoundary'
 import { ToastProvider } from './core/ui/components/ToastProvider'
 import { NoraLogoMark } from './core/ui/components/NoraLogo'
-import { messages } from './core/ui/messages'
+import { useI18n } from './core/i18n'
 import { automationsService } from './core/services/automationsService'
 import { notificationsService } from './core/services/notificationsService'
 import { WorkFocusCommandHost } from './plugins/work/components/WorkFocusCommandHost'
+import { WorkspaceLayoutProvider } from './core/ui/WorkspaceLayoutContext'
+import { CORE_WORKSPACE_ROUTES } from './core/ui/workspaceRoutes'
 
 // Import and register plugins
 import './plugins/fitness'
@@ -52,15 +44,16 @@ function isSafeModeRequested(): boolean {
 }
 
 function RouteFallback() {
+  const { t } = useI18n()
   return (
-    <div className="space-y-4 p-2" role="status" aria-label="Cargando contenido">
+    <div className="space-y-4 p-2" role="status" aria-label={t.common.loading}>
       <div className="h-24 animate-pulse rounded-2xl border border-border/60 bg-surface-light/40" />
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div className="h-40 animate-pulse rounded-2xl border border-border/60 bg-surface-light/40" />
         <div className="h-40 animate-pulse rounded-2xl border border-border/60 bg-surface-light/40" />
       </div>
       <div className="h-32 animate-pulse rounded-2xl border border-border/60 bg-surface-light/40" />
-      <span className="sr-only">Cargando…</span>
+      <span className="sr-only">{t.common.loading}</span>
     </div>
   )
 }
@@ -83,6 +76,7 @@ function shouldShowDailyScore(): boolean {
 }
 
 export function App() {
+  const { t, language } = useI18n()
   const isWorkFocusMiniRoute =
     typeof window !== 'undefined' && window.location.hash.includes('/work/focus-mini')
   const [ready, setReady] = useState(false)
@@ -100,6 +94,7 @@ export function App() {
     dismissDailyScore()
     try { window.dispatchEvent(new CustomEvent('copilot:open')) } catch { /* ignore */ }
   }
+  const handleGlobalShortcut = showDailyScore && !isWorkFocusMiniRoute ? dismissDailyScore : undefined
   const authStatus = useAuthStore((s) => s.status)
   const initializeSession = useAuthStore((s) => s.initializeSession)
   const currentUser = useAuthStore((s) => s.currentUser)
@@ -210,7 +205,7 @@ export function App() {
         <div className="pointer-events-none absolute -right-32 bottom-0 h-[420px] w-[420px] rounded-full bg-accent-light/10 blur-3xl" />
         <div className="relative rounded-2xl border border-white/10 bg-surface-light/70 px-10 py-8 text-center shadow-2xl backdrop-blur">
           <NoraLogoMark size={56} glow className="mx-auto mb-3 animate-pulse" />
-          <p className="text-base font-medium">{messages.loading.checkingSession}</p>
+          <p className="text-base font-medium">{t.messages.loading.checkingSession}</p>
         </div>
       </div>
     )
@@ -237,8 +232,8 @@ export function App() {
         <div className="pointer-events-none absolute -right-32 bottom-0 h-[420px] w-[420px] rounded-full bg-accent-light/10 blur-3xl" />
         <div className="relative rounded-2xl border border-white/10 bg-surface-light/70 px-10 py-8 text-center shadow-2xl backdrop-blur">
           <NoraLogoMark size={64} glow className="mx-auto mb-4 animate-pulse" />
-          <p className="mt-2 text-base font-medium">{messages.loading.initializing}</p>
-          <p className="mt-1 text-sm text-muted">{messages.loading.initializingDetail}</p>
+          <p className="mt-2 text-base font-medium">{t.messages.loading.initializing}</p>
+          <p className="mt-1 text-sm text-muted">{t.messages.loading.initializingDetail}</p>
         </div>
       </div>
     )
@@ -249,6 +244,7 @@ export function App() {
       <ToastProvider>
         <ErrorBoundary label="app-root">
           <HashRouter>
+            <WorkspaceLayoutProvider>
             {ready && !onboardingComplete && !isWorkFocusMiniRoute && <OnboardingWizard />}
             {ready && onboardingComplete && showDailyScore && !isWorkFocusMiniRoute && (
               <DailyScoreScreen
@@ -256,29 +252,30 @@ export function App() {
                 onOpenCopilot={openCopilotFromDailyScore}
               />
             )}
-            {!isWorkFocusMiniRoute && <CommandPalette />}
+            {!isWorkFocusMiniRoute && <CommandPalette onShortcutHandled={handleGlobalShortcut} />}
             {ready && !isWorkFocusMiniRoute && <WorkFocusCommandHost />}
             {safeMode && !isWorkFocusMiniRoute && (
               <div
                 role="status"
                 className="fixed left-1/2 top-3 z-50 -translate-x-1/2 rounded-full border border-amber-400/40 bg-amber-500/15 px-4 py-1.5 text-xs font-medium text-amber-100 shadow-lg backdrop-blur"
               >
-                Modo seguro activo — plugins desactivados
+                {language === 'en' ? 'Safe mode active - plugins disabled' : 'Modo seguro activo - plugins desactivados'}
               </div>
             )}
             <Routes>
               <Route path="/work/focus-mini" element={<Suspense fallback={<RouteFallback />}><WorkFocusMiniPage /></Suspense>} />
-              <Route element={<Shell />}>
-                <Route index element={<Dashboard />} />
-                <Route path="/control" element={<Suspense fallback={<RouteFallback />}><ControlCenter /></Suspense>} />
-                <Route path="/notes" element={<Suspense fallback={<RouteFallback />}><CoreNotesPage /></Suspense>} />
-                <Route path="/links" element={<Suspense fallback={<RouteFallback />}><CoreLinksPage /></Suspense>} />
-                <Route path="/planner" element={<Suspense fallback={<RouteFallback />}><CorePlannerPage /></Suspense>} />
-                <Route path="/calendar" element={<Suspense fallback={<RouteFallback />}><CalendarPage /></Suspense>} />
-                <Route path="/review" element={<Suspense fallback={<RouteFallback />}><ReviewPage /></Suspense>} />
-                <Route path="/shortcuts" element={<Suspense fallback={<RouteFallback />}><ShortcutsPage /></Suspense>} />
-                <Route path="/themes" element={<Suspense fallback={<RouteFallback />}><ThemeGalleryPage /></Suspense>} />
-                <Route path="/profile" element={<Suspense fallback={<RouteFallback />}><ProfilePage /></Suspense>} />
+              <Route element={<Shell onGlobalShortcut={handleGlobalShortcut} />}>
+                {CORE_WORKSPACE_ROUTES.map((route) => {
+                  const PageComponent = route.component
+                  const element = (
+                    <Suspense fallback={<RouteFallback />}>
+                      <PageComponent />
+                    </Suspense>
+                  )
+                  return route.path === '/'
+                    ? <Route key={route.id} index element={element} />
+                    : <Route key={route.id} path={route.path} element={element} />
+                })}
                 {pluginPages.map((page) => {
                   const PageComponent = page.component
                   return (
@@ -298,6 +295,7 @@ export function App() {
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Route>
             </Routes>
+            </WorkspaceLayoutProvider>
           </HashRouter>
         </ErrorBoundary>
       </ToastProvider>

@@ -39,6 +39,7 @@ import {
   Unlock,
   X,
 } from 'lucide-react'
+import { useI18n } from '@core/i18n'
 
 const PLUGIN_LABELS: Record<string, string> = {
   fitness: 'Fitness',
@@ -74,6 +75,7 @@ function categorizeReason(reason: string): string {
 }
 
 export function GlobalProgress() {
+  const { t, language } = useI18n()
   const { points, level, streak, history, unlockedIds, achievements } = useGamificationStore()
   const [achievementsExpanded, setAchievementsExpanded] = useState(false)
   const [evolutionsOpen, setEvolutionsOpen] = useState(false)
@@ -84,6 +86,8 @@ export function GlobalProgress() {
   const nextAchievement = getNextAchievement(achievements, unlockedIds, stats)
   const nextReward = getNextReward(level)
   const nextNoriLevel = Math.min(progress.level + 1, progress.maxLevel)
+  const stageCopy = t.gamification.stages[stage.id] ?? stage
+  const nextRewardCopy = nextReward ? (t.gamification.rewards[nextReward.id] ?? nextReward) : null
 
   const breakdown = history.reduce<Record<string, number>>((acc, entry) => {
     const cat = categorizeReason(entry.reason)
@@ -115,7 +119,7 @@ export function GlobalProgress() {
               <h2 className="text-2xl font-semibold text-white">
                 {PULSO_NORA_COMPANION_NAME} nivel {level}
               </h2>
-              <p className="text-sm text-muted">{stage.title} - {stage.description}</p>
+              <p className="text-sm text-muted">{stageCopy.title} - {stageCopy.description}</p>
             </div>
 
             <div className="space-y-1.5">
@@ -123,8 +127,10 @@ export function GlobalProgress() {
                 <span className="font-semibold text-accent-light">{points} XP total</span>
                 <span className="text-muted">
                   {progress.isMaxLevel
-                    ? 'Nivel maximo'
-                    : `${progress.xpInLevel}/${progress.xpForLevel} XP hacia nivel ${level + 1}`}
+                    ? (language === 'en' ? 'Max level' : 'Nivel maximo')
+                    : language === 'en'
+                      ? `${progress.xpInLevel}/${progress.xpForLevel} XP toward level ${level + 1}`
+                      : `${progress.xpInLevel}/${progress.xpForLevel} XP hacia nivel ${level + 1}`}
                 </span>
               </div>
               <div className="flex items-center gap-3">
@@ -145,7 +151,7 @@ export function GlobalProgress() {
                 </div>
                 <div
                   className="relative flex h-16 w-14 shrink-0 items-center justify-center"
-                  title={progress.isMaxLevel ? 'Evolucion final desbloqueada' : `Siguiente evolucion: nivel ${nextNoriLevel}`}
+                  title={progress.isMaxLevel ? (language === 'en' ? 'Final evolution unlocked' : 'Evolucion final desbloqueada') : (language === 'en' ? `Next evolution: level ${nextNoriLevel}` : `Siguiente evolucion: nivel ${nextNoriLevel}`)}
                 >
                   <div className="absolute bottom-1 h-2 w-10 rounded-[50%] bg-black/35 blur-sm" aria-hidden />
                   <NoriSprite
@@ -162,16 +168,16 @@ export function GlobalProgress() {
                 </div>
               </div>
               <p className="text-right text-caption text-muted">
-                {progress.isMaxLevel ? 'Evolucion final desbloqueada' : `Siguiente evolucion bloqueada: nivel ${nextNoriLevel}`}
+                {progress.isMaxLevel ? (language === 'en' ? 'Final evolution unlocked' : 'Evolucion final desbloqueada') : (language === 'en' ? `Next evolution locked: level ${nextNoriLevel}` : `Siguiente evolucion bloqueada: nivel ${nextNoriLevel}`)}
               </p>
             </div>
 
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-              <PulseStat label="Racha" value={`${streak}d`} icon={<Flame size={14} className="text-warning" />} />
-              <PulseStat label="Evolucion" value={`${level}/15`} icon={<Sparkles size={14} className="text-accent-light" />} />
+              <PulseStat label={language === 'en' ? 'Streak' : 'Racha'} value={`${streak}d`} icon={<Flame size={14} className="text-warning" />} />
+              <PulseStat label={language === 'en' ? 'Evolution' : 'Evolucion'} value={`${level}/15`} icon={<Sparkles size={14} className="text-accent-light" />} />
               <PulseStat
-                label={nextReward ? 'Proximo desbloqueo' : 'Estado'}
-                value={nextReward ? `Nivel ${nextReward.level}` : 'Completo'}
+                label={nextReward ? (language === 'en' ? 'Next unlock' : 'Proximo desbloqueo') : (language === 'en' ? 'Status' : 'Estado')}
+                value={nextReward ? (language === 'en' ? `Level ${nextReward.level}` : `Nivel ${nextReward.level}`) : (language === 'en' ? 'Complete' : 'Completo')}
                 icon={nextReward ? <LockKeyhole size={14} className="text-muted" /> : <Unlock size={14} className="text-success" />}
               />
             </div>
@@ -179,12 +185,12 @@ export function GlobalProgress() {
         </div>
 
         <div className="rounded-xl border border-border bg-surface/55 p-4">
-          <p className="text-caption uppercase tracking-eyebrow text-muted">Pulso activo</p>
+          <p className="text-caption uppercase tracking-eyebrow text-muted">{language === 'en' ? 'Active pulse' : 'Pulso activo'}</p>
           <div className="mt-3 space-y-3">
             {nextReward ? (
               <div className="rounded-lg border border-accent/25 bg-accent/10 p-3">
-                <p className="text-xs font-semibold text-accent-light">{nextReward.title}</p>
-                <p className="mt-1 text-xs leading-relaxed text-muted">{nextReward.description}</p>
+                <p className="text-xs font-semibold text-accent-light">{nextRewardCopy?.title}</p>
+                <p className="mt-1 text-xs leading-relaxed text-muted">{nextRewardCopy?.description}</p>
               </div>
             ) : (
               <div className="rounded-lg border border-success/30 bg-success/10 p-3">
@@ -194,9 +200,12 @@ export function GlobalProgress() {
             )}
             {nextAchievement && (
               <div className="rounded-lg border border-border bg-surface/70 p-3">
-                <p className="text-xs font-semibold text-white">{nextAchievement.title}</p>
+                <p className="text-xs font-semibold text-white">
+                  {t.gamification.achievements[nextAchievement.id]?.title ?? nextAchievement.title}
+                </p>
                 <p className="mt-1 text-caption text-muted">
-                  {nextAchievement.progress.current}/{nextAchievement.progress.target} {nextAchievement.progress.label}
+                  {nextAchievement.progress.current}/{nextAchievement.progress.target}{' '}
+                  {t.gamification.progressLabels[nextAchievement.progress.label] ?? nextAchievement.progress.label}
                 </p>
               </div>
             )}
@@ -212,6 +221,7 @@ export function GlobalProgress() {
         <div className="grid grid-cols-2 gap-2 md:grid-cols-3 xl:grid-cols-5">
           {NORA_REWARDS.map((reward) => {
             const unlocked = reward.level <= level
+            const rewardCopy = t.gamification.rewards[reward.id] ?? reward
             return (
               <div
                 key={reward.id}
@@ -220,16 +230,16 @@ export function GlobalProgress() {
                     ? 'border-accent/35 bg-accent/10'
                     : 'border-border bg-surface/60 opacity-75'
                 }`}
-                title={reward.description}
+                title={rewardCopy.description}
               >
                 <div className="flex items-center justify-between gap-2">
                   <span className={`text-caption font-semibold ${unlocked ? 'text-accent-light' : 'text-muted'}`}>
-                    Nivel {reward.level}
+                    {language === 'en' ? `Level ${reward.level}` : `Nivel ${reward.level}`}
                   </span>
                   {unlocked ? <Unlock size={12} className="text-success" /> : <LockKeyhole size={12} className="text-muted" />}
                 </div>
-                <p className="mt-1 line-clamp-2 text-xs font-semibold text-white">{reward.title}</p>
-                <p className="mt-1 line-clamp-2 text-caption text-muted">{reward.description}</p>
+                <p className="mt-1 line-clamp-2 text-xs font-semibold text-white">{rewardCopy.title}</p>
+                <p className="mt-1 line-clamp-2 text-caption text-muted">{rewardCopy.description}</p>
               </div>
             )
           })}
@@ -237,7 +247,7 @@ export function GlobalProgress() {
       </section>
 
       <section className="rounded-xl border border-border bg-surface/50 p-3">
-        <p className="mb-2 text-xs uppercase tracking-eyebrow text-muted">XP ultimos 7 dias</p>
+        <p className="mb-2 text-xs uppercase tracking-eyebrow text-muted">{language === 'en' ? 'XP last 7 days' : 'XP ultimos 7 dias'}</p>
         <div className="h-40">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={xpByDay}>
@@ -281,10 +291,11 @@ export function GlobalProgress() {
                 const unlocked = unlockedIds.includes(ach.id)
                 const Icon = ACH_ICON_MAP[ach.icon] ?? Star
                 const achievementProgress = getAchievementProgress(ach.id, stats)
+                const achCopy = t.gamification.achievements[ach.id] ?? ach
                 return (
                   <div
                     key={ach.id}
-                    title={`${ach.title}: ${ach.description}`}
+                    title={`${achCopy.title}: ${achCopy.description}`}
                     className={`cursor-default rounded-xl border p-2.5 transition-all duration-200 ${
                       unlocked
                         ? 'border-xp-gold/55 bg-xp-gold/10'
@@ -296,8 +307,8 @@ export function GlobalProgress() {
                         <Icon size={18} />
                       </div>
                       <div className="min-w-0">
-                        <p className="truncate text-xs font-semibold">{ach.title}</p>
-                        <p className="truncate text-caption text-muted">{ach.description}</p>
+                        <p className="truncate text-xs font-semibold">{achCopy.title}</p>
+                        <p className="truncate text-caption text-muted">{achCopy.description}</p>
                       </div>
                     </div>
                     {!unlocked && (
@@ -309,7 +320,8 @@ export function GlobalProgress() {
                           />
                         </div>
                         <p className="text-caption text-muted">
-                          {achievementProgress.current}/{achievementProgress.target} {achievementProgress.label}
+                          {achievementProgress.current}/{achievementProgress.target}{' '}
+                          {t.gamification.progressLabels[achievementProgress.label] ?? achievementProgress.label}
                         </p>
                       </div>
                     )}
@@ -323,7 +335,11 @@ export function GlobalProgress() {
                 onClick={() => setAchievementsExpanded((prev) => !prev)}
                 className="w-full rounded-lg border border-border bg-surface/40 py-1.5 text-xs text-muted transition-colors hover:bg-surface-lighter hover:text-white"
               >
-                {achievementsExpanded ? 'Ver menos' : `Ver ${hiddenCount} logro${hiddenCount !== 1 ? 's' : ''} mas`}
+                {achievementsExpanded
+                  ? (language === 'en' ? 'Show less' : 'Ver menos')
+                  : language === 'en'
+                    ? `Show ${hiddenCount} more achievement${hiddenCount !== 1 ? 's' : ''}`
+                    : `Ver ${hiddenCount} logro${hiddenCount !== 1 ? 's' : ''} mas`}
               </button>
             )}
           </>
@@ -362,6 +378,7 @@ function NoriEvolutionsDialog({
   previewLevel: number | null
   onClose: () => void
 }) {
+  const { t, language } = useI18n()
   const rows = [
     ...Array.from({ length: currentLevel }, (_, index) => ({
       level: index + 1,
@@ -374,7 +391,7 @@ function NoriEvolutionsDialog({
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="Evoluciones de Nori"
+      aria-label={language === 'en' ? 'Nori evolutions' : 'Evoluciones de Nori'}
       className="fixed inset-0 z-[70] flex items-center justify-center bg-black/55 p-4 backdrop-blur-sm"
       onClick={onClose}
     >
@@ -384,15 +401,15 @@ function NoriEvolutionsDialog({
       >
         <header className="flex items-center justify-between gap-3 border-b border-border px-4 py-3">
           <div>
-            <p className="text-caption uppercase tracking-eyebrow text-muted">Archivo evolutivo</p>
-            <h3 className="text-lg font-semibold text-white">Evoluciones de Nori</h3>
+            <p className="text-caption uppercase tracking-eyebrow text-muted">{language === 'en' ? 'Evolution archive' : 'Archivo evolutivo'}</p>
+            <h3 className="text-lg font-semibold text-white">{language === 'en' ? 'Nori evolutions' : 'Evoluciones de Nori'}</h3>
           </div>
           <button
             type="button"
             onClick={onClose}
             className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border text-muted transition-colors hover:border-accent/40 hover:text-white"
-            aria-label="Cerrar evoluciones"
-            title="Cerrar"
+            aria-label={language === 'en' ? 'Close evolutions' : 'Cerrar evoluciones'}
+            title={t.common.close}
           >
             <X size={15} />
           </button>
@@ -403,19 +420,20 @@ function NoriEvolutionsDialog({
             <table className="w-full border-collapse text-left text-sm">
               <thead className="bg-surface text-caption uppercase tracking-eyebrow text-muted">
                 <tr>
-                  <th className="w-24 px-3 py-2 font-medium">Nivel</th>
-                  <th className="px-3 py-2 font-medium">Evolucion</th>
-                  <th className="px-3 py-2 font-medium">Desbloqueo</th>
-                  <th className="w-28 px-3 py-2 font-medium">Estado</th>
+                  <th className="w-24 px-3 py-2 font-medium">{language === 'en' ? 'Level' : 'Nivel'}</th>
+                  <th className="px-3 py-2 font-medium">{language === 'en' ? 'Evolution' : 'Evolucion'}</th>
+                  <th className="px-3 py-2 font-medium">{language === 'en' ? 'Unlock' : 'Desbloqueo'}</th>
+                  <th className="w-28 px-3 py-2 font-medium">{language === 'en' ? 'Status' : 'Estado'}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border bg-surface/45">
                 {rows.map((row) => {
                   const reward = NORA_REWARDS.find((item) => item.level === row.level)
+                  const rewardCopy = reward ? (t.gamification.rewards[reward.id] ?? reward) : null
                   return (
                     <tr key={`${row.level}-${row.unlocked ? 'unlocked' : 'preview'}`} className={row.unlocked ? '' : 'bg-surface-light/40'}>
                       <td className="px-3 py-3 align-middle text-xs font-semibold text-accent-light">
-                        Nivel {row.level}
+                        {language === 'en' ? `Level ${row.level}` : `Nivel ${row.level}`}
                       </td>
                       <td className="px-3 py-3 align-middle">
                         <div className="flex items-center gap-3">
@@ -435,17 +453,21 @@ function NoriEvolutionsDialog({
                           </div>
                           <div className="min-w-0">
                             <p className="text-sm font-semibold text-white">
-                              {row.unlocked ? `Nori nivel ${row.level}` : `Preview nivel ${row.level}`}
+                              {row.unlocked
+                                ? (language === 'en' ? `Nori level ${row.level}` : `Nori nivel ${row.level}`)
+                                : (language === 'en' ? `Level ${row.level} preview` : `Preview nivel ${row.level}`)}
                             </p>
                             <p className="text-caption text-muted">
-                              {row.unlocked ? 'Evolucion desbloqueada' : 'Siguiente evolucion oculta'}
+                              {row.unlocked
+                                ? (language === 'en' ? 'Evolution unlocked' : 'Evolucion desbloqueada')
+                                : (language === 'en' ? 'Next evolution hidden' : 'Siguiente evolucion oculta')}
                             </p>
                           </div>
                         </div>
                       </td>
                       <td className="px-3 py-3 align-middle">
-                        <p className="text-xs font-semibold text-white">{reward?.title ?? 'Pulso Nora'}</p>
-                        <p className="mt-0.5 line-clamp-2 text-caption text-muted">{reward?.description ?? 'Evolucion de Nori.'}</p>
+                        <p className="text-xs font-semibold text-white">{rewardCopy?.title ?? 'Pulso Nora'}</p>
+                        <p className="mt-0.5 line-clamp-2 text-caption text-muted">{rewardCopy?.description ?? (language === 'en' ? 'Nori evolution.' : 'Evolucion de Nori.')}</p>
                       </td>
                       <td className="px-3 py-3 align-middle">
                         <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-caption font-semibold ${
@@ -454,7 +476,7 @@ function NoriEvolutionsDialog({
                             : 'border-border bg-surface text-muted'
                         }`}>
                           {row.unlocked ? <Unlock size={11} /> : <LockKeyhole size={11} />}
-                          {row.unlocked ? 'Activo' : 'Preview'}
+                          {row.unlocked ? (language === 'en' ? 'Active' : 'Activo') : 'Preview'}
                         </span>
                       </td>
                     </tr>

@@ -95,7 +95,7 @@ export function SystemStatusHero() {
     <section
       className={`relative overflow-hidden rounded-2xl border ${cfg.border} bg-surface-light/90 p-6 shadow-2xl transition-all duration-300`}
     >
-      {/* Background decoration: logo oficial Nora OS — ver identidadVisual-noraOS/. */}
+      {/* Background decoration: logo oficial Nora OS - ver visual-id/. */}
       <div className="pointer-events-none absolute -right-6 -top-6 h-56 w-56 opacity-25">
         <NoraLogoMark size={224} className="h-full w-full text-foreground/60" glow />
       </div>

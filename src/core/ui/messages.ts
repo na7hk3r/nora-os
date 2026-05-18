@@ -206,4 +206,12 @@ export const messages = {
  * Helper genérico: registra strings ad-hoc usados en un solo lugar pero que
  * pasaron por revisión de tono. Si crece, mové a una sección con clave estable.
  */
-export type Messages = typeof messages
+type WidenMessageShape<T> = T extends (...args: infer Args) => infer Return
+  ? (...args: Args) => Return
+  : T extends string
+    ? string
+    : T extends object
+      ? { [Key in keyof T]: WidenMessageShape<T[Key]> }
+      : T
+
+export type Messages = WidenMessageShape<typeof messages>

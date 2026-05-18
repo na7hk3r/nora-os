@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Download, KeyRound, ShieldCheck, Upload, X } from 'lucide-react'
-import { messages } from '../messages'
+import { useI18n } from '@core/i18n'
 
 type BackupAction = 'export-plain' | 'export-encrypted' | 'import-plain' | 'import-encrypted'
 type PassphraseAction = Extract<BackupAction, 'export-encrypted' | 'import-encrypted'>
@@ -28,6 +28,7 @@ const passphraseDialogCopy: Record<
 }
 
 export function BackupSection() {
+  const { language, t } = useI18n()
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState<string>('')
   const [passphraseAction, setPassphraseAction] = useState<PassphraseAction | null>(null)
@@ -65,13 +66,13 @@ export function BackupSection() {
       if (result?.ok) {
         setMessage(
           kind.startsWith('import')
-            ? messages.success.backupRestored
+            ? t.messages.success.backupRestored
             : result.path
-              ? messages.success.backupSaved(result.path)
+              ? t.messages.success.backupSaved(result.path)
               : 'OK',
         )
       } else {
-        setMessage(result?.error ?? 'Operación cancelada')
+        setMessage(result?.error ?? (language === 'en' ? 'Operation canceled' : 'Operacion cancelada'))
       }
     } catch (err) {
       setMessage((err as Error).message)
@@ -87,23 +88,43 @@ export function BackupSection() {
   const submitPassphrase = () => {
     if (!passphraseAction || busy) return
     if (passphrase.length < MIN_PASSPHRASE_LENGTH) {
-      setPassphraseError(messages.errors.backupPassphraseShort)
+      setPassphraseError(t.messages.errors.backupPassphraseShort)
       return
     }
 
     void run(passphraseAction, passphrase)
   }
 
-  const dialogCopy = passphraseAction ? passphraseDialogCopy[passphraseAction] : null
+  const localizedPassphraseDialogCopy: typeof passphraseDialogCopy = language === 'en' ? {
+    'export-encrypted': {
+      title: 'Export encrypted backup',
+      description:
+        'Choose a passphrase of at least 8 characters. Without this key, the backup cannot be restored.',
+      submitLabel: 'Export encrypted backup',
+      autoComplete: 'new-password',
+    },
+    'import-encrypted': {
+      title: 'Restore encrypted backup',
+      description:
+        'Enter the passphrase used during export. Restoring replaces your current database and cannot be undone.',
+      submitLabel: 'Restore encrypted backup',
+      autoComplete: 'current-password',
+    },
+  } : passphraseDialogCopy
+  const dialogCopy = passphraseAction ? localizedPassphraseDialogCopy[passphraseAction] : null
 
   return (
     <article className="rounded-2xl border border-border bg-surface-light/85 p-6">
       <div className="flex items-center gap-2">
         <ShieldCheck size={18} className="text-accent-light" />
-        <h2 className="text-lg font-semibold">Backup y restauración</h2>
+        <h2 className="text-lg font-semibold">
+          {language === 'en' ? 'Backup and restore' : 'Backup y restauracion'}
+        </h2>
       </div>
       <p className="mt-1 text-sm text-muted">
-        Exportá toda tu base local como archivo. Recomendado: backup cifrado con passphrase fuerte.
+        {language === 'en'
+          ? 'Export your full local database as a file. Recommended: encrypted backup with a strong passphrase.'
+          : 'Exporta toda tu base local como archivo. Recomendado: backup cifrado con passphrase fuerte.'}
       </p>
 
       <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -113,7 +134,7 @@ export function BackupSection() {
           disabled={busy}
           className="flex items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2 text-xs font-medium text-white hover:bg-accent/85 disabled:opacity-60"
         >
-          <Download size={13} /> Exportar cifrado (recomendado)
+          <Download size={13} /> {language === 'en' ? 'Export encrypted (recommended)' : 'Exportar cifrado (recomendado)'}
         </button>
         <button
           type="button"
@@ -121,7 +142,7 @@ export function BackupSection() {
           disabled={busy}
           className="flex items-center justify-center gap-2 rounded-lg border border-border bg-surface px-4 py-2 text-xs text-muted hover:text-white disabled:opacity-60"
         >
-          <Upload size={13} /> Restaurar cifrado
+          <Upload size={13} /> {language === 'en' ? 'Restore encrypted' : 'Restaurar cifrado'}
         </button>
         <button
           type="button"
@@ -129,7 +150,7 @@ export function BackupSection() {
           disabled={busy}
           className="flex items-center justify-center gap-2 rounded-lg border border-border bg-surface px-4 py-2 text-xs text-muted hover:text-white disabled:opacity-60"
         >
-          <Download size={13} /> Exportar sin cifrar (.db)
+          <Download size={13} /> {language === 'en' ? 'Export unencrypted (.db)' : 'Exportar sin cifrar (.db)'}
         </button>
         <button
           type="button"
@@ -141,7 +162,7 @@ export function BackupSection() {
           disabled={busy}
           className="flex items-center justify-center gap-2 rounded-lg border border-border bg-surface px-4 py-2 text-xs text-muted hover:text-white disabled:opacity-60"
         >
-          <Upload size={13} /> Restaurar sin cifrar (.db)
+          <Upload size={13} /> {language === 'en' ? 'Restore unencrypted (.db)' : 'Restaurar sin cifrar (.db)'}
         </button>
       </div>
 
@@ -175,8 +196,8 @@ export function BackupSection() {
                 onClick={closePassphraseDialog}
                 disabled={busy}
                 className="shrink-0 rounded-md p-1.5 text-muted hover:bg-surface hover:text-white disabled:opacity-50"
-                aria-label="Cerrar backup cifrado"
-                title="Cerrar"
+                aria-label={language === 'en' ? 'Close encrypted backup' : 'Cerrar backup cifrado'}
+                title={t.common.close}
               >
                 <X size={16} aria-hidden />
               </button>
@@ -197,7 +218,7 @@ export function BackupSection() {
                   }}
                   autoComplete={dialogCopy.autoComplete}
                   className="min-w-0 flex-1 bg-transparent text-sm text-white outline-none"
-                  placeholder="Mínimo 8 caracteres"
+                  placeholder={language === 'en' ? 'Minimum 8 characters' : 'Minimo 8 caracteres'}
                   autoFocus
                 />
               </span>
@@ -214,7 +235,7 @@ export function BackupSection() {
                 disabled={busy}
                 className="rounded-lg border border-border bg-surface px-4 py-2 text-xs text-muted hover:text-white disabled:opacity-50"
               >
-                Cancelar
+                {t.common.cancel}
               </button>
               <button
                 type="submit"
@@ -240,8 +261,10 @@ export function BackupSection() {
             className="w-full max-w-md rounded-2xl border border-border bg-surface-light p-5 text-left text-white shadow-2xl"
             onClick={(event) => event.stopPropagation()}
           >
-            <h3 id="backup-restore-title" className="text-lg font-semibold">Restaurar backup sin cifrar</h3>
-            <p className="mt-3 text-sm leading-relaxed text-muted">{messages.confirm.restoreBackup}</p>
+            <h3 id="backup-restore-title" className="text-lg font-semibold">
+              {language === 'en' ? 'Restore unencrypted backup' : 'Restaurar backup sin cifrar'}
+            </h3>
+            <p className="mt-3 text-sm leading-relaxed text-muted">{t.messages.confirm.restoreBackup}</p>
             <div className="mt-5 flex flex-wrap justify-end gap-2">
               <button
                 type="button"
@@ -249,7 +272,7 @@ export function BackupSection() {
                 disabled={busy}
                 className="rounded-lg border border-border bg-surface px-4 py-2 text-xs text-muted hover:text-white disabled:opacity-50"
               >
-                Cancelar
+                {t.common.cancel}
               </button>
               <button
                 type="button"
@@ -257,7 +280,7 @@ export function BackupSection() {
                 disabled={busy}
                 className="rounded-lg bg-accent px-4 py-2 text-xs font-medium text-white hover:bg-accent/85 disabled:opacity-50"
               >
-                Restaurar backup
+                {language === 'en' ? 'Restore backup' : 'Restaurar backup'}
               </button>
             </div>
           </section>

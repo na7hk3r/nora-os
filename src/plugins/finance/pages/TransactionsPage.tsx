@@ -200,13 +200,13 @@ export function TransactionsPage() {
             { v: 'expense', l: 'Gastos' },
             { v: 'transfer', l: 'Transfer' },
           ]} />
-          <label className="ml-auto inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface px-2 py-1.5">
+          <label className="min-w-0 flex-1 basis-56 md:ml-auto md:flex-none inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface px-2 py-1.5">
             <Search size={12} className="text-muted" />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Buscar nota, cuenta o categoria"
-              className="w-52 bg-transparent text-white outline-none placeholder:text-muted"
+              className="min-w-0 flex-1 bg-transparent text-white outline-none placeholder:text-muted md:w-52"
             />
           </label>
         </div>
@@ -225,7 +225,7 @@ export function TransactionsPage() {
               <X size={16} />
             </button>
           </div>
-          <div className="grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-[auto_1fr_1fr_1fr_1fr_2fr_auto]">
+          <div className="workspace-form-grid gap-2">
             <div className="inline-flex items-center gap-1 rounded-lg border border-border bg-surface p-1 text-xs">
               <button type="button" onClick={() => setDraft((prev) => prev && { ...prev, kind: 'expense', categoryId: '' })}
                 className={`flex-1 rounded-md px-2 py-1 ${draft.kind === 'expense' ? 'bg-rose-500/20 text-rose-100' : 'text-muted'}`}>Gasto</button>

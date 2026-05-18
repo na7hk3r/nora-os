@@ -2,6 +2,8 @@ import { type FormEvent, type Ref, useMemo, useRef, useState } from 'react'
 import { AlertCircle, CheckCircle2, Eye, EyeOff, UserRound, X } from 'lucide-react'
 import { useAuthStore } from '@core/state/authStore'
 import { NoraLogoMark } from '@core/ui/components/NoraLogo'
+import { useI18n } from '@core/i18n'
+import { LanguageSelector } from '@core/i18n/LanguageSelector'
 
 type AuthMode = 'login' | 'register' | 'recovery'
 
@@ -79,6 +81,7 @@ function forgetAllRememberedUsernames(): void {
 }
 
 export function AuthScreen() {
+  const { t } = useI18n()
   const login = useAuthStore((s) => s.login)
   const register = useAuthStore((s) => s.register)
   const getRecoveryQuestion = useAuthStore((s) => s.getRecoveryQuestion)
@@ -105,10 +108,10 @@ export function AuthScreen() {
   const [recoveryMessage, setRecoveryMessage] = useState<string | null>(null)
 
   const title = useMemo(() => {
-    if (mode === 'register') return 'Crear cuenta'
-    if (mode === 'recovery') return 'Recuperar acceso'
-    return 'Iniciar sesion'
-  }, [mode])
+    if (mode === 'register') return t.auth.titleRegister
+    if (mode === 'recovery') return t.auth.titleRecovery
+    return t.auth.titleLogin
+  }, [mode, t.auth.titleLogin, t.auth.titleRecovery, t.auth.titleRegister])
 
   const resetLocalMessages = () => {
     clearError()
@@ -160,7 +163,7 @@ export function AuthScreen() {
 
     const question = await getRecoveryQuestion(username)
     if (!question) {
-      setRecoveryMessage('Usuario no encontrado.')
+      setRecoveryMessage(t.auth.userNotFound)
       return
     }
 
@@ -177,7 +180,7 @@ export function AuthScreen() {
       newPassword,
     })
 
-    setRecoveryMessage('✓ Contraseña actualizada. Inicia sesión con tu nueva contraseña.')
+    setRecoveryMessage(t.auth.passwordUpdated)
     setMode('login')
     setPassword('')
   }
@@ -217,10 +220,11 @@ export function AuthScreen() {
       <div className="pointer-events-none absolute -right-32 bottom-0 h-[420px] w-[420px] rounded-full bg-accent-light/10 blur-3xl" />
       <div className="relative w-full max-w-md rounded-2xl border border-white/10 bg-surface-light/80 p-6 shadow-2xl backdrop-blur">
         <div className="mb-5 flex flex-col items-center text-center">
-          {/* Logo oficial Nora OS — ver identidadVisual-noraOS/. */}
+          {/* Logo oficial Nora OS - ver visual-id/. */}
           <NoraLogoMark size={64} glow className="mb-3 text-foreground/80" />
           <h1 className="font-display text-2xl font-bold">{title}</h1>
-          <p className="mt-1 text-sm text-muted">Tu sistema. Tu vida. Una sola IA.</p>
+          <p className="mt-1 text-sm text-muted">{t.auth.tagline}</p>
+          <LanguageSelector compact className="mt-4 justify-center" />
         </div>
 
         <div className="mb-4 grid grid-cols-3 gap-2 rounded-lg bg-surface p-1 text-xs">
@@ -228,19 +232,19 @@ export function AuthScreen() {
             onClick={() => handleChangeMode('login')}
             className={`rounded-md px-2 py-2 ${mode === 'login' ? 'bg-accent text-white' : 'text-muted hover:text-white'}`}
           >
-            Login
+            {t.auth.loginTab}
           </button>
           <button
             onClick={() => handleChangeMode('register')}
             className={`rounded-md px-2 py-2 ${mode === 'register' ? 'bg-accent text-white' : 'text-muted hover:text-white'}`}
           >
-            Registro
+            {t.auth.registerTab}
           </button>
           <button
             onClick={() => handleChangeMode('recovery')}
             className={`rounded-md px-2 py-2 ${mode === 'recovery' ? 'bg-accent text-white' : 'text-muted hover:text-white'}`}
           >
-            Recuperar
+            {t.auth.recoveryTab}
           </button>
         </div>
 
@@ -249,14 +253,14 @@ export function AuthScreen() {
             {rememberedUsernames.length > 0 && (
               <div className="space-y-2 rounded-lg border border-border bg-surface px-2 py-2">
                 <div className="flex items-center justify-between gap-3 px-2">
-                  <p className="text-caption font-medium uppercase tracking-wide text-muted">Usuarios recordados</p>
+                  <p className="text-caption font-medium uppercase tracking-wide text-muted">{t.auth.rememberedUsers}</p>
                   {rememberedUsernames.length > 1 && (
                     <button
                       type="button"
                       onClick={forgetAllRememberedLogins}
                       className="text-caption text-muted underline-offset-2 hover:text-white hover:underline"
                     >
-                      Olvidar todos
+                      {t.auth.forgetAll}
                     </button>
                   )}
                 </div>
@@ -267,22 +271,22 @@ export function AuthScreen() {
                         type="button"
                         onClick={() => selectRememberedUsername(rememberedUsername)}
                         className="flex min-w-0 flex-1 items-center gap-2 rounded-md px-2 py-1 text-left text-sm text-white transition-colors hover:bg-surface-lighter"
-                        aria-label={`Usar usuario ${rememberedUsername}`}
+                        aria-label={t.auth.useUser(rememberedUsername)}
                       >
                         <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-border/70 bg-surface-light text-muted">
                           <UserRound size={14} aria-hidden />
                         </span>
                         <span className="min-w-0">
                           <span className="block truncate font-medium">{rememberedUsername}</span>
-                          <span className="block text-caption text-muted">Usuario recordado</span>
+                          <span className="block text-caption text-muted">{t.auth.rememberedUser}</span>
                         </span>
                       </button>
                       <button
                         type="button"
                         onClick={() => forgetRememberedLogin(rememberedUsername)}
                         className="shrink-0 rounded-md p-1.5 text-muted transition-colors hover:bg-surface-lighter hover:text-white"
-                        aria-label={`Olvidar usuario ${rememberedUsername}`}
-                        title="Olvidar usuario"
+                        aria-label={t.auth.forgetUser(rememberedUsername)}
+                        title={t.auth.forgetUserTitle}
                       >
                         <X size={14} aria-hidden />
                       </button>
@@ -294,7 +298,7 @@ export function AuthScreen() {
             <input
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="Usuario"
+              placeholder={t.auth.username}
               className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm outline-none focus:border-accent"
               autoComplete="username"
               required
@@ -302,7 +306,7 @@ export function AuthScreen() {
             <PasswordField
               value={password}
               onChange={setPassword}
-              placeholder="Contraseña"
+              placeholder={t.auth.password}
               autoComplete="current-password"
               visible={showPassword}
               onToggle={() => setShowPassword((visible) => !visible)}
@@ -315,14 +319,14 @@ export function AuthScreen() {
                 onChange={(event) => setRememberLogin(event.target.checked)}
                 className="h-4 w-4 accent-accent"
               />
-              <span>Recordar usuario en este equipo</span>
+              <span>{t.auth.rememberUser}</span>
             </label>
             <button
               type="submit"
               disabled={loading}
               className="w-full rounded-lg bg-accent px-3 py-2 text-sm font-medium text-white hover:bg-accent/85 disabled:opacity-70"
             >
-              {loading ? 'Ingresando...' : 'Entrar'}
+              {loading ? t.auth.entering : t.auth.enter}
             </button>
           </form>
         )}
@@ -332,7 +336,7 @@ export function AuthScreen() {
             <input
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="Usuario"
+              placeholder={t.auth.username}
               className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm outline-none focus:border-accent"
               autoComplete="username"
               required
@@ -340,7 +344,7 @@ export function AuthScreen() {
             <PasswordField
               value={password}
               onChange={setPassword}
-              placeholder="Contraseña (mín 8 caracteres)"
+              placeholder={t.auth.passwordMin}
               autoComplete="new-password"
               visible={showPassword}
               onToggle={() => setShowPassword((visible) => !visible)}
@@ -348,14 +352,14 @@ export function AuthScreen() {
             <input
               value={registerQuestion}
               onChange={(e) => setRegisterQuestion(e.target.value)}
-              placeholder="Pregunta de recuperación (mín 10 caracteres)"
+              placeholder={t.auth.recoveryQuestion}
               className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm outline-none focus:border-accent"
               required
             />
             <input
               value={registerAnswer}
               onChange={(e) => setRegisterAnswer(e.target.value)}
-              placeholder="Respuesta (será privada y sensible a mayúsculas)"
+              placeholder={t.auth.recoveryAnswerPrivate}
               className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm outline-none focus:border-accent"
               required
             />
@@ -364,7 +368,7 @@ export function AuthScreen() {
               disabled={loading}
               className="w-full rounded-lg bg-accent px-3 py-2 text-sm font-medium text-white hover:bg-accent/85 disabled:opacity-70"
             >
-              {loading ? 'Creando...' : 'Crear cuenta'}
+              {loading ? t.auth.creating : t.auth.createAccount}
             </button>
           </form>
         )}
@@ -375,7 +379,7 @@ export function AuthScreen() {
               <input
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="Usuario"
+                placeholder={t.auth.username}
                 className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm outline-none focus:border-accent"
                 required
               />
@@ -384,7 +388,7 @@ export function AuthScreen() {
                 disabled={loading}
                 className="w-full rounded-lg border border-accent/60 bg-surface px-3 py-2 text-sm font-medium text-accent-light hover:bg-surface-lighter disabled:opacity-70"
               >
-                {loading ? 'Buscando...' : 'Ver pregunta secreta'}
+                {loading ? t.auth.searching : t.auth.viewSecretQuestion}
               </button>
             </form>
 
@@ -396,14 +400,14 @@ export function AuthScreen() {
                 <input
                   value={recoveryAnswer}
                   onChange={(e) => setRecoveryAnswer(e.target.value)}
-                  placeholder="Respuesta"
+                  placeholder={t.auth.recoveryAnswer}
                   className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm outline-none focus:border-accent"
                   required
                 />
                 <PasswordField
                   value={newPassword}
                   onChange={setNewPassword}
-                  placeholder="Nueva contraseña (mín 8 caracteres)"
+                  placeholder={t.auth.newPassword}
                   autoComplete="new-password"
                   visible={showNewPassword}
                   onToggle={() => setShowNewPassword((visible) => !visible)}
@@ -413,7 +417,7 @@ export function AuthScreen() {
                   disabled={loading}
                   className="w-full rounded-lg bg-accent px-3 py-2 text-sm font-medium text-white hover:bg-accent/85 disabled:opacity-70"
                 >
-                  {loading ? 'Actualizando...' : 'Actualizar contrasena'}
+                  {loading ? t.auth.updating : t.auth.updatePassword}
                 </button>
               </form>
             )}
@@ -461,6 +465,7 @@ function PasswordField({
   onToggle: () => void
   inputRef?: Ref<HTMLInputElement>
 }) {
+  const { t } = useI18n()
   return (
     <div className="relative">
       <input
@@ -476,8 +481,8 @@ function PasswordField({
       <button
         type="button"
         onClick={onToggle}
-        aria-label={visible ? 'Ocultar contrasena' : 'Mostrar contrasena'}
-        title={visible ? 'Ocultar contrasena' : 'Mostrar contrasena'}
+        aria-label={visible ? t.auth.hidePassword : t.auth.showPassword}
+        title={visible ? t.auth.hidePassword : t.auth.showPassword}
         className="absolute inset-y-0 right-0 flex w-10 items-center justify-center rounded-r-lg text-muted transition-colors hover:text-white focus:outline-none focus:ring-1 focus:ring-accent/40"
       >
         {visible ? <EyeOff size={16} aria-hidden /> : <Eye size={16} aria-hidden />}

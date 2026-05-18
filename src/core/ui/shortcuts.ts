@@ -74,6 +74,13 @@ export const SHORTCUT_GROUPS: ShortcutGroup[] = [
       { id: 'palette-down', keys: '↓', action: 'Siguiente resultado', scope: 'palette' },
       { id: 'palette-up', keys: '↑', action: 'Resultado anterior', scope: 'palette' },
       { id: 'palette-enter', keys: 'Enter', action: 'Ejecutar resultado', scope: 'palette' },
+      {
+        id: 'palette-side-open',
+        keys: 'Ctrl/Cmd + /',
+        action: 'Abrir resultado en el panel derecho',
+        scope: 'palette',
+        description: 'Activa la vista dual si hace falta y carga el resultado seleccionado al lado. En teclados ES/LatAm también funciona como Ctrl/Cmd + Shift + 7.',
+      },
       { id: 'palette-esc', keys: 'Esc', action: 'Cerrar palette', scope: 'palette' },
     ],
   },

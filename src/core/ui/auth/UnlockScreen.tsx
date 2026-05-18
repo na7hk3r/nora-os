@@ -52,7 +52,7 @@ export function UnlockScreen({ onUnlocked }: UnlockScreenProps) {
         className="relative w-full max-w-md rounded-2xl border border-white/10 bg-surface-light/80 p-8 shadow-2xl backdrop-blur"
       >
         <div className="mb-4 flex flex-col items-center text-center">
-          {/* Logo oficial Nora OS — ver identidadVisual-noraOS/. */}
+          {/* Logo oficial Nora OS - ver visual-id/. */}
           <NoraLogoMark size={64} glow className="mb-3 text-foreground/80" />
         </div>
         <div className="flex items-center gap-2">

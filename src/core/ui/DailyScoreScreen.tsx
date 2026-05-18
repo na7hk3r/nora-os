@@ -12,6 +12,7 @@ import {
   dailyScoreService,
   type DailyScoreData,
 } from '@core/services/dailyScoreService'
+import { useI18n } from '@core/i18n'
 
 /** Detecta `prefers-reduced-motion: reduce` para evitar animaciones invasivas. */
 function usePrefersReducedMotion(): boolean {
@@ -74,10 +75,13 @@ interface DailyScoreScreenProps {
   onOpenCopilot: () => void
 }
 
-function formatLongDate(iso: string): string {
+function formatLongDate(
+  iso: string,
+  formatDate: (value: Date | string | number, options?: Intl.DateTimeFormatOptions) => string,
+): string {
   const [y, m, d] = iso.split('-').map((s) => Number.parseInt(s, 10))
   const date = new Date(y, (m ?? 1) - 1, d ?? 1)
-  return date.toLocaleDateString('es-ES', {
+  return formatDate(date, {
     weekday: 'long',
     day: 'numeric',
     month: 'long',
@@ -164,7 +168,8 @@ interface ContentProps {
 }
 
 function ScoreContent({ data, onDismiss, onOpenCopilot }: ContentProps) {
-  const dateLabel = formatLongDate(data.date)
+  const { formatDate } = useI18n()
+  const dateLabel = formatLongDate(data.date, formatDate)
   const deltaAbs = Math.abs(data.delta)
   const isUp = data.delta >= 0
   const DeltaIcon = isUp ? TrendingUp : TrendingDown

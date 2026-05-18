@@ -113,6 +113,12 @@ function createWindow(): void {
  */
 app.on('web-contents-created', (_event, contents) => {
   contents.setWindowOpenHandler(({ url }) => {
+    // Internal app routes can be opened by modified clicks/keyboard activation.
+    // Keep those inside Nora instead of sending the dev-server URL to a browser.
+    if (isAllowedNavigationTarget(url)) {
+      return { action: 'deny' }
+    }
+
     if (isSafeExternalUrl(url)) {
       void shell.openExternal(url)
     }

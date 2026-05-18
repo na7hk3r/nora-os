@@ -2,13 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ChevronLeft, ChevronRight, CalendarDays } from 'lucide-react'
 import { calendarAggregator, type CalendarEvent, type CalendarSource } from '@core/services/calendarAggregator'
-
-const SOURCE_LABEL: Record<CalendarSource, string> = {
-  planner: 'Planner',
-  work: 'Work',
-  fitness: 'Fitness',
-  focus: 'Foco',
-}
+import { useI18n } from '@core/i18n'
 
 const SOURCE_COLOR: Record<CalendarSource, string> = {
   planner: 'bg-accent/20 text-accent-light border-accent/40',
@@ -44,12 +38,19 @@ function buildGrid(month: Date): { date: Date; iso: string; inMonth: boolean }[]
 }
 
 export function CalendarPage() {
+  const { t, language, formatDate } = useI18n()
   const [cursor, setCursor] = useState(() => startOfMonth(new Date()))
   const [events, setEvents] = useState<CalendarEvent[]>([])
   const [sourcesFilter, setSourcesFilter] = useState<Record<CalendarSource, boolean>>({
     planner: true, work: true, fitness: true, focus: true,
   })
   const navigate = useNavigate()
+  const sourceLabel: Record<CalendarSource, string> = {
+    planner: t.routes['core-planner'] ?? 'Planner',
+    work: t.plugins.meta.work?.name ?? 'Work',
+    fitness: t.plugins.meta.fitness?.name ?? 'Fitness',
+    focus: language === 'en' ? 'Focus' : 'Foco',
+  }
 
   const grid = useMemo(() => buildGrid(cursor), [cursor])
   const from = grid[0].iso
@@ -71,7 +72,11 @@ export function CalendarPage() {
   }, [events])
 
   const todayIso = fmtIso(new Date())
-  const monthLabel = cursor.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' })
+  const monthLabel = formatDate(cursor, { month: 'long', year: 'numeric' })
+  const weekdays = useMemo(
+    () => Array.from({ length: 7 }, (_, day) => formatDate(new Date(2026, 3, 20 + day), { weekday: 'short' })),
+    [formatDate],
+  )
 
   return (
     <div className="space-y-5">
@@ -79,7 +84,9 @@ export function CalendarPage() {
         <div className="flex items-center gap-3">
           <CalendarDays size={20} className="text-accent-light" />
           <div>
-            <p className="text-caption uppercase tracking-eyebrow text-muted">Calendario unificado</p>
+            <p className="text-caption uppercase tracking-eyebrow text-muted">
+              {language === 'en' ? 'Unified calendar' : 'Calendario unificado'}
+            </p>
             <h1 className="text-xl font-semibold capitalize">{monthLabel}</h1>
           </div>
         </div>
@@ -87,16 +94,16 @@ export function CalendarPage() {
           <button
             onClick={() => setCursor((c) => addMonths(c, -1))}
             className="rounded-lg border border-border px-3 py-1.5 text-sm text-muted hover:text-white"
-            aria-label="Mes anterior"
+            aria-label={language === 'en' ? 'Previous month' : 'Mes anterior'}
           ><ChevronLeft size={14} /></button>
           <button
             onClick={() => setCursor(startOfMonth(new Date()))}
             className="rounded-lg border border-border px-3 py-1.5 text-xs text-muted hover:text-white"
-          >Hoy</button>
+          >{t.common.today}</button>
           <button
             onClick={() => setCursor((c) => addMonths(c, 1))}
             className="rounded-lg border border-border px-3 py-1.5 text-sm text-muted hover:text-white"
-            aria-label="Mes siguiente"
+            aria-label={language === 'en' ? 'Next month' : 'Mes siguiente'}
           ><ChevronRight size={14} /></button>
         </div>
       </header>
@@ -111,13 +118,13 @@ export function CalendarPage() {
                 onChange={(e) => setSourcesFilter((prev) => ({ ...prev, [s]: e.target.checked }))}
                 className="h-3 w-3 accent-accent"
               />
-              <span className={`rounded px-1.5 py-0.5 ${SOURCE_COLOR[s]}`}>{SOURCE_LABEL[s]}</span>
+              <span className={`rounded px-1.5 py-0.5 ${SOURCE_COLOR[s]}`}>{sourceLabel[s]}</span>
             </label>
           ))}
         </div>
 
         <div className="grid grid-cols-7 gap-1 text-micro uppercase tracking-wider text-muted">
-          {['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map((d) => (
+          {weekdays.map((d) => (
             <div key={d} className="px-1 py-1 text-center">{d}</div>
           ))}
         </div>
@@ -142,7 +149,7 @@ export function CalendarPage() {
                       key={e.id}
                       onClick={() => e.ctaPath && navigate(e.ctaPath)}
                       className={`block w-full truncate rounded border px-1.5 py-0.5 text-left text-micro ${SOURCE_COLOR[e.source]}`}
-                      title={`${SOURCE_LABEL[e.source]}: ${e.title}`}
+                      title={`${sourceLabel[e.source]}: ${e.title}`}
                     >
                       {e.title}
                     </button>

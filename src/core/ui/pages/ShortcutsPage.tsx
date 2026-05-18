@@ -1,7 +1,19 @@
 import { useMemo, useState } from 'react'
 import { Keyboard, Search } from 'lucide-react'
 import { SHORTCUT_GROUPS, type ShortcutGroup } from '../shortcuts'
-import { messages } from '../messages'
+import { useI18n, type AppCopy } from '@core/i18n'
+
+function localizeGroups(groups: ShortcutGroup[], t: AppCopy): ShortcutGroup[] {
+  return groups.map((group) => ({
+    ...group,
+    title: t.shortcuts.groups[group.id] ?? group.title,
+    entries: group.entries.map((entry) => ({
+      ...entry,
+      action: t.shortcuts.actions[entry.id] ?? entry.action,
+      description: entry.description ? t.shortcuts.descriptions[entry.id] ?? entry.description : undefined,
+    })),
+  }))
+}
 
 function filterGroups(groups: ShortcutGroup[], query: string): ShortcutGroup[] {
   const q = query.trim().toLowerCase()
@@ -37,8 +49,10 @@ function KeyChips({ combo }: { combo: string }) {
 }
 
 export function ShortcutsPage() {
+  const { t, language } = useI18n()
   const [query, setQuery] = useState('')
-  const filtered = useMemo(() => filterGroups(SHORTCUT_GROUPS, query), [query])
+  const groups = useMemo(() => localizeGroups(SHORTCUT_GROUPS, t), [t])
+  const filtered = useMemo(() => filterGroups(groups, query), [groups, query])
   const total = useMemo(
     () => filtered.reduce((acc, g) => acc + g.entries.length, 0),
     [filtered],
@@ -49,27 +63,31 @@ export function ShortcutsPage() {
       <header className="flex items-center gap-3">
         <Keyboard size={22} className="text-accent-light" aria-hidden />
         <div>
-          <h1 className="text-2xl font-semibold">Atajos de teclado</h1>
+          <h1 className="text-2xl font-semibold">
+            {language === 'en' ? 'Keyboard shortcuts' : 'Atajos de teclado'}
+          </h1>
           <p className="text-sm text-muted">
-            Catálogo completo de atajos disponibles en Nora OS.
+            {language === 'en'
+              ? 'Complete catalog of shortcuts available in Nora OS.'
+              : 'Catalogo completo de atajos disponibles en Nora OS.'}
           </p>
         </div>
       </header>
 
       <label className="mt-6 flex items-center gap-2 rounded-xl border border-border bg-surface-light px-3 py-2">
         <Search size={16} className="text-muted" aria-hidden />
-        <span className="sr-only">Buscar atajo</span>
+        <span className="sr-only">{language === 'en' ? 'Search shortcut' : 'Buscar atajo'}</span>
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Buscar por tecla o acción"
+          placeholder={language === 'en' ? 'Search by key or action' : 'Buscar por tecla o accion'}
           className="w-full bg-transparent text-sm text-white placeholder:text-muted focus:outline-none"
         />
       </label>
 
       {total === 0 ? (
         <p className="mt-8 rounded-xl border border-border bg-surface-light p-6 text-sm text-muted">
-          {messages.empty.shortcuts}
+          {t.messages.empty.shortcuts}
         </p>
       ) : (
         <div className="mt-6 space-y-6">

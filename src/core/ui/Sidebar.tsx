@@ -1,5 +1,5 @@
-import { NavLink } from 'react-router-dom'
-import { useEffect, useMemo, useState, type CSSProperties } from 'react'
+import { useLocation } from 'react-router-dom'
+import { useEffect, useMemo, useState, type CSSProperties, type MouseEvent, type ReactNode } from 'react'
 import {
   DndContext,
   KeyboardSensor,
@@ -38,7 +38,7 @@ import { useCoreStore } from '../state/coreStore'
 import { pluginManager } from '../plugins/PluginManager'
 import { eventBus } from '../events/EventBus'
 import { useGamificationStore } from '@core/gamification/gamificationStore'
-import { PULSO_NORA_SYSTEM_NAME, getNoriProgress, getNoriStage } from '@core/gamification/pulsoNora'
+import { getNoriProgress, getNoriStage } from '@core/gamification/pulsoNora'
 import { useAuthStore } from '@core/state/authStore'
 import { APP_VERSION } from '@core/utils/version'
 import { PluginIcon } from './components/PluginIcon'
@@ -46,6 +46,9 @@ import { NoraLogoMark } from './components/NoraLogo'
 import { NoriSprite } from './components/NoriSprite'
 import { SystemSuggestions } from './SystemSuggestions'
 import { FeedbackLauncher } from './FeedbackLauncher'
+import { normalizeWorkspacePath } from './workspaceRoutes'
+import { useWorkspaceLayout } from './WorkspaceLayoutContext'
+import { resolveI18nString, useI18n } from '@core/i18n'
 import {
   DEFAULT_SIDEBAR_NAV_STATE,
   SIDEBAR_NAV_SETTINGS_KEY,
@@ -100,6 +103,45 @@ const NAV_LINK_CLASS = (isActive: boolean) =>
       : 'text-foreground/75 hover:bg-surface-lighter hover:text-foreground'
   }`
 
+function isWorkspacePathActive(currentPath: string, targetPath: string, end?: boolean): boolean {
+  const current = normalizeWorkspacePath(currentPath)
+  const target = normalizeWorkspacePath(targetPath)
+  if (end || target === '/') return current === target
+  return current === target || current.startsWith(`${target}/`)
+}
+
+interface WorkspaceNavLinkProps {
+  to: string
+  end?: boolean
+  title?: string
+  className: string | ((state: { isActive: boolean }) => string)
+  children: ReactNode
+}
+
+export function WorkspaceNavLink({ to, end, title, className, children }: WorkspaceNavLinkProps) {
+  const location = useLocation()
+  const workspace = useWorkspaceLayout()
+  const activePath = workspace.dualEnabled && workspace.activePane === 'secondary'
+    ? workspace.secondaryPath
+    : location.pathname
+  const isActive = isWorkspacePathActive(activePath, to, end)
+  const resolvedClassName = typeof className === 'function' ? className({ isActive }) : className
+
+  const onClick = (event: MouseEvent<HTMLAnchorElement>) => {
+    if (event.defaultPrevented || event.button !== 0) {
+      return
+    }
+    event.preventDefault()
+    workspace.navigateWorkspace(to)
+  }
+
+  return (
+    <a href={`#${normalizeWorkspacePath(to)}`} title={title} onClick={onClick} className={resolvedClassName}>
+      {children}
+    </a>
+  )
+}
+
 interface ModuleGroupProps {
   group: SidebarModuleGroup
   sidebarCollapsed: boolean
@@ -111,7 +153,7 @@ interface ModuleGroupProps {
 
 function ChildNavLink({ item }: { item: NavItemDefinition }) {
   return (
-    <NavLink
+    <WorkspaceNavLink
       key={item.id}
       to={item.path}
       className={({ isActive }) =>
@@ -125,7 +167,7 @@ function ChildNavLink({ item }: { item: NavItemDefinition }) {
       <span className="text-micro text-muted/40">-</span>
       <span className="text-muted/80">{renderNavIcon(item.icon, 14)}</span>
       <span className="truncate">{item.label}</span>
-    </NavLink>
+    </WorkspaceNavLink>
   )
 }
 
@@ -137,6 +179,7 @@ function ModuleGroup({
   hasActivity,
   onToggleChildren,
 }: ModuleGroupProps) {
+  const { t } = useI18n()
   const {
     attributes,
     listeners,
@@ -168,13 +211,13 @@ function ModuleGroup({
             {...attributes}
             {...listeners}
             className="shrink-0 rounded-md p-1 text-muted/45 transition-colors hover:bg-surface-lighter hover:text-muted"
-            aria-label={`Mover ${group.parent.label}`}
-            title="Arrastrar para reordenar"
+            aria-label={t.dashboard.moveTile(group.parent.label)}
+            title={t.sidebar.dragToReorder}
           >
             <GripVertical size={14} />
           </button>
         )}
-        <NavLink
+        <WorkspaceNavLink
           key={group.parent.id}
           to={group.parent.path}
           end
@@ -195,14 +238,14 @@ function ModuleGroup({
             )}
           </span>
           {!sidebarCollapsed && <span className="truncate">{group.parent.label}</span>}
-        </NavLink>
+        </WorkspaceNavLink>
         {!sidebarCollapsed && hasChildren && (
           <button
             type="button"
             onClick={() => onToggleChildren(group.parent.pluginId)}
             className="shrink-0 rounded-md p-1.5 text-muted transition-colors hover:bg-surface-lighter hover:text-accent-light"
-            aria-label={childrenCollapsed ? `Mostrar paginas de ${group.parent.label}` : `Ocultar paginas de ${group.parent.label}`}
-            title={childrenCollapsed ? 'Mostrar paginas' : 'Ocultar paginas'}
+            aria-label={childrenCollapsed ? t.sidebar.showPages(group.parent.label) : t.sidebar.hidePages(group.parent.label)}
+            title={childrenCollapsed ? t.sidebar.showPages(group.parent.label) : t.sidebar.hidePages(group.parent.label)}
           >
             {childrenCollapsed ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
           </button>
@@ -220,6 +263,7 @@ function ModuleGroup({
 }
 
 export function Sidebar() {
+  const { t, language } = useI18n()
   const sidebarCollapsed = useCoreStore((s) => s.settings.sidebarCollapsed)
   const updateSettings = useCoreStore((s) => s.updateSettings)
   const profileName = useCoreStore((s) => s.profile.name)
@@ -241,8 +285,12 @@ export function Sidebar() {
     () =>
       pluginManager
         .getActiveNavItems()
-        .filter((item, index, arr) => arr.findIndex((candidate) => candidate.path === item.path) === index),
-    [activePlugins, pluginUiVersion],
+        .filter((item, index, arr) => arr.findIndex((candidate) => candidate.path === item.path) === index)
+        .map((item) => ({
+          ...item,
+          label: resolveI18nString(language, item.label, item.labelKey ?? `plugins.nav.${item.id}`),
+        })),
+    [activePlugins, pluginUiVersion, language],
   )
   const defaultNavGroups = useMemo(() => groupPluginNavItems(navItems), [navItems])
   const modulePluginIds = useMemo(
@@ -361,7 +409,7 @@ export function Sidebar() {
   return (
     <aside
       role="complementary"
-      aria-label="Navegación principal"
+      aria-label={t.sidebar.aria}
       className={`fixed left-0 top-0 z-40 flex h-full flex-col border-r border-border bg-surface-light/95 backdrop-blur-md transition-all duration-200 ${
         sidebarCollapsed ? 'w-16' : 'w-56'
       }`}
@@ -370,7 +418,7 @@ export function Sidebar() {
       <div className="flex h-16 items-center justify-between border-b border-border px-4">
         {!sidebarCollapsed && (
           <div className="flex min-w-0 items-center gap-2.5">
-            {/* Logo oficial Nora OS — ver identidadVisual-noraOS/. */}
+            {/* Logo oficial Nora OS - ver visual-id/. */}
             <NoraLogoMark size={28} className="shrink-0 text-foreground/80" />
             <div className="min-w-0">
               <p className="truncate text-xs uppercase tracking-eyebrow text-muted font-display">Nora OS</p>
@@ -383,7 +431,7 @@ export function Sidebar() {
         )}
         <button
           onClick={toggleCollapse}
-          aria-label={sidebarCollapsed ? 'Expandir barra lateral' : 'Colapsar barra lateral'}
+          aria-label={sidebarCollapsed ? t.sidebar.expand : t.sidebar.collapse}
           aria-expanded={!sidebarCollapsed}
           className="shrink-0 rounded p-1 text-muted hover:bg-surface-lighter"
         >
@@ -395,31 +443,31 @@ export function Sidebar() {
       <nav aria-label="Secciones de la app" className="flex-1 space-y-1 overflow-y-auto px-2 py-3">
         {/* Grupo: Principal */}
         {!sidebarCollapsed && (
-          <p className="px-3 pb-1 text-micro uppercase tracking-eyebrow text-muted">Principal</p>
+          <p className="px-3 pb-1 text-micro uppercase tracking-eyebrow text-muted">{t.sidebar.main}</p>
         )}
-        <NavLink to="/" end className={({ isActive }) => NAV_LINK_CLASS(isActive)}>
+        <WorkspaceNavLink to="/" end className={({ isActive }) => NAV_LINK_CLASS(isActive)}>
           <PluginIcon name="LayoutDashboard" size={18} className="shrink-0" />
-          {!sidebarCollapsed && <span className="truncate">Dashboard</span>}
-        </NavLink>
-        <NavLink to="/review" className={({ isActive }) => NAV_LINK_CLASS(isActive)}>
+          {!sidebarCollapsed && <span className="truncate">{t.routes['core-dashboard']}</span>}
+        </WorkspaceNavLink>
+        <WorkspaceNavLink to="/review" className={({ isActive }) => NAV_LINK_CLASS(isActive)}>
           <TrendingUp size={18} className="shrink-0" />
-          {!sidebarCollapsed && <span className="truncate">Progreso</span>}
-        </NavLink>
+          {!sidebarCollapsed && <span className="truncate">{t.routes['core-review']}</span>}
+        </WorkspaceNavLink>
 
         {/* Grupo: Módulos (plugins activos) */}
         {navGroups.length > 0 && (
           <>
             {!sidebarCollapsed && (
               <div className="flex items-center justify-between gap-2 px-3 pb-1 pt-3">
-                <p className="text-micro uppercase tracking-eyebrow text-muted">Módulos</p>
+                <p className="text-micro uppercase tracking-eyebrow text-muted">{t.sidebar.modules}</p>
                 {canReorderModules && (
                   <span className="flex w-7 justify-center">
                     <button
                       type="button"
                       onClick={toggleModuleOrderLock}
                       className="inline-flex h-5 w-5 items-center justify-center rounded-md text-muted/55 transition-colors hover:bg-surface-lighter hover:text-accent-light"
-                      aria-label={sidebarNavState.moduleOrderLocked ? 'Desbloquear reordenamiento de modulos' : 'Bloquear reordenamiento de modulos'}
-                      title={sidebarNavState.moduleOrderLocked ? 'Desbloquear reordenamiento' : 'Bloquear reordenamiento'}
+                      aria-label={sidebarNavState.moduleOrderLocked ? t.sidebar.unlockOrder : t.sidebar.lockOrder}
+                      title={sidebarNavState.moduleOrderLocked ? t.sidebar.unlockOrder : t.sidebar.lockOrder}
                     >
                       {sidebarNavState.moduleOrderLocked ? <Lock size={12} /> : <Unlock size={12} />}
                     </button>
@@ -456,32 +504,28 @@ export function Sidebar() {
 
         {/* Grupo: Herramientas (peso visual menor) */}
         {!sidebarCollapsed && (
-          <p className="px-3 pb-1 pt-3 text-micro uppercase tracking-eyebrow text-muted">Herramientas</p>
+          <p className="px-3 pb-1 pt-3 text-micro uppercase tracking-eyebrow text-muted">{t.sidebar.tools}</p>
         )}
-        <NavLink to="/notes" className={({ isActive }) => NAV_LINK_CLASS(isActive)}>
+        <WorkspaceNavLink to="/notes" className={({ isActive }) => NAV_LINK_CLASS(isActive)}>
           <PluginIcon name="NotebookPen" size={18} className="shrink-0" />
-          {!sidebarCollapsed && <span className="truncate">Notas</span>}
-        </NavLink>
-        <NavLink to="/links" className={({ isActive }) => NAV_LINK_CLASS(isActive)}>
-          <PluginIcon name="Link2" size={18} className="shrink-0" />
-          {!sidebarCollapsed && <span className="truncate">Enlaces</span>}
-        </NavLink>
-        <NavLink to="/planner" className={({ isActive }) => NAV_LINK_CLASS(isActive)}>
+          {!sidebarCollapsed && <span className="truncate">{t.routes['core-notes']}</span>}
+        </WorkspaceNavLink>
+        <WorkspaceNavLink to="/planner" className={({ isActive }) => NAV_LINK_CLASS(isActive)}>
           <ListTodo size={18} className="shrink-0" />
-          {!sidebarCollapsed && <span className="truncate">Planner</span>}
-        </NavLink>
-        <NavLink to="/calendar" className={({ isActive }) => NAV_LINK_CLASS(isActive)}>
+          {!sidebarCollapsed && <span className="truncate">{t.routes['core-planner']}</span>}
+        </WorkspaceNavLink>
+        <WorkspaceNavLink to="/calendar" className={({ isActive }) => NAV_LINK_CLASS(isActive)}>
           <CalendarDays size={18} className="shrink-0" />
-          {!sidebarCollapsed && <span className="truncate">Calendario</span>}
-        </NavLink>
+          {!sidebarCollapsed && <span className="truncate">{t.routes['core-calendar']}</span>}
+        </WorkspaceNavLink>
       </nav>
 
       {/* Pulso Nora mini widget */}
       {!sidebarCollapsed && (
-        <NavLink
+        <WorkspaceNavLink
           to="/review"
           className="mx-2 mb-2 block rounded-xl border border-border bg-surface/60 p-2.5 transition-colors hover:border-accent/40"
-          title={`${PULSO_NORA_SYSTEM_NAME} - Nori nivel ${level} - ${points} XP - Ver progreso completo`}
+          title={t.sidebar.progressTitle(level, points)}
         >
           <div className="flex items-center gap-2">
             <div className="relative -ml-1 flex h-14 w-14 shrink-0 items-end justify-center">
@@ -492,13 +536,15 @@ export function Sidebar() {
               <div className="flex items-center justify-between gap-2">
                 <p className="truncate text-xs font-semibold text-white">Nori L{level}</p>
                 {streak > 0 && (
-                  <span className="inline-flex items-center gap-0.5 text-xs font-semibold text-warning" title={`Racha de ${streak} dias`}>
+                  <span className="inline-flex items-center gap-0.5 text-xs font-semibold text-warning" title={t.sidebar.streak(streak)}>
                     <Flame size={12} />
                     {streak}
                   </span>
                 )}
               </div>
-              <p className="truncate text-[10px] uppercase tracking-eyebrow text-muted">{noriStage.title}</p>
+              <p className="truncate text-[10px] uppercase tracking-eyebrow text-muted">
+                {t.gamification.stages[noriStage.id]?.title ?? noriStage.title}
+              </p>
               <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-surface-lighter">
                 <div
                   className="h-1.5 rounded-full bg-gradient-to-r from-accent to-accent-light transition-all duration-500"
@@ -507,7 +553,7 @@ export function Sidebar() {
               </div>
             </div>
           </div>
-        </NavLink>
+        </WorkspaceNavLink>
       )}
 
       {/* Footer */}
@@ -517,7 +563,7 @@ export function Sidebar() {
         ) : (
           <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <NavLink
+              <WorkspaceNavLink
                 to="/control"
                 className={({ isActive }) =>
                   `flex flex-1 items-center justify-center gap-2 rounded-md border px-2 py-1.5 text-xs transition-colors ${
@@ -526,30 +572,30 @@ export function Sidebar() {
                       : 'border-border bg-surface text-muted hover:border-accent/40 hover:text-white'
                   }`
                 }
-                title="Configuración"
+                title={t.common.settings}
               >
                 <Settings size={14} />
-                Config
-              </NavLink>
+                {t.sidebar.config}
+              </WorkspaceNavLink>
               <SystemSuggestions />
               <button
                 onClick={() => void logout()}
                 className="flex items-center justify-center gap-2 rounded-md border border-border bg-surface px-2 py-1.5 text-xs text-muted transition-colors hover:border-accent/40 hover:text-white"
-                title="Salir"
-                aria-label="Cerrar sesión"
+                title={t.sidebar.logout}
+                aria-label={t.sidebar.logout}
               >
                 <LogOut size={14} />
               </button>
             </div>
             <FeedbackLauncher />
-            <NavLink
+            <WorkspaceNavLink
               to="/shortcuts"
               className="flex w-full items-center justify-center gap-2 rounded-md border border-border bg-surface px-2 py-1.5 text-xs text-muted transition-colors hover:border-accent/40 hover:text-white"
-              title="Atajos de teclado"
+              title={t.routes['core-shortcuts']}
             >
               <Keyboard size={14} />
-              Atajos
-            </NavLink>
+              {t.sidebar.shortcuts}
+            </WorkspaceNavLink>
             <div className="flex items-center justify-center gap-10 opacity-80" title={`Nora OS v${APP_VERSION}`}>
               <NoraLogoMark variant="wordmark" size={12} />
               <span>v{APP_VERSION}</span>

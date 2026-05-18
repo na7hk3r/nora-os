@@ -55,7 +55,7 @@ export function FitnessDashboard() {
         </div>
       </header>
 
-      <section className="grid grid-cols-1 gap-3 lg:grid-cols-4">
+      <section className="workspace-auto-grid-sm gap-3">
         <HeroStat label="Peso actual" value={headline.currentWeight ? `${headline.currentWeight} kg` : '--'} detail="Ultimo registro" icon={<TrendingUp size={16} />} />
         <HeroStat label="Comidas" value={`${headline.mealPct}%`} detail="Cumplimiento 14 dias" icon={<Activity size={16} />} />
         <HeroStat label="Entrenos" value={`${headline.workouts7d}/7`} detail={`Meta ${settings.workoutTargetPerWeek}/sem`} icon={<Dumbbell size={16} />} />
@@ -65,25 +65,25 @@ export function FitnessDashboard() {
       <KpiCards settingsOverride={settings} density="full" />
       <MonthlySummary />
 
-      <section className="grid grid-cols-1 gap-4 xl:grid-cols-5">
-        <div className="plugin-panel p-4 xl:col-span-3">
+      <section className="workspace-auto-grid-lg gap-4">
+        <div className="plugin-panel p-4">
           <PanelHeader title="Tendencia de peso" subtitle="Ultimos registros con peso" />
           <WeightChart />
         </div>
-        <div className="plugin-panel p-4 xl:col-span-2">
+        <div className="plugin-panel p-4">
           <PanelHeader title="Comidas 14 dias" subtitle="Barras por dia y objetivo" />
           <MealChart />
         </div>
       </section>
 
-      <section className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <section className="workspace-auto-grid-lg gap-4">
         <div className="plugin-panel p-4">
           <PanelHeader title="Recuperacion" subtitle="Horas de sueno registradas" />
           <SleepChart />
         </div>
         <div className="plugin-panel p-4">
           <PanelHeader title="Mediciones" subtitle={headline.lastMeasurement ? `Ultima: ${headline.lastMeasurement}` : 'Sin mediciones aun'} />
-          <div className="grid h-[220px] grid-cols-2 gap-3 sm:grid-cols-3">
+          <div className="workspace-auto-grid-sm min-h-[220px] gap-3">
             {[
               ['Peso', measurements.at(-1)?.weight, 'kg'],
               ['Cintura', measurements.at(-1)?.waist, 'cm'],

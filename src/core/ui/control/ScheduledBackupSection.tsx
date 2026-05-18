@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { CalendarClock, FolderOpen, KeyRound, Play, Save, ShieldCheck } from 'lucide-react'
-import { messages } from '../messages'
+import { useI18n } from '@core/i18n'
 import type { ScheduledBackupConfig, ScheduledBackupStatus } from '../../types'
 
 const FREQ_OPTIONS = [
@@ -11,17 +11,20 @@ const FREQ_OPTIONS = [
   { value: 30, label: 'Mensual' },
 ]
 
-function formatDate(iso: string | null): string {
+function formatDate(
+  iso: string | null,
+  formatDateTime: (value: Date | string | number, options?: Intl.DateTimeFormatOptions) => string,
+): string {
   if (!iso) return '—'
   try {
-    const d = new Date(iso)
-    return d.toLocaleString()
+    return formatDateTime(iso)
   } catch {
     return iso
   }
 }
 
 export function ScheduledBackupSection() {
+  const { formatDateTime, language, t } = useI18n()
   const bridge = window.scheduledBackup
   const [status, setStatus] = useState<ScheduledBackupStatus | null>(null)
   const [draftConfig, setDraftConfig] = useState<ScheduledBackupConfig | null>(null)
@@ -43,8 +46,12 @@ export function ScheduledBackupSection() {
   if (!bridge) {
     return (
       <section className="rounded-2xl border border-border bg-surface-light/40 p-5">
-        <h2 className="text-lg font-semibold text-white">Backup automático</h2>
-        <p className="mt-2 text-sm text-muted">No disponible en este entorno.</p>
+        <h2 className="text-lg font-semibold text-white">
+          {language === 'en' ? 'Automatic backup' : 'Backup automatico'}
+        </h2>
+        <p className="mt-2 text-sm text-muted">
+          {language === 'en' ? 'Not available in this environment.' : 'No disponible en este entorno.'}
+        </p>
       </section>
     )
   }
@@ -73,9 +80,9 @@ export function ScheduledBackupSection() {
       const result = await bridge.setConfig(editableConfig)
       setStatus(result)
       setDraftConfig(result.config)
-      setFeedback({ kind: 'ok', text: 'Configuración guardada.' })
+      setFeedback({ kind: 'ok', text: language === 'en' ? 'Configuration saved.' : 'Configuracion guardada.' })
     } catch (err) {
-      setFeedback({ kind: 'err', text: (err as Error).message ?? messages.errors.generic })
+      setFeedback({ kind: 'err', text: (err as Error).message ?? t.messages.errors.generic })
     } finally {
       setBusy(false)
     }
@@ -95,14 +102,19 @@ export function ScheduledBackupSection() {
 
   const savePassphrase = async () => {
     if (passphrase.length < 8) {
-      setFeedback({ kind: 'err', text: messages.errors.backupPassphraseShort })
+      setFeedback({ kind: 'err', text: t.messages.errors.backupPassphraseShort })
       return
     }
     setBusy(true)
     try {
       await bridge.setPassphrase(passphrase)
       setPassphrase('')
-      setFeedback({ kind: 'ok', text: 'Passphrase guardada en memoria de la sesión.' })
+      setFeedback({
+        kind: 'ok',
+        text: language === 'en'
+          ? 'Passphrase saved in session memory.'
+          : 'Passphrase guardada en memoria de la sesion.',
+      })
       await refresh()
     } finally {
       setBusy(false)
@@ -118,7 +130,7 @@ export function ScheduledBackupSection() {
       if (result.lastError) {
         setFeedback({ kind: 'err', text: result.lastError })
       } else if (result.lastResultPath) {
-        setFeedback({ kind: 'ok', text: messages.success.backupSaved(result.lastResultPath) })
+        setFeedback({ kind: 'ok', text: t.messages.success.backupSaved(result.lastResultPath) })
       }
     } finally {
       setBusy(false)
@@ -127,6 +139,13 @@ export function ScheduledBackupSection() {
 
   const enabled = editableConfig?.enabled ?? false
   const passphraseLoaded = status?.passphraseLoaded ?? false
+  const freqOptions = language === 'en' ? [
+    { value: 1, label: 'Daily' },
+    { value: 3, label: 'Every 3 days' },
+    { value: 7, label: 'Weekly' },
+    { value: 14, label: 'Every 2 weeks' },
+    { value: 30, label: 'Monthly' },
+  ] : FREQ_OPTIONS
 
   return (
     <section className="rounded-2xl border border-border bg-surface-light/40 p-5 space-y-4">
@@ -134,10 +153,12 @@ export function ScheduledBackupSection() {
         <div>
           <h2 className="text-lg font-semibold text-white flex items-center gap-2">
             <CalendarClock size={18} className="text-accent-light" />
-            Backup automático
+            {language === 'en' ? 'Automatic backup' : 'Backup automatico'}
           </h2>
           <p className="text-xs text-muted mt-1">
-            Se ejecuta solo según la frecuencia y guarda el archivo cifrado en tu carpeta elegida.
+            {language === 'en'
+              ? 'Runs automatically on the selected frequency and saves the encrypted file in your chosen folder.'
+              : 'Se ejecuta solo segun la frecuencia y guarda el archivo cifrado en tu carpeta elegida.'}
           </p>
         </div>
         <label className="flex items-center gap-2 text-xs text-muted">
@@ -148,21 +169,21 @@ export function ScheduledBackupSection() {
             onChange={(e) => updateDraft({ enabled: e.target.checked })}
             className="h-4 w-4 accent-accent"
           />
-          Activado
+          {language === 'en' ? 'Enabled' : 'Activado'}
         </label>
       </header>
 
       {editableConfig && (
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
           <div className="space-y-1">
-            <label className="text-xs text-muted">Frecuencia</label>
+            <label className="text-xs text-muted">{language === 'en' ? 'Frequency' : 'Frecuencia'}</label>
             <select
               value={editableConfig.frequencyDays}
               disabled={busy}
               onChange={(e) => updateDraft({ frequencyDays: Number(e.target.value) })}
               className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-white"
             >
-              {FREQ_OPTIONS.map((opt) => (
+              {freqOptions.map((opt) => (
                 <option key={opt.value} value={opt.value}>
                   {opt.label}
                 </option>
@@ -171,7 +192,9 @@ export function ScheduledBackupSection() {
           </div>
 
           <div className="space-y-1">
-            <label className="text-xs text-muted">Mantener últimas N copias</label>
+            <label className="text-xs text-muted">
+              {language === 'en' ? 'Keep last N copies' : 'Mantener ultimas N copias'}
+            </label>
             <input
               type="number"
               min={1}
@@ -184,12 +207,12 @@ export function ScheduledBackupSection() {
           </div>
 
           <div className="space-y-1 md:col-span-2">
-            <label className="text-xs text-muted">Carpeta destino</label>
+            <label className="text-xs text-muted">{language === 'en' ? 'Destination folder' : 'Carpeta destino'}</label>
             <div className="flex items-center gap-2">
               <input
                 type="text"
                 readOnly
-                value={editableConfig.destinationDir ?? 'Sin definir'}
+                value={editableConfig.destinationDir ?? (language === 'en' ? 'Not set' : 'Sin definir')}
                 className="flex-1 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-white"
               />
               <button
@@ -198,7 +221,7 @@ export function ScheduledBackupSection() {
                 disabled={busy}
                 className="flex items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-white hover:bg-surface-light"
               >
-                <FolderOpen size={14} /> Elegir
+                <FolderOpen size={14} /> {language === 'en' ? 'Choose' : 'Elegir'}
               </button>
             </div>
           </div>
@@ -212,7 +235,7 @@ export function ScheduledBackupSection() {
               className="h-4 w-4 accent-accent"
             />
             <ShieldCheck size={14} className="text-accent-light" />
-            Cifrar backup con passphrase (recomendado)
+            {language === 'en' ? 'Encrypt backup with passphrase (recommended)' : 'Cifrar backup con passphrase (recomendado)'}
           </label>
         </div>
       )}
@@ -220,17 +243,21 @@ export function ScheduledBackupSection() {
       {editableConfig?.encrypt && (
         <div className="rounded-lg border border-border bg-surface px-3 py-3 space-y-2">
           <p className="text-xs text-muted flex items-center gap-2">
-            <KeyRound size={12} /> Passphrase {passphraseLoaded ? '(cargada en memoria)' : '(no definida)'}
+            <KeyRound size={12} /> Passphrase {passphraseLoaded
+              ? language === 'en' ? '(loaded in memory)' : '(cargada en memoria)'
+              : language === 'en' ? '(not set)' : '(no definida)'}
           </p>
           <p className="text-caption text-muted">
-            La passphrase no se guarda a disco. Tenés que volver a ingresarla cuando reiniciás Nora OS.
+            {language === 'en'
+              ? 'The passphrase is not saved to disk. You need to enter it again when you restart Nora OS.'
+              : 'La passphrase no se guarda a disco. Tenes que volver a ingresarla cuando reinicias Nora OS.'}
           </p>
           <div className="flex items-center gap-2">
             <input
               type="password"
               value={passphrase}
               onChange={(e) => setPassphrase(e.target.value)}
-              placeholder="Mínimo 8 caracteres"
+              placeholder={language === 'en' ? 'Minimum 8 characters' : 'Minimo 8 caracteres'}
               className="flex-1 rounded-lg border border-border bg-surface-light px-3 py-2 text-sm text-white"
             />
             <button
@@ -239,7 +266,7 @@ export function ScheduledBackupSection() {
               disabled={busy || passphrase.length < 8}
               className="rounded-lg bg-accent px-3 py-2 text-sm font-semibold text-white disabled:opacity-40"
             >
-              Guardar
+              {t.common.save}
             </button>
           </div>
         </div>
@@ -247,16 +274,18 @@ export function ScheduledBackupSection() {
 
       <div className="rounded-lg border border-border bg-surface px-3 py-3 grid grid-cols-2 gap-3 text-xs">
         <div>
-          <p className="text-muted">Última ejecución</p>
-          <p className="text-white mt-0.5">{formatDate(status?.lastRunAt ?? null)}</p>
+          <p className="text-muted">{language === 'en' ? 'Last run' : 'Ultima ejecucion'}</p>
+          <p className="text-white mt-0.5">{formatDate(status?.lastRunAt ?? null, formatDateTime)}</p>
         </div>
         <div>
-          <p className="text-muted">Próxima estimada</p>
-          <p className="text-white mt-0.5">{formatDate(status?.nextRunAt ?? null)}</p>
+          <p className="text-muted">{language === 'en' ? 'Next estimated' : 'Proxima estimada'}</p>
+          <p className="text-white mt-0.5">{formatDate(status?.nextRunAt ?? null, formatDateTime)}</p>
         </div>
         {status?.lastError && (
           <div className="col-span-2">
-            <p className="text-rose-300">Último error: {status.lastError}</p>
+            <p className="text-rose-300">
+              {language === 'en' ? 'Last error' : 'Ultimo error'}: {status.lastError}
+            </p>
           </div>
         )}
       </div>
@@ -269,7 +298,7 @@ export function ScheduledBackupSection() {
             disabled={busy || !editableConfig || !configDirty}
             className="flex items-center gap-2 rounded-lg bg-accent px-3 py-2 text-sm font-semibold text-white hover:bg-accent/85 disabled:opacity-40"
           >
-            <Save size={14} /> Guardar
+            <Save size={14} /> {t.common.save}
           </button>
           <button
             type="button"
@@ -277,9 +306,9 @@ export function ScheduledBackupSection() {
             disabled={busy || !config}
             className="flex items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-white hover:bg-surface-light disabled:opacity-40"
           >
-            <Play size={14} /> Ejecutar ahora
+            <Play size={14} /> {language === 'en' ? 'Run now' : 'Ejecutar ahora'}
           </button>
-          {configDirty && <span className="text-xs text-warning">Cambios sin guardar</span>}
+          {configDirty && <span className="text-xs text-warning">{t.control.appearance.unsaved}</span>}
         </div>
         {feedback && (
           <span

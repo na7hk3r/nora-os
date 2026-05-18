@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Play, Square, Trash2, FolderKanban, Plus } from 'lucide-react'
 import { BrandIcon } from '@core/ui/components/BrandIcon'
+import { useI18n } from '@core/i18n'
 import { useTimeStore } from '../store'
 import {
   createManualEntry,
@@ -19,6 +20,7 @@ import {
 } from '../utils'
 
 export function TimeDashboard() {
+  const { formatDateTime } = useI18n()
   const entries = useTimeStore((s) => s.entries)
   const projects = useTimeStore((s) => s.projects)
   const running = entries.find((e) => e.end === null)
@@ -105,7 +107,7 @@ export function TimeDashboard() {
                     {entry.note && <span className="text-muted font-normal"> · {entry.note}</span>}
                   </div>
                   <div className="text-xs text-muted">
-                    {new Date(entry.start).toLocaleString()}
+                    {formatDateTime(entry.start)}
                     {entry.source === 'focus' && ' · auto desde Focus'}
                     {entry.billable && ' · facturable'}
                   </div>

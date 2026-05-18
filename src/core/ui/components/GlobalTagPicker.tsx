@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
 import { CalendarDays, Hash, ListTodo, Loader2, Notebook, Plus, Tag, X } from 'lucide-react'
 import { tagsService, type Tag as TagModel } from '@core/services/tagsService'
+import { getCurrentLocale } from '@core/i18n'
 import {
   getTagConnections,
   TAG_CONNECTION_KIND_LABEL,
@@ -289,7 +290,8 @@ export function GlobalTagChip({
 const DEFAULT_COLOR = '#8b5cf6'
 
 function sortTags(tags: TagSelection[]): TagSelection[] {
-  return [...tags].sort((a, b) => a.name.localeCompare(b.name, 'es'))
+  const locale = getCurrentLocale()
+  return [...tags].sort((a, b) => a.name.localeCompare(b.name, locale))
 }
 
 export function GlobalTagPicker({

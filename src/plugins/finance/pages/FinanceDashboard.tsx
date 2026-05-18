@@ -11,6 +11,7 @@ import {
   ReceiptText,
 } from 'lucide-react'
 import { BrandIcon } from '@core/ui/components/BrandIcon'
+import { useI18n } from '@core/i18n'
 import { useFinanceStore } from '../store'
 import { QuickAddTransaction } from '../components/QuickAddTransaction'
 import { AccountsManager } from '../components/AccountsManager'
@@ -30,6 +31,7 @@ import { messages } from '@core/ui/messages'
 
 export function FinanceDashboard() {
   const navigate = useNavigate()
+  const { formatDate, language } = useI18n()
   const allAccounts = useFinanceStore((s) => s.accounts)
   const transactions = useFinanceStore((s) => s.transactions)
   const budgets = useFinanceStore((s) => s.budgets)
@@ -176,7 +178,7 @@ export function FinanceDashboard() {
         <div className="min-h-0 flex-1 divide-y divide-border/40 overflow-y-auto pr-1">
           {grouped.map(([date, txs]) => (
             <div key={date} className="py-2">
-              <p className="mb-1 text-micro uppercase tracking-wider text-muted">{formatHumanDate(date)}</p>
+              <p className="mb-1 text-micro uppercase tracking-wider text-muted">{formatHumanDate(date, language, formatDate)}</p>
               <ul className="space-y-1">
                 {txs.map((tx) => {
                   const cat = tx.categoryId ? categoryById.get(tx.categoryId) : null
@@ -234,13 +236,17 @@ function NavChip({ icon, label, onClick }: { icon: React.ReactNode; label: strin
   )
 }
 
-function formatHumanDate(iso: string): string {
+function formatHumanDate(
+  iso: string,
+  language: 'es' | 'en',
+  formatDate: (value: Date | string | number, options?: Intl.DateTimeFormatOptions) => string,
+): string {
   const today = formatLocalDate(new Date())
   const yest = formatLocalDate(new Date(Date.now() - 86_400_000))
-  if (iso === today) return 'Hoy'
-  if (iso === yest) return 'Ayer'
+  if (iso === today) return language === 'en' ? 'Today' : 'Hoy'
+  if (iso === yest) return language === 'en' ? 'Yesterday' : 'Ayer'
   try {
-    return new Intl.DateTimeFormat('es', { day: 'numeric', month: 'short' }).format(new Date(`${iso}T00:00:00`))
+    return formatDate(new Date(`${iso}T00:00:00`), { day: 'numeric', month: 'short' })
   } catch {
     return iso
   }

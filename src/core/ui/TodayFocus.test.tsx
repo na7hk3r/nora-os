@@ -5,6 +5,7 @@ import { ToastProvider } from './components/ToastProvider'
 import { TodayFocus } from './TodayFocus'
 import { useCoreStore } from '@core/state/coreStore'
 import { useGamificationStore, type DailyMission } from '@core/gamification/gamificationStore'
+import { useWorkStore } from '@plugins/work/store'
 
 vi.mock('./hooks/usePlannerTasksToday', () => ({
   usePlannerTasksToday: () => [],
@@ -37,6 +38,16 @@ describe('TodayFocus mission sweeping', () => {
     cleanup()
     vi.restoreAllMocks()
     useCoreStore.setState({ activePlugins: [] })
+    useWorkStore.setState({
+      boards: [],
+      columns: [],
+      cards: [],
+      notes: [],
+      links: [],
+      focusSessions: [],
+      currentFocusSession: null,
+    })
+    window.localStorage.removeItem('dashboard:todayFocusCollapsed:v1')
     useGamificationStore.setState({
       points: 0,
       level: 1,
@@ -112,5 +123,41 @@ describe('TodayFocus mission sweeping', () => {
     expect(querySpy).toHaveBeenCalled()
     expect(useGamificationStore.getState().sweptMissionIds).toEqual([])
     expect(useGamificationStore.getState().sweptMissionsDate).toBeUndefined()
+  })
+
+  it('wraps a long suggested task in compact focus instead of truncating it', async () => {
+    const longTitle = 'Preparar una propuesta extremadamente larga con contexto operativo, dependencias, riesgos, seguimiento y una siguiente accion accionable sin romper el dashboard'
+    window.localStorage.setItem('dashboard:todayFocusCollapsed:v1', '1')
+    useCoreStore.setState({ activePlugins: ['work'] })
+    useWorkStore.setState({
+      columns: [
+        { id: 'todo', boardId: 'board', name: 'Pendiente', position: 0 },
+        { id: 'done', boardId: 'board', name: 'Hecho', position: 1 },
+      ],
+      cards: [
+        {
+          id: 'long-task',
+          columnId: 'todo',
+          title: longTitle,
+          description: '',
+          content: '',
+          labels: [],
+          dueDate: new Date().toISOString().slice(0, 10),
+          position: 0,
+          priority: 'high',
+          estimateMinutes: 120,
+          checklist: [],
+          archived: false,
+          archivedAt: null,
+        },
+      ],
+    })
+
+    renderTodayFocus()
+
+    const title = await screen.findByText(longTitle)
+    expect(title).toHaveClass('line-clamp-2')
+    expect(title).toHaveClass('break-words')
+    expect(title).not.toHaveClass('truncate')
   })
 })

@@ -1,18 +1,29 @@
 import { useEffect, useState } from 'react'
 import { Lock, LockOpen, ShieldAlert } from 'lucide-react'
+import { useI18n } from '@core/i18n'
 import type { DbEncryptionStatus } from '@core/types'
-import { messages } from '../messages'
 
 const MIN_LEN = 12
 
-function strengthHint(p: string): { ok: boolean; reason: string } {
-  if (p.length < MIN_LEN) return { ok: false, reason: `Mínimo ${MIN_LEN} caracteres` }
+function strengthHint(p: string, language: 'es' | 'en'): { ok: boolean; reason: string } {
+  if (p.length < MIN_LEN) {
+    return {
+      ok: false,
+      reason: language === 'en' ? `Minimum ${MIN_LEN} characters` : `Minimo ${MIN_LEN} caracteres`,
+    }
+  }
   const cats = [/[a-z]/, /[A-Z]/, /\d/, /[^a-zA-Z0-9]/].filter((r) => r.test(p)).length
-  if (cats < 2) return { ok: false, reason: 'Mezclá al menos 2 tipos de caracteres' }
-  return { ok: true, reason: 'Fortaleza aceptable' }
+  if (cats < 2) {
+    return {
+      ok: false,
+      reason: language === 'en' ? 'Mix at least 2 character types' : 'Mezcla al menos 2 tipos de caracteres',
+    }
+  }
+  return { ok: true, reason: language === 'en' ? 'Strength accepted' : 'Fortaleza aceptable' }
 }
 
 export function DbEncryptionSection() {
+  const { language, t } = useI18n()
   const [status, setStatus] = useState<DbEncryptionStatus | null>(null)
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState('')
@@ -37,17 +48,19 @@ export function DbEncryptionSection() {
     if (busy) return
     setMessage('')
     if (pass !== confirm) {
-      setMessage('Las passphrases no coinciden')
+      setMessage(language === 'en' ? 'Passphrases do not match' : 'Las passphrases no coinciden')
       return
     }
-    const hint = strengthHint(pass)
+    const hint = strengthHint(pass, language)
     if (!hint.ok) {
-      setMessage(messages.errors.dbEncryptionWeakPassphrase)
+      setMessage(t.messages.errors.dbEncryptionWeakPassphrase)
       return
     }
     if (
       !window.confirm(
-        messages.confirm.enableDbEncryption ?? '¿Activar cifrado en reposo? Sin la passphrase no vas a poder abrir tus datos.',
+        t.messages.confirm.enableDbEncryption ?? (language === 'en'
+          ? 'Enable encryption at rest? Without the passphrase you will not be able to open your data.'
+          : 'Activar cifrado en reposo? Sin la passphrase no vas a poder abrir tus datos.'),
       )
     ) {
       return
@@ -56,15 +69,15 @@ export function DbEncryptionSection() {
     try {
       const result = await window.dbEncryption.enable(pass)
       if (result.ok) {
-        setMessage(messages.success.dbEncryptionEnabled)
+        setMessage(t.messages.success.dbEncryptionEnabled)
         setPass('')
         setConfirm('')
         setShowEnable(false)
         await refresh()
       } else if (result.code === 'WEAK_PASSPHRASE') {
-        setMessage(messages.errors.dbEncryptionWeakPassphrase)
+        setMessage(t.messages.errors.dbEncryptionWeakPassphrase)
       } else {
-        setMessage(result.message ?? messages.errors.dbEncryptionUnavailable)
+        setMessage(result.message ?? t.messages.errors.dbEncryptionUnavailable)
       }
     } finally {
       setBusy(false)
@@ -75,7 +88,9 @@ export function DbEncryptionSection() {
     if (busy) return
     if (
       !window.confirm(
-        messages.confirm.disableDbEncryption ?? '¿Desactivar cifrado? Tus datos quedan en disco sin protección adicional.',
+        t.messages.confirm.disableDbEncryption ?? (language === 'en'
+          ? 'Disable encryption? Your data will stay on disk without additional protection.'
+          : 'Desactivar cifrado? Tus datos quedan en disco sin proteccion adicional.'),
       )
     ) {
       return
@@ -85,10 +100,10 @@ export function DbEncryptionSection() {
     try {
       const result = await window.dbEncryption.disable()
       if (result.ok) {
-        setMessage(messages.success.dbEncryptionDisabled)
+        setMessage(t.messages.success.dbEncryptionDisabled)
         await refresh()
       } else {
-        setMessage(result.message ?? 'No se pudo desactivar')
+        setMessage(result.message ?? (language === 'en' ? 'Could not disable encryption' : 'No se pudo desactivar'))
       }
     } finally {
       setBusy(false)
@@ -96,7 +111,7 @@ export function DbEncryptionSection() {
   }
 
   const enabled = status?.enabled ?? false
-  const hint = pass ? strengthHint(pass) : null
+  const hint = pass ? strengthHint(pass, language) : null
 
   return (
     <article className="rounded-2xl border border-border bg-surface-light/85 p-6">
@@ -106,11 +121,14 @@ export function DbEncryptionSection() {
         ) : (
           <LockOpen size={18} className="text-muted" aria-hidden />
         )}
-        <h2 className="text-lg font-semibold">Cifrado de base en reposo</h2>
+        <h2 className="text-lg font-semibold">
+          {language === 'en' ? 'Database encryption at rest' : 'Cifrado de base en reposo'}
+        </h2>
       </div>
       <p className="mt-1 text-sm text-muted">
-        Protegé tu base local con una passphrase. Al cerrar la app, el archivo se cifra; al
-        abrirla, se te pide la passphrase para descifrarlo.
+        {language === 'en'
+          ? 'Protect your local database with a passphrase. When you close the app, the file is encrypted; when you open it, the passphrase is required to decrypt it.'
+          : 'Protege tu base local con una passphrase. Al cerrar la app, el archivo se cifra; al abrirla, se te pide la passphrase para descifrarlo.'}
       </p>
 
       <div className="mt-3 flex items-center gap-2 text-xs">
@@ -118,11 +136,13 @@ export function DbEncryptionSection() {
           className={`rounded-full px-2 py-0.5 ${enabled ? 'bg-accent/20 text-accent-light' : 'bg-surface text-muted'}`}
           aria-live="polite"
         >
-          {enabled ? 'Activado' : 'Desactivado'}
+          {enabled
+            ? language === 'en' ? 'Enabled' : 'Activado'
+            : language === 'en' ? 'Disabled' : 'Desactivado'}
         </span>
         {status?.hasEncryptedAtRest && !enabled && (
           <span className="rounded-full bg-warning/20 px-2 py-0.5 text-warning">
-            Hay un .enc en disco
+            {language === 'en' ? 'There is a .enc file on disk' : 'Hay un .enc en disco'}
           </span>
         )}
       </div>
@@ -132,7 +152,7 @@ export function DbEncryptionSection() {
           onClick={() => setShowEnable(true)}
           className="mt-4 inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-xs font-medium text-white hover:bg-accent/85"
         >
-          <Lock size={13} /> Activar cifrado
+          <Lock size={13} /> {language === 'en' ? 'Enable encryption' : 'Activar cifrado'}
         </button>
       )}
 
@@ -140,10 +160,14 @@ export function DbEncryptionSection() {
         <div className="mt-4 space-y-3 rounded-lg border border-border bg-surface p-4">
           <div className="flex items-start gap-2 rounded bg-warning/10 p-2 text-xs text-warning">
             <ShieldAlert size={14} aria-hidden />
-            <span>Si perdés la passphrase, perdés acceso a tus datos. No hay recuperación.</span>
+            <span>
+              {language === 'en'
+                ? 'If you lose the passphrase, you lose access to your data. There is no recovery.'
+                : 'Si perdes la passphrase, perdes acceso a tus datos. No hay recuperacion.'}
+            </span>
           </div>
           <label className="block text-xs text-muted">
-            Passphrase (mín. {MIN_LEN} caracteres)
+            {language === 'en' ? `Passphrase (min. ${MIN_LEN} characters)` : `Passphrase (min. ${MIN_LEN} caracteres)`}
             <input
               type="password"
               value={pass}
@@ -153,7 +177,7 @@ export function DbEncryptionSection() {
             />
           </label>
           <label className="block text-xs text-muted">
-            Confirmar passphrase
+            {language === 'en' ? 'Confirm passphrase' : 'Confirmar passphrase'}
             <input
               type="password"
               value={confirm}
@@ -173,7 +197,7 @@ export function DbEncryptionSection() {
               disabled={busy || !pass || !confirm}
               className="rounded-lg bg-accent px-4 py-2 text-xs font-medium text-white hover:bg-accent/85 disabled:opacity-60"
             >
-              Confirmar
+              {language === 'en' ? 'Confirm' : 'Confirmar'}
             </button>
             <button
               onClick={() => {
@@ -185,7 +209,7 @@ export function DbEncryptionSection() {
               disabled={busy}
               className="rounded-lg border border-border px-4 py-2 text-xs text-muted hover:text-white disabled:opacity-60"
             >
-              Cancelar
+              {t.common.cancel}
             </button>
           </div>
         </div>
@@ -197,7 +221,7 @@ export function DbEncryptionSection() {
           disabled={busy}
           className="mt-4 inline-flex items-center gap-2 rounded-lg border border-border bg-surface px-4 py-2 text-xs text-muted hover:text-white disabled:opacity-60"
         >
-          <LockOpen size={13} /> Desactivar cifrado
+          <LockOpen size={13} /> {language === 'en' ? 'Disable encryption' : 'Desactivar cifrado'}
         </button>
       )}
 

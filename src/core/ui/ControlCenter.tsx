@@ -18,6 +18,8 @@ import { BrandIcon } from './components/BrandIcon'
 import { NoraLogoMark } from './components/NoraLogo'
 import { AuditPanel } from './AuditPanel'
 import { useAuditStore } from '@core/audit/store'
+import { resolveI18nString, useI18n } from '@core/i18n'
+import { LanguageSelector } from '@core/i18n/LanguageSelector'
 import {
   DEFAULT_FITNESS_SETTINGS,
   FITNESS_SETTINGS_KEY,
@@ -84,6 +86,7 @@ function scrollToControlSection(id: string) {
 }
 
 export function ControlCenter() {
+  const { t, language } = useI18n()
   const navigate = useNavigate()
   const profile = useCoreStore((s) => s.profile)
   const settings = useCoreStore((s) => s.settings)
@@ -133,9 +136,9 @@ export function ControlCenter() {
     try {
       updateProfile(profileDraft)
       await persistProfile()
-      setProfileMessage('Perfil guardado correctamente.')
+      setProfileMessage(language === 'en' ? 'Profile saved.' : 'Perfil guardado correctamente.')
     } catch {
-      setProfileMessage('No se pudo guardar el perfil. Intentá nuevamente.')
+      setProfileMessage(language === 'en' ? 'Could not save the profile. Try again.' : 'No se pudo guardar el perfil. Intenta nuevamente.')
     } finally {
       setSavingProfile(false)
     }
@@ -147,9 +150,9 @@ export function ControlCenter() {
     try {
       updateSettings(settingsDraft)
       await persistSettings()
-      setSettingsMessage('Preferencias guardadas.')
+      setSettingsMessage(t.messages.success.settingsSaved)
     } catch {
-      setSettingsMessage('No se pudieron guardar. Intentá nuevamente.')
+      setSettingsMessage(language === 'en' ? 'Could not save preferences. Try again.' : 'No se pudieron guardar. Intenta nuevamente.')
     } finally {
       setSavingSettings(false)
     }
@@ -159,7 +162,7 @@ export function ControlCenter() {
     if (fitnessDirty) await saveFitnessSettings()
     if (workDirty) await saveWorkSettings()
     if (financeDirty) await saveFinancePluginSettings()
-    setPluginSettingsMessage('Ajustes de modulos guardados.')
+    setPluginSettingsMessage(language === 'en' ? 'Plugin settings saved.' : 'Ajustes de modulos guardados.')
   }
 
   const savePluginModules = async () => {
@@ -177,18 +180,24 @@ export function ControlCenter() {
         const enabled = next.has(pluginId)
         const result = await setPluginEnabled(pluginId, enabled)
         const plugin = pluginManager.getPlugin(pluginId)
-        if (enabled && result !== 'active') failures.push(plugin?.manifest.name ?? pluginId)
+        if (enabled && result !== 'active') {
+          failures.push(
+            plugin
+              ? resolveI18nString(language, plugin.manifest.name, plugin.manifest.nameKey ?? `plugins.meta.${plugin.manifest.id}.name`)
+              : pluginId,
+          )
+        }
       }
 
       const savedIds = useCoreStore.getState().activePlugins
       setDraftActivePluginIds(savedIds)
       setPluginMessage(
         failures.length
-          ? `No se pudieron activar: ${failures.join(', ')}.`
-          : 'Modulos guardados correctamente.',
+          ? t.control.plugins.failedActivate(failures.join(', '))
+          : t.control.plugins.saved,
       )
     } catch {
-      setPluginMessage('No se pudieron guardar los modulos.')
+      setPluginMessage(t.control.plugins.failedSave)
     } finally {
       setBusyPluginId(null)
     }
@@ -206,9 +215,9 @@ export function ControlCenter() {
       )
       setFitnessSettings(normalized)
       setSavedFitnessSettings(normalized)
-      setPluginSettingsMessage('Fitness guardado correctamente.')
+      setPluginSettingsMessage(language === 'en' ? 'Fitness saved correctly.' : 'Fitness guardado correctamente.')
     } catch {
-      setPluginSettingsMessage('No se pudo guardar Fitness.')
+      setPluginSettingsMessage(language === 'en' ? 'Could not save Fitness.' : 'No se pudo guardar Fitness.')
     } finally {
       setSavingPluginSettings(null)
     }
@@ -224,9 +233,9 @@ export function ControlCenter() {
         [WORK_SETTINGS_KEY, JSON.stringify(workSettings)],
       )
       setSavedWorkSettings(workSettings)
-      setPluginSettingsMessage('Work guardado correctamente.')
+      setPluginSettingsMessage(language === 'en' ? 'Work saved correctly.' : 'Work guardado correctamente.')
     } catch {
-      setPluginSettingsMessage('No se pudo guardar Work.')
+      setPluginSettingsMessage(language === 'en' ? 'Could not save Work.' : 'No se pudo guardar Work.')
     } finally {
       setSavingPluginSettings(null)
     }
@@ -242,9 +251,9 @@ export function ControlCenter() {
       applyFinanceRuntimeSettings(normalized)
       pluginManager.replacePluginUi('finance', buildFinanceUi(normalized))
       bumpPluginUiVersion()
-      setPluginSettingsMessage('Finanzas guardado correctamente.')
+      setPluginSettingsMessage(language === 'en' ? 'Finance saved correctly.' : 'Finanzas guardado correctamente.')
     } catch {
-      setPluginSettingsMessage('No se pudo guardar Finanzas.')
+      setPluginSettingsMessage(language === 'en' ? 'Could not save Finance.' : 'No se pudo guardar Finanzas.')
     } finally {
       setSavingPluginSettings(null)
     }
@@ -448,13 +457,13 @@ export function ControlCenter() {
         />
         <div className="relative flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
           <div className="min-w-0">
-            <p className="text-xs uppercase tracking-[0.24em] text-muted">Configuración</p>
+            <p className="text-xs uppercase tracking-[0.24em] text-muted">{t.control.eyebrow}</p>
             <h1 className="mt-2 flex items-center gap-3 text-3xl font-semibold text-white">
-              Gobernanza de Nora OS
+              {t.control.title}
               <AuditHeaderBadge />
             </h1>
             <p className="mt-2 max-w-2xl text-sm text-muted">
-              Administra identidad, preferencias, módulos y salud general de la plataforma desde un único panel.
+              {t.control.description}
             </p>
           </div>
           <NoraLogoMark
@@ -467,21 +476,21 @@ export function ControlCenter() {
           <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-accent/15">
             <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-accent" aria-hidden="true" />
           </span>
-          <p className="text-xs text-muted">Monitoreo operativo activo en tiempo real</p>
+          <p className="text-xs text-muted">{t.control.monitoring}</p>
         </div>
       </section>
 
       <nav className="rounded-2xl border border-border bg-surface-light/95 px-3 py-2 shadow-lg backdrop-blur">
         <div className="flex flex-wrap items-center gap-2">
           {[
-            ['profile', 'Cuenta'],
-            ['preferences', 'Apariencia'],
-            ['plugin-manager', 'Modulos'],
-            ['organization', 'Organizacion'],
-            ['ai-notifications', 'IA y avisos'],
-            ['security-backups', 'Backups'],
-            ['automations', 'Automatizaciones'],
-            ['audit', 'Salud'],
+            ['profile', t.control.nav.profile],
+            ['preferences', t.control.nav.preferences],
+            ['plugin-manager', t.control.nav.pluginManager],
+            ['organization', t.control.nav.organization],
+            ['ai-notifications', t.control.nav.aiNotifications],
+            ['security-backups', t.control.nav.securityBackups],
+            ['automations', t.control.nav.automations],
+            ['audit', t.control.nav.audit],
           ].map(([id, label]) => (
             <button
               key={id}
@@ -494,52 +503,58 @@ export function ControlCenter() {
           ))}
           {hasDirtySections && (
             <span className="ml-auto rounded-full border border-warning/40 bg-warning/10 px-3 py-1 text-xs text-warning">
-              {dirtyLabels.length} seccion{dirtyLabels.length === 1 ? '' : 'es'} sin guardar
+              {t.control.unsavedSections(dirtyLabels.length)}
             </span>
           )}
         </div>
       </nav>
 
       {/* KPIs */}
-      <section className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <section className="workspace-auto-grid-sm gap-4">
         <article className="flex items-center gap-4 rounded-2xl border border-border bg-surface-light/80 p-5">
           <BrandIcon name="Chip" size={40} tile={false} />
           <div className="min-w-0">
-            <p className="truncate text-xs uppercase tracking-wide text-muted">Módulos activos</p>
+            <p className="truncate text-xs uppercase tracking-wide text-muted">{t.control.kpis.activeModules}</p>
             <p className="mt-1 text-3xl font-semibold">{activePlugins}</p>
-            <p className="mt-0.5 truncate text-sm text-muted">de {plugins.length} registrados</p>
+            <p className="mt-0.5 truncate text-sm text-muted">{t.control.kpis.registered(plugins.length)}</p>
           </div>
         </article>
         <article className="flex items-center gap-4 rounded-2xl border border-border bg-surface-light/80 p-5">
           <BrandIcon name="Cards" size={40} tile={false} />
           <div className="min-w-0">
-            <p className="truncate text-xs uppercase tracking-wide text-muted">Widgets en dashboard</p>
+            <p className="truncate text-xs uppercase tracking-wide text-muted">{t.control.kpis.dashboardWidgets}</p>
             <p className="mt-1 text-3xl font-semibold">{metrics.widgets}</p>
-            <p className="mt-0.5 truncate text-sm text-muted">conectados y listos</p>
+            <p className="mt-0.5 truncate text-sm text-muted">{t.control.kpis.connectedReady}</p>
           </div>
         </article>
         <article className="flex items-center gap-4 rounded-2xl border border-border bg-surface-light/80 p-5">
           <BrandIcon name="TomeAtlas" size={40} tile={false} />
           <div className="min-w-0">
-            <p className="truncate text-xs uppercase tracking-wide text-muted">Rutas de operación</p>
+            <p className="truncate text-xs uppercase tracking-wide text-muted">
+              {language === 'en' ? 'Operation routes' : 'Rutas de operacion'}
+            </p>
             <p className="mt-1 text-3xl font-semibold">{metrics.pages}</p>
-            <p className="mt-0.5 truncate text-sm text-muted">{metrics.navItems} entradas de nav</p>
+            <p className="mt-0.5 truncate text-sm text-muted">
+              {language === 'en'
+                ? `${metrics.navItems} nav entries`
+                : `${metrics.navItems} entradas de nav`}
+            </p>
           </div>
         </article>
       </section>
 
-      <section className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+      <section className="workspace-auto-grid-lg gap-6">
         {/* Perfil */}
         <CollapsibleSection
           id="profile"
-          title="Cuenta"
-          description="Identidad base para metricas, progreso y reportes."
+          title={t.control.profile.title}
+          description={t.control.profile.description}
           icon={<User size={18} aria-hidden />}
-          summary={profileDraft.name ? `${profileDraft.name}` : 'Sin nombre'}
+          summary={profileDraft.name ? `${profileDraft.name}` : (language === 'en' ? 'No name' : 'Sin nombre')}
         >
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <div className="workspace-form-grid gap-3">
             <label className="space-y-1">
-              <span className="text-xs text-muted">Nombre</span>
+              <span className="text-xs text-muted">{language === 'en' ? 'Name' : 'Nombre'}</span>
               <input
                 value={profileDraft.name}
                 onChange={(e) => setProfileDraft((prev) => ({ ...prev, name: e.target.value }))}
@@ -547,7 +562,7 @@ export function ControlCenter() {
               />
             </label>
             <label className="space-y-1">
-              <span className="text-xs text-muted">Edad</span>
+              <span className="text-xs text-muted">{language === 'en' ? 'Age' : 'Edad'}</span>
               <input
                 type="number"
                 value={profileDraft.age || ''}
@@ -556,7 +571,7 @@ export function ControlCenter() {
               />
             </label>
             <label className="space-y-1">
-              <span className="text-xs text-muted">Altura (cm)</span>
+              <span className="text-xs text-muted">{language === 'en' ? 'Height (cm)' : 'Altura (cm)'}</span>
               <input
                 type="number"
                 value={profileDraft.height || ''}
@@ -565,7 +580,7 @@ export function ControlCenter() {
               />
             </label>
             <label className="space-y-1">
-              <span className="text-xs text-muted">Meta peso (kg)</span>
+              <span className="text-xs text-muted">{language === 'en' ? 'Weight goal (kg)' : 'Meta peso (kg)'}</span>
               <input
                 type="number"
                 value={profileDraft.weightGoal || ''}
@@ -574,7 +589,7 @@ export function ControlCenter() {
               />
             </label>
             <label className="space-y-1 sm:col-span-2">
-              <span className="text-xs text-muted">Fecha de inicio</span>
+              <span className="text-xs text-muted">{language === 'en' ? 'Start date' : 'Fecha de inicio'}</span>
               <input
                 type="date"
                 value={profileDraft.startDate}
@@ -591,9 +606,9 @@ export function ControlCenter() {
               className="flex items-center gap-1.5 rounded-lg bg-accent px-4 py-2 text-xs font-medium text-white hover:bg-accent/85 disabled:opacity-60"
             >
               <Save size={13} />
-              {savingProfile ? 'Guardando...' : 'Guardar perfil'}
+              {savingProfile ? t.common.saving : (language === 'en' ? 'Save profile' : 'Guardar perfil')}
             </button>
-            {profileDirty && <span className="text-xs text-warning">Cambios sin guardar</span>}
+            {profileDirty && <span className="text-xs text-warning">{t.control.appearance.unsaved}</span>}
             {profileMessage && <span className="text-xs text-muted">{profileMessage}</span>}
           </div>
         </CollapsibleSection>
@@ -601,17 +616,25 @@ export function ControlCenter() {
         {/* Preferencias */}
         <CollapsibleSection
           id="preferences"
-          title="Apariencia"
-          description="Interfaz visual y comportamiento de navegacion."
+          title={t.control.appearance.title}
+          description={t.control.appearance.description}
           icon={<SlidersHorizontal size={18} aria-hidden />}
-          summary={`Tema: ${settingsDraft.theme || 'default'}`}
+          summary={t.control.appearance.summary(settingsDraft.theme || 'default')}
         >
           <div className="space-y-4">
+            <div className="grid gap-3 rounded-lg border border-border bg-surface px-4 py-3 lg:grid-cols-[minmax(0,1fr)_minmax(15rem,auto)] lg:items-center">
+              <div className="min-w-0 pr-4">
+                <p className="text-sm font-medium">{t.control.appearance.languageTitle}</p>
+                <p className="text-xs text-muted">{t.control.appearance.languageHelp}</p>
+              </div>
+              <LanguageSelector className="w-full lg:justify-end" />
+            </div>
+
             {/* Sidebar */}
             <div className="flex items-center justify-between rounded-lg border border-border bg-surface px-4 py-3">
               <div className="min-w-0 pr-4">
-                <p className="text-sm font-medium">Sidebar colapsado</p>
-                <p className="text-xs text-muted">Ahorra espacio y concentra contenido</p>
+                <p className="text-sm font-medium">{t.control.appearance.sidebarCollapsed}</p>
+                <p className="text-xs text-muted">{t.control.appearance.sidebarCollapsedHelp}</p>
               </div>
               <input
                 type="checkbox"
@@ -625,15 +648,15 @@ export function ControlCenter() {
             <div className="rounded-lg border border-border bg-surface px-4 py-3">
               <div className="mb-3 flex items-center justify-between gap-3">
                 <div>
-                  <p className="text-sm font-medium">Tema de color</p>
-                  <p className="text-xs text-muted">El tema se previsualiza al instante.</p>
+                  <p className="text-sm font-medium">{t.control.appearance.themeTitle}</p>
+                  <p className="text-xs text-muted">{language === 'en' ? 'Theme preview is instant.' : 'El tema se previsualiza al instante.'}</p>
                 </div>
                 <button
                   type="button"
                   onClick={() => safeNavigate('/themes')}
                   className="shrink-0 rounded-md border border-border bg-surface-light px-2.5 py-1 text-caption text-muted hover:border-accent/50 hover:text-white"
                 >
-                  Galería completa
+                  {language === 'en' ? 'Full gallery' : 'Galeria completa'}
                 </button>
               </div>
               <div className="max-h-[180px] space-y-2 overflow-y-auto pr-1">
@@ -664,7 +687,7 @@ export function ControlCenter() {
                 onClick={() => safeNavigate('/themes')}
                 className="mt-2 w-full rounded-md border border-dashed border-border px-3 py-1.5 text-caption text-muted hover:border-accent/50 hover:text-accent-light"
               >
-                Ver los {THEMES.length} temas con previsualización en vivo →
+                {t.control.appearance.themeGallery(THEMES.length)}
               </button>
             </div>
           </div>
@@ -677,9 +700,9 @@ export function ControlCenter() {
               className="flex items-center gap-1.5 rounded-lg bg-accent px-4 py-2 text-xs font-medium text-white hover:bg-accent/85 disabled:opacity-60"
             >
               <Save size={13} />
-              {savingSettings ? 'Guardando...' : 'Guardar preferencias'}
+              {savingSettings ? t.common.saving : t.control.appearance.savePreferences}
             </button>
-            {settingsDirty && <span className="text-xs text-warning">Cambios sin guardar</span>}
+            {settingsDirty && <span className="text-xs text-warning">{t.control.appearance.unsaved}</span>}
             {settingsMessage && <span className="text-xs text-muted">{settingsMessage}</span>}
           </div>
         </CollapsibleSection>
@@ -689,21 +712,25 @@ export function ControlCenter() {
       {hasActivePluginSettings && (
         <CollapsibleSection
           id="plugin-settings"
-          title="Ajustes de modulos"
-          description="Cada modulo activo guarda sus propios cambios."
+          title={language === 'en' ? 'Module settings' : 'Ajustes de modulos'}
+          description={language === 'en'
+            ? 'Each active module saves its own changes.'
+            : 'Cada modulo activo guarda sus propios cambios.'}
           icon={<Wrench size={18} aria-hidden />}
           defaultOpen={false}
-          summary={[isFitnessActive && 'Fitness', isWorkActive && 'Work', isFinanceActive && 'Finanzas'].filter(Boolean).join(' · ')}
+          summary={[isFitnessActive && 'Fitness', isWorkActive && 'Work', isFinanceActive && (language === 'en' ? 'Finance' : 'Finanzas')].filter(Boolean).join(' - ')}
         >
-          <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+          <div className="workspace-auto-grid-lg gap-4">
             {isFitnessActive && (
               <article className="rounded-xl border border-border bg-surface p-4">
             <h3 className="text-sm font-semibold text-white">Fitness</h3>
-            <p className="mt-1 text-xs text-muted">Objetivos y límites para seguimiento diario.</p>
+            <p className="mt-1 text-xs text-muted">
+              {language === 'en' ? 'Goals and limits for daily tracking.' : 'Objetivos y limites para seguimiento diario.'}
+            </p>
 
-            <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="workspace-form-grid mt-3 gap-3">
               <label className="space-y-1">
-                <span className="text-xs text-muted">Entrenos por semana</span>
+                <span className="text-xs text-muted">{language === 'en' ? 'Workouts per week' : 'Entrenos por semana'}</span>
                 <input
                   type="number"
                   min={1}
@@ -718,7 +745,7 @@ export function ControlCenter() {
               </label>
 
               <label className="space-y-1">
-                <span className="text-xs text-muted">Sueño objetivo (h)</span>
+                <span className="text-xs text-muted">{language === 'en' ? 'Sleep target (h)' : 'Sueno objetivo (h)'}</span>
                 <input
                   type="number"
                   min={4}
@@ -734,7 +761,7 @@ export function ControlCenter() {
 
               {fitnessSettings.smokingCessationEnabled && (
                 <label className="space-y-1">
-                  <span className="text-xs text-muted">Max cigarrillos/dia</span>
+                  <span className="text-xs text-muted">{language === 'en' ? 'Max cigarettes/day' : 'Max cigarrillos/dia'}</span>
                   <input
                     type="number"
                     min={0}
@@ -750,7 +777,7 @@ export function ControlCenter() {
               )}
 
               <label className="space-y-1">
-                <span className="text-xs text-muted">Cumplimiento comidas (%)</span>
+                <span className="text-xs text-muted">{language === 'en' ? 'Meal compliance (%)' : 'Cumplimiento comidas (%)'}</span>
                 <input
                   type="number"
                   min={0}
@@ -766,7 +793,7 @@ export function ControlCenter() {
             </div>
 
             <label className="mt-3 flex items-center justify-between rounded-lg border border-border bg-surface-light px-3 py-2">
-              <span className="text-xs text-muted">Recordatorio de mediciones</span>
+              <span className="text-xs text-muted">{language === 'en' ? 'Measurement reminder' : 'Recordatorio de mediciones'}</span>
               <input
                 type="checkbox"
                 checked={fitnessSettings.remindMeasurements}
@@ -778,7 +805,7 @@ export function ControlCenter() {
               />
             </label>
             <label className="mt-3 flex items-center justify-between gap-3 rounded-lg border border-border bg-surface-light px-3 py-2">
-              <span className="text-xs text-muted">Soy fumador y quiero dejarlo</span>
+              <span className="text-xs text-muted">{language === 'en' ? 'I smoke and want to quit' : 'Soy fumador y quiero dejarlo'}</span>
               <input
                 type="checkbox"
                 checked={fitnessSettings.smokingCessationEnabled}
@@ -796,9 +823,9 @@ export function ControlCenter() {
                 className="flex items-center gap-1.5 rounded-lg bg-accent px-3 py-2 text-xs font-medium text-white hover:bg-accent/85 disabled:opacity-60"
               >
                 <Save size={12} />
-                {savingPluginSettings === 'fitness' ? 'Guardando...' : 'Guardar Fitness'}
+                {savingPluginSettings === 'fitness' ? t.common.saving : (language === 'en' ? 'Save Fitness' : 'Guardar Fitness')}
               </button>
-              {fitnessDirty && <span className="text-xs text-warning">Cambios sin guardar</span>}
+              {fitnessDirty && <span className="text-xs text-warning">{t.control.appearance.unsaved}</span>}
             </div>
               </article>
             )}
@@ -806,11 +833,13 @@ export function ControlCenter() {
             {isWorkActive && (
               <article className="rounded-xl border border-border bg-surface p-4">
             <h3 className="text-sm font-semibold text-white">Work</h3>
-            <p className="mt-1 text-xs text-muted">Preferencias de foco, tablero y carga de trabajo.</p>
+            <p className="mt-1 text-xs text-muted">
+              {language === 'en' ? 'Focus, board, and workload preferences.' : 'Preferencias de foco, tablero y carga de trabajo.'}
+            </p>
 
-            <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div className="workspace-form-grid mt-3 gap-3">
               <label className="space-y-1">
-                <span className="text-xs text-muted">Sesión foco (min)</span>
+                <span className="text-xs text-muted">{language === 'en' ? 'Focus session (min)' : 'Sesion foco (min)'}</span>
                 <input
                   type="number"
                   min={10}
@@ -825,7 +854,7 @@ export function ControlCenter() {
               </label>
 
               <label className="space-y-1">
-                <span className="text-xs text-muted">Break (min)</span>
+                <span className="text-xs text-muted">{language === 'en' ? 'Break (min)' : 'Descanso (min)'}</span>
                 <input
                   type="number"
                   min={3}
@@ -840,7 +869,7 @@ export function ControlCenter() {
               </label>
 
               <label className="space-y-1">
-                <span className="text-xs text-muted">Alerta vencimiento (h)</span>
+                <span className="text-xs text-muted">{language === 'en' ? 'Overdue alert (h)' : 'Alerta vencimiento (h)'}</span>
                 <input
                   type="number"
                   min={1}
@@ -855,7 +884,7 @@ export function ControlCenter() {
               </label>
 
               <label className="space-y-1">
-                <span className="text-xs text-muted">Límite WIP</span>
+                <span className="text-xs text-muted">{language === 'en' ? 'WIP limit' : 'Limite WIP'}</span>
                 <input
                   type="number"
                   min={1}
@@ -870,7 +899,7 @@ export function ControlCenter() {
               </label>
 
               <label className="space-y-1 sm:col-span-2">
-                <span className="text-xs text-muted">Jornada laboral (horas)</span>
+                <span className="text-xs text-muted">{language === 'en' ? 'Workday (hours)' : 'Jornada laboral (horas)'}</span>
                 <input
                   type="number"
                   step={0.25}
@@ -885,21 +914,22 @@ export function ControlCenter() {
                   className="w-full rounded-lg border border-border bg-surface-light px-3 py-2 text-sm"
                 />
                 <p className="text-caption text-muted/80">
-                  Necesitás aproximadamente{' '}
+                  {language === 'en' ? 'You need about ' : 'Necesitas aproximadamente '}
                   <span className="font-semibold text-accent-light">
                     {Math.max(
                       1,
                       Math.ceil((workSettings.workdayHours * 60) / Math.max(1, workSettings.focusSessionMinutes)),
                     )}
                   </span>{' '}
-                  sesiones de foco de {workSettings.focusSessionMinutes} min para cubrir tu jornada de{' '}
-                  {workSettings.workdayHours} h.
+                  {language === 'en'
+                    ? `focus sessions of ${workSettings.focusSessionMinutes} min to cover your ${workSettings.workdayHours} h workday.`
+                    : `sesiones de foco de ${workSettings.focusSessionMinutes} min para cubrir tu jornada de ${workSettings.workdayHours} h.`}
                 </p>
               </label>
             </div>
 
             <label className="mt-3 block space-y-1">
-              <span className="text-xs text-muted">Vista predeterminada</span>
+              <span className="text-xs text-muted">{language === 'en' ? 'Default view' : 'Vista predeterminada'}</span>
               <select
                 value={workSettings.defaultBoardView}
                 onChange={(e) => setWorkSettings((prev) => ({
@@ -909,7 +939,7 @@ export function ControlCenter() {
                 className="w-full rounded-lg border border-border bg-surface-light px-3 py-2 text-sm"
               >
                 <option value="kanban">Kanban</option>
-                <option value="list">Lista</option>
+                <option value="list">{language === 'en' ? 'List' : 'Lista'}</option>
               </select>
             </label>
             <div className="mt-4 flex flex-wrap items-center gap-2">
@@ -919,20 +949,24 @@ export function ControlCenter() {
                 className="flex items-center gap-1.5 rounded-lg bg-accent px-3 py-2 text-xs font-medium text-white hover:bg-accent/85 disabled:opacity-60"
               >
                 <Save size={12} />
-                {savingPluginSettings === 'work' ? 'Guardando...' : 'Guardar Work'}
+                {savingPluginSettings === 'work' ? t.common.saving : (language === 'en' ? 'Save Work' : 'Guardar Work')}
               </button>
-              {workDirty && <span className="text-xs text-warning">Cambios sin guardar</span>}
+              {workDirty && <span className="text-xs text-warning">{t.control.appearance.unsaved}</span>}
             </div>
               </article>
             )}
 
             {isFinanceActive && (
               <article className="rounded-xl border border-border bg-surface p-4">
-                <h3 className="text-sm font-semibold text-white">Finanzas</h3>
-                <p className="mt-1 text-xs text-muted">Activa solo las herramientas que uses en tu flujo diario.</p>
+                <h3 className="text-sm font-semibold text-white">{language === 'en' ? 'Finance' : 'Finanzas'}</h3>
+                <p className="mt-1 text-xs text-muted">
+                  {language === 'en'
+                    ? 'Enable only the tools you use in your daily flow.'
+                    : 'Activa solo las herramientas que uses en tu flujo diario.'}
+                </p>
 
                 <label className="mt-3 block space-y-1">
-                  <span className="text-xs text-muted">Moneda predeterminada</span>
+                  <span className="text-xs text-muted">{language === 'en' ? 'Default currency' : 'Moneda predeterminada'}</span>
                   <input
                     value={financeSettings.defaultCurrency}
                     maxLength={3}
@@ -952,12 +986,12 @@ export function ControlCenter() {
 
                 <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
                   <FinanceToggle
-                    label="Presupuestos"
+                    label={language === 'en' ? 'Budgets' : 'Presupuestos'}
                     checked={financeSettings.budgetsEnabled}
                     onChange={(checked) => setFinanceSettings((prev) => ({ ...prev, budgetsEnabled: checked }))}
                   />
                   <FinanceToggle
-                    label="Recurrentes"
+                    label={language === 'en' ? 'Recurring' : 'Recurrentes'}
                     checked={financeSettings.recurringEnabled}
                     onChange={(checked) => setFinanceSettings((prev) => ({ ...prev, recurringEnabled: checked }))}
                   />
@@ -967,17 +1001,17 @@ export function ControlCenter() {
                     onChange={(checked) => setFinanceSettings((prev) => ({ ...prev, insightsEnabled: checked }))}
                   />
                   <FinanceToggle
-                    label="Transferencias"
+                    label={language === 'en' ? 'Transfers' : 'Transferencias'}
                     checked={financeSettings.transfersEnabled}
                     onChange={(checked) => setFinanceSettings((prev) => ({ ...prev, transfersEnabled: checked }))}
                   />
                   <FinanceToggle
-                    label="Alertas de gastos inusuales"
+                    label={language === 'en' ? 'Unusual expense alerts' : 'Alertas de gastos inusuales'}
                     checked={financeSettings.anomalyAlertsEnabled}
                     onChange={(checked) => setFinanceSettings((prev) => ({ ...prev, anomalyAlertsEnabled: checked }))}
                   />
                   <FinanceToggle
-                    label="Contexto IA"
+                    label={language === 'en' ? 'AI context' : 'Contexto IA'}
                     checked={financeSettings.aiContextEnabled}
                     onChange={(checked) => setFinanceSettings((prev) => ({ ...prev, aiContextEnabled: checked }))}
                   />
@@ -989,9 +1023,9 @@ export function ControlCenter() {
                     className="flex items-center gap-1.5 rounded-lg bg-accent px-3 py-2 text-xs font-medium text-white hover:bg-accent/85 disabled:opacity-60"
                   >
                     <Save size={12} />
-                    {savingPluginSettings === 'finance' ? 'Guardando...' : 'Guardar Finanzas'}
+                    {savingPluginSettings === 'finance' ? t.common.saving : (language === 'en' ? 'Save Finance' : 'Guardar Finanzas')}
                   </button>
-                  {financeDirty && <span className="text-xs text-warning">Cambios sin guardar</span>}
+                  {financeDirty && <span className="text-xs text-warning">{t.control.appearance.unsaved}</span>}
                 </div>
               </article>
             )}
@@ -1004,7 +1038,7 @@ export function ControlCenter() {
               className="flex items-center gap-1.5 rounded-lg bg-accent px-4 py-2 text-xs font-medium text-white hover:bg-accent/85 disabled:opacity-60"
             >
               <Save size={13} />
-              {savingPluginSettings ? 'Guardando...' : 'Guardar configuración de plugins'}
+              {savingPluginSettings ? t.common.saving : (language === 'en' ? 'Save module settings' : 'Guardar configuracion de modulos')}
             </button>
             {pluginSettingsMessage && <span className="text-xs text-muted">{pluginSettingsMessage}</span>}
           </div>
@@ -1014,10 +1048,10 @@ export function ControlCenter() {
       {/* Gestor de plugins */}
       <CollapsibleSection
         id="plugin-manager"
-        title="Modulos"
-        description="Activa o desactiva plugins; los cambios se aplican al guardar."
+        title={t.control.plugins.title}
+        description={t.control.plugins.description}
         icon={<Puzzle size={18} aria-hidden />}
-          summary={`${draftActivePluginIds.length} de ${plugins.length} seleccionados`}
+          summary={t.control.plugins.summary(draftActivePluginIds.length, plugins.length)}
       >
         {pluginMessage && (
           <div className="mb-3 rounded-lg border border-border bg-surface px-3 py-2 text-xs text-muted">
@@ -1025,11 +1059,13 @@ export function ControlCenter() {
           </div>
         )}
 
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="workspace-auto-grid gap-3">
           {plugins.map((plugin) => {
             const isActive = plugin.status === 'active'
             const isDraftActive = draftActivePluginIds.includes(plugin.manifest.id)
             const isBusy = busyPluginId === plugin.manifest.id || busyPluginId === 'modules'
+            const pluginName = resolveI18nString(language, plugin.manifest.name, plugin.manifest.nameKey ?? `plugins.meta.${plugin.manifest.id}.name`)
+            const pluginDescription = resolveI18nString(language, plugin.manifest.description, plugin.manifest.descriptionKey ?? `plugins.meta.${plugin.manifest.id}.description`)
 
             return (
               <div key={plugin.manifest.id} className="rounded-xl border border-border bg-surface p-4">
@@ -1039,9 +1075,9 @@ export function ControlCenter() {
                       <span className="shrink-0 text-accent-light">
                         <PluginIcon name={plugin.manifest.icon} size={16} />
                       </span>
-                      <span className="truncate">{plugin.manifest.name}</span>
+                      <span className="truncate">{pluginName}</span>
                     </p>
-                    <p className="mt-1 line-clamp-2 text-xs text-muted">{plugin.manifest.description}</p>
+                    <p className="mt-1 line-clamp-2 text-xs text-muted">{pluginDescription}</p>
                     <p className="mt-1 text-caption text-muted">v{plugin.manifest.version}</p>
                   </div>
                   <span
@@ -1053,7 +1089,7 @@ export function ControlCenter() {
                           : 'bg-slate-500/15 text-slate-300'
                     }`}
                   >
-                    {isDraftActive ? 'activo' : plugin.status === 'error' ? 'error' : 'inactivo'}
+                    {isDraftActive ? t.common.active : plugin.status === 'error' ? t.common.error : t.common.inactive}
                   </span>
                 </div>
 
@@ -1067,7 +1103,7 @@ export function ControlCenter() {
                     disabled={!isActive || isBusy || !plugin.manifest.navItems?.length}
                     className="rounded-md border border-border px-3 py-1.5 text-xs text-muted disabled:opacity-40"
                   >
-                    Abrir módulo
+                    {t.control.plugins.openModule}
                   </button>
                   <button
                     onClick={() => togglePluginDraft(plugin.manifest.id)}
@@ -1076,7 +1112,7 @@ export function ControlCenter() {
                       isDraftActive ? 'border border-border bg-surface-light text-muted' : 'bg-accent text-white'
                     } ${isBusy ? 'opacity-60' : ''}`}
                   >
-                    {isBusy ? 'Procesando...' : isDraftActive ? 'Desactivar' : 'Activar'}
+                    {isBusy ? t.common.saving : isDraftActive ? t.messages.actions.disable : t.messages.actions.enable}
                   </button>
                 </div>
               </div>
@@ -1091,40 +1127,44 @@ export function ControlCenter() {
             className="flex items-center gap-1.5 rounded-lg bg-accent px-4 py-2 text-xs font-medium text-white hover:bg-accent/85 disabled:opacity-60"
           >
             <Save size={13} />
-            {busyPluginId ? 'Guardando...' : 'Guardar modulos'}
+            {busyPluginId ? t.common.saving : t.control.plugins.saveModules}
           </button>
-          {modulesDirty && <span className="text-xs text-warning">Cambios sin guardar</span>}
+          {modulesDirty && <span className="text-xs text-warning">{t.control.appearance.unsaved}</span>}
         </div>
 
         <div className="mt-4 rounded-lg border border-border bg-surface px-3 py-3 text-xs text-muted">
-          <p className="font-medium text-white">¿Cómo agregar nuevos plugins?</p>
-          <p className="mt-1">En esta versión, los plugins se incluyen en el build y se activan/desactivan sin fricción desde aquí.</p>
+          <p className="font-medium text-white">{t.control.plugins.howAddTitle}</p>
+          <p className="mt-1">{t.control.plugins.howAddBody}</p>
         </div>
       </CollapsibleSection>
 
       {/* Servicios y mantenimiento — agrupado y plegado por defecto */}
       <CollapsibleSection
         id="organization"
-        title="Organizacion"
-        description="Tags compartidos para notas, tareas Work y Planner."
+        title={language === 'en' ? 'Organization' : 'Organizacion'}
+        description={language === 'en'
+          ? 'Shared tags for notes, Work tasks, and Planner.'
+          : 'Tags compartidos para notas, tareas Work y Planner.'}
         icon={<ClipboardList size={18} aria-hidden />}
         defaultOpen={false}
-        summary="Tags globales"
+        summary={language === 'en' ? 'Global tags' : 'Tags globales'}
       >
-        <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+        <div className="workspace-auto-grid-lg gap-6">
           <TagsSection />
         </div>
       </CollapsibleSection>
 
       <CollapsibleSection
         id="ai-notifications"
-        title="IA y avisos"
-        description="IA local y notificaciones con pruebas explicitas."
+        title={language === 'en' ? 'AI and alerts' : 'IA y avisos'}
+        description={language === 'en'
+          ? 'Local AI and notifications with explicit tests.'
+          : 'IA local y notificaciones con pruebas explicitas.'}
         icon={<Bot size={18} aria-hidden />}
         defaultOpen={false}
-        summary="Ollama y notificaciones"
+        summary={language === 'en' ? 'Ollama and notifications' : 'Ollama y notificaciones'}
       >
-        <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+        <div className="workspace-auto-grid-lg gap-6">
           <OllamaSection />
           <NotificationsSection />
         </div>
@@ -1132,13 +1172,15 @@ export function ControlCenter() {
 
       <CollapsibleSection
         id="security-backups"
-        title="Seguridad y backups"
-        description="Exportaciones, backups automaticos, cifrado y actualizaciones."
+        title={language === 'en' ? 'Security and backups' : 'Seguridad y backups'}
+        description={language === 'en'
+          ? 'Exports, automatic backups, encryption, and updates.'
+          : 'Exportaciones, backups automaticos, cifrado y actualizaciones.'}
         icon={<ShieldAlert size={18} aria-hidden />}
         defaultOpen={false}
-        summary="Backups y cifrado"
+        summary={language === 'en' ? 'Backups and encryption' : 'Backups y cifrado'}
       >
-        <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+        <div className="workspace-auto-grid-lg gap-6">
           <BackupSection />
           <ScheduledBackupSection />
           <DbEncryptionSection />
@@ -1149,8 +1191,10 @@ export function ControlCenter() {
       {/* Auditoría y automatizaciones */}
       <CollapsibleSection
         id="audit"
-        title="Salud del sistema"
-        description="Revision amigable para detectar inconsistencias y acciones seguras."
+        title={language === 'en' ? 'System health' : 'Salud del sistema'}
+        description={language === 'en'
+          ? 'Friendly review to detect inconsistencies and safe actions.'
+          : 'Revision amigable para detectar inconsistencias y acciones seguras.'}
         icon={<ClipboardList size={18} aria-hidden />}
         defaultOpen={false}
       >
@@ -1159,8 +1203,10 @@ export function ControlCenter() {
 
       <CollapsibleSection
         id="automations"
-        title="Automatizaciones"
-        description="Reglas que conectan eventos de plugins con acciones del sistema."
+        title={language === 'en' ? 'Automations' : 'Automatizaciones'}
+        description={language === 'en'
+          ? 'Rules that connect plugin events with system actions.'
+          : 'Reglas que conectan eventos de plugins con acciones del sistema.'}
         icon={<Zap size={18} aria-hidden />}
         defaultOpen={false}
       >
@@ -1170,14 +1216,14 @@ export function ControlCenter() {
       {leaveGuardOpen && (
         <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
           <div className="w-full max-w-md rounded-2xl border border-border bg-surface-light p-5 shadow-2xl">
-            <h2 className="text-lg font-semibold text-white">Hay cambios sin guardar</h2>
+            <h2 className="text-lg font-semibold text-white">{t.control.leaveGuard.title}</h2>
             <p className="mt-2 text-sm text-muted">
-              Estas secciones tienen cambios locales. Nada se aplico todavia.
+              {t.control.leaveGuard.body}
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
               {dirtyLabels.map((label) => (
                 <span key={label} className="rounded-full border border-warning/40 bg-warning/10 px-2.5 py-1 text-xs text-warning">
-                  {label}
+                  {resolveI18nString(language, label)}
                 </span>
               ))}
             </div>
@@ -1190,7 +1236,7 @@ export function ControlCenter() {
                 }}
                 className="rounded-lg border border-border bg-surface px-3 py-2 text-xs text-muted hover:text-white"
               >
-                Quedarme
+                {t.control.leaveGuard.stay}
               </button>
               <button
                 type="button"
@@ -1198,7 +1244,7 @@ export function ControlCenter() {
                 disabled={leaveGuardBusy}
                 className="rounded-lg border border-border bg-surface px-3 py-2 text-xs text-muted hover:text-white disabled:opacity-50"
               >
-                Descartar y salir
+                {t.control.leaveGuard.discard}
               </button>
               <button
                 type="button"
@@ -1206,7 +1252,7 @@ export function ControlCenter() {
                 disabled={leaveGuardBusy}
                 className="rounded-lg bg-accent px-3 py-2 text-xs font-medium text-white hover:bg-accent/85 disabled:opacity-50"
               >
-                {leaveGuardBusy ? 'Guardando...' : 'Guardar todo y salir'}
+                {leaveGuardBusy ? t.common.saving : t.control.leaveGuard.saveAll}
               </button>
             </div>
           </div>
@@ -1217,6 +1263,7 @@ export function ControlCenter() {
 }
 
 function AuditHeaderBadge() {
+  const { language } = useI18n()
   const errorCount = useAuditStore((s) => s.report?.countsBySeverity.error ?? 0)
   const warnCount = useAuditStore((s) => s.report?.countsBySeverity.warn ?? 0)
   if (errorCount === 0 && warnCount === 0) return null
@@ -1226,10 +1273,18 @@ function AuditHeaderBadge() {
   return (
     <span
       className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-medium ${tone}`}
-      title={`Auditoría: ${errorCount} error(es), ${warnCount} advertencia(s)`}
+      title={language === 'en'
+        ? `Audit: ${errorCount} error(s), ${warnCount} warning(s)`
+        : `Auditoria: ${errorCount} error(es), ${warnCount} advertencia(s)`}
     >
       <ShieldAlert size={12} />
-      {errorCount > 0 ? `${errorCount} error${errorCount === 1 ? '' : 'es'}` : `${warnCount} aviso${warnCount === 1 ? '' : 's'}`}
+      {errorCount > 0
+        ? language === 'en'
+          ? `${errorCount} error${errorCount === 1 ? '' : 's'}`
+          : `${errorCount} error${errorCount === 1 ? '' : 'es'}`
+        : language === 'en'
+          ? `${warnCount} warning${warnCount === 1 ? '' : 's'}`
+          : `${warnCount} aviso${warnCount === 1 ? '' : 's'}`}
     </span>
   )
 }
@@ -1243,6 +1298,7 @@ function ExchangeRatesEditor({
   rates: Record<string, number>
   onChange: (rates: Record<string, number>) => void
 }) {
+  const { language } = useI18n()
   const [draft, setDraft] = useState(() => formatExchangeRatesText(rates))
 
   useEffect(() => {
@@ -1251,7 +1307,9 @@ function ExchangeRatesEditor({
 
   return (
     <label className="mt-3 block space-y-1">
-      <span className="text-xs text-muted">Tasas manuales hacia {baseCurrency}</span>
+      <span className="text-xs text-muted">
+        {language === 'en' ? `Manual rates to ${baseCurrency}` : `Tasas manuales hacia ${baseCurrency}`}
+      </span>
       <input
         value={draft}
         onChange={(event) => setDraft(event.target.value)}
@@ -1260,7 +1318,9 @@ function ExchangeRatesEditor({
         className="w-full rounded-lg border border-border bg-surface-light px-3 py-2 text-sm"
       />
       <span className="block text-caption text-muted">
-        Formato: USD=40 significa 1 USD = 40 {baseCurrency}. Separar con coma, punto y coma o salto de linea.
+        {language === 'en'
+          ? `Format: USD=40 means 1 USD = 40 ${baseCurrency}. Separate with comma, semicolon, or line break.`
+          : `Formato: USD=40 significa 1 USD = 40 ${baseCurrency}. Separar con coma, punto y coma o salto de linea.`}
       </span>
     </label>
   )

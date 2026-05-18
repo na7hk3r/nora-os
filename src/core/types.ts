@@ -262,6 +262,8 @@ export interface WidgetDefinition {
   id: string
   pluginId: string
   title: string
+  /** Optional i18n key. Falls back to `title` when missing. */
+  titleKey?: string
   component: ComponentType
   defaultSize?: { w: number; h: number }
 }
@@ -271,6 +273,8 @@ export interface PageDefinition {
   pluginId: string
   path: string
   title: string
+  /** Optional i18n key. Falls back to `title` when missing. */
+  titleKey?: string
   icon: string
   component: ComponentType
 }
@@ -279,6 +283,8 @@ export interface NavItemDefinition {
   id: string
   pluginId: string
   label: string
+  /** Optional i18n key. Falls back to `label` when missing. */
+  labelKey?: string
   icon: string
   path: string
   order?: number
@@ -378,8 +384,12 @@ export interface PluginIconography {
 export interface PluginManifest {
   id: string
   name: string
+  /** Optional i18n key. Falls back to `name` when missing. */
+  nameKey?: string
   version: string
   description: string
+  /** Optional i18n key. Falls back to `description` when missing. */
+  descriptionKey?: string
   icon: string
 
   /**

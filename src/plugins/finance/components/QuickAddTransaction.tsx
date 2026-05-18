@@ -209,10 +209,10 @@ export function QuickAddTransaction() {
 
   return (
     <div
-      className="grid grid-cols-1 gap-2 rounded-2xl border border-border bg-surface-light/90 p-3 shadow-xl sm:grid-cols-2 xl:grid-cols-[auto_1fr_1fr_1fr_1fr_1fr_2fr_auto]"
+      className="workspace-form-grid gap-2 rounded-2xl border border-border bg-surface-light/90 p-3 shadow-xl"
       onKeyDown={onKeyDown}
     >
-      <div className="flex items-center gap-1 rounded-lg border border-border bg-surface p-1 text-xs sm:col-span-2 xl:col-span-1">
+      <div className="flex min-w-0 flex-wrap items-center gap-1 rounded-lg border border-border bg-surface p-1 text-xs">
         <button
           type="button"
           onClick={() => setMode('expense')}
@@ -295,7 +295,7 @@ export function QuickAddTransaction() {
             value={toAmount}
             onChange={(e) => setToAmount(e.target.value)}
             placeholder={`Entra ${targetAccount?.currency ?? ''}`}
-            className="min-w-0 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-white outline-none focus:border-accent sm:col-span-2 xl:col-span-1"
+            className="min-w-0 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-white outline-none focus:border-accent"
           />
         ) : (
           <input
@@ -303,7 +303,7 @@ export function QuickAddTransaction() {
             value={note}
             onChange={(e) => setNote(e.target.value)}
             placeholder="Nota (opcional)"
-            className="min-w-0 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-white outline-none focus:border-accent sm:col-span-2 xl:col-span-1"
+            className="min-w-0 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-white outline-none focus:border-accent"
           />
         )
       ) : (
@@ -311,7 +311,7 @@ export function QuickAddTransaction() {
           <CurrencyInput
             value={currency}
             onChange={setCurrency}
-            className="min-w-0 sm:col-span-2 xl:col-span-1"
+            className="min-w-0"
             selectClassName="w-full"
           />
           <input
@@ -319,7 +319,7 @@ export function QuickAddTransaction() {
             value={note}
             onChange={(e) => setNote(e.target.value)}
             placeholder="Nota (opcional)"
-            className="min-w-0 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-white outline-none focus:border-accent sm:col-span-2 xl:col-span-1"
+            className="min-w-0 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-white outline-none focus:border-accent"
           />
         </>
       )}
@@ -329,14 +329,14 @@ export function QuickAddTransaction() {
           value={note}
           onChange={(e) => setNote(e.target.value)}
           placeholder="Nota (opcional)"
-          className="min-w-0 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-white outline-none focus:border-accent sm:col-span-2 xl:col-span-1"
+          className="min-w-0 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-white outline-none focus:border-accent"
         />
       )}
       <button
         type="button"
         onClick={() => void submit()}
         disabled={busy || ((mode === 'transfer' || mode === 'withdrawal') && !toAccountId)}
-        className="inline-flex items-center justify-center gap-1 rounded-lg border border-accent bg-accent/15 px-3 py-2 text-sm text-accent-light hover:bg-accent/25 disabled:opacity-40 sm:col-span-2 xl:col-span-1"
+        className="inline-flex items-center justify-center gap-1 rounded-lg border border-accent bg-accent/15 px-3 py-2 text-sm text-accent-light hover:bg-accent/25 disabled:opacity-40"
       >
         <Plus size={14} /> Cargar
       </button>

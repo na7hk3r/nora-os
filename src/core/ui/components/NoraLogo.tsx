@@ -1,6 +1,6 @@
 // Logo oficial de Nora OS para la app de escritorio.
 //
-// Usa los PNG del kit de identidad (`identidadVisual-noraOS/`) copiados a
+// Usa los PNG del kit de identidad (`visual-id/`) copiados a
 // `public/brand/`. La versión "original" del isotipo está pensada para
 // funcionar sobre cualquier fondo (no depende del tema), así que la usamos
 // como default para todos los lugares de la app que mostraban el viejo SVG.

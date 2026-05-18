@@ -5,7 +5,7 @@
 /* ========== DESIGN TOKENS — TEMA DEFAULT (Nora OS — identidad oficial)
  * Paleta de marca: Cosmic Purple #6A39F6, Nebula Lavender #DEBFD8,
  * Deep Space Gray #1B1B1F, Polar White con tinte lila.
- * Ver identidadVisual-noraOS/ para la guía completa.
+ * Ver visual-id/ para la guia completa.
  * ========== */
 :root,
 [data-theme="default"] {
@@ -344,6 +344,281 @@ img,
 video {
   max-width: 100%;
   height: auto;
+}
+
+/* ========== WORKSPACE RESPONSIVE HELPERS ==========
+   Las vistas pueden vivir a pantalla completa o dentro de un panel partido.
+   Estas utilidades responden al ancho real del panel, no solo al viewport. */
+.workspace-view,
+.workspace-pane-content,
+.workspace-shell-content {
+  min-width: 0;
+}
+
+.workspace-pane-content,
+.workspace-shell-content {
+  container: workspace-pane / inline-size;
+}
+
+.workspace-auto-grid-sm,
+.workspace-auto-grid,
+.workspace-auto-grid-lg,
+.workspace-two-col-grid,
+.workspace-form-grid {
+  display: grid;
+  min-width: 0;
+}
+
+.workspace-auto-grid-sm {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+}
+
+.workspace-auto-grid,
+.workspace-form-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+}
+
+.workspace-auto-grid-lg,
+.workspace-two-col-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+}
+
+.dashboard-grid {
+  container: dashboard-grid / inline-size;
+  display: grid;
+  grid-auto-flow: dense;
+  grid-auto-rows: 64px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+}
+
+.dashboard-tile-w-1 {
+  grid-column: span 1 / span 1;
+}
+
+.dashboard-tile-w-2 {
+  grid-column: 1 / -1;
+}
+
+@container dashboard-grid (min-width: 42rem) {
+  .dashboard-tile-w-2 {
+    grid-column: span 2 / span 2;
+  }
+}
+
+.today-focus-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+}
+
+.today-focus-task-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+}
+
+.library-workspace {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.library-header {
+  display: flex;
+  min-width: 0;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.library-tabs {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.25rem;
+  border: 1px solid rgb(var(--color-border) / 0.72);
+  border-radius: 0.625rem;
+  background: rgb(var(--color-surface-light) / 0.6);
+  padding: 0.25rem;
+}
+
+.library-tab {
+  display: inline-flex;
+  height: 2rem;
+  min-width: 0;
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: 0.45rem;
+  padding: 0 0.65rem;
+  color: rgb(var(--color-muted));
+  font-size: 0.75rem;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.library-tab:hover,
+.library-tab-active {
+  background: rgb(var(--color-accent) / 0.14);
+  color: rgb(var(--color-accent-light));
+}
+
+.library-tab-count {
+  min-width: 1.125rem;
+  border-radius: 999px;
+  background: rgb(var(--color-surface) / 0.86);
+  padding: 0.05rem 0.35rem;
+  text-align: center;
+  font-size: 0.625rem;
+  color: rgb(var(--color-muted));
+}
+
+.library-panel {
+  min-width: 0;
+}
+
+.library-link-manager {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid rgb(var(--color-border) / 0.72);
+  border-radius: 0.75rem;
+  background: rgb(var(--color-surface-light) / 0.58);
+}
+
+.workspace-editor-split {
+  display: flex;
+  min-height: 640px;
+  min-width: 0;
+  gap: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  border: 1px solid rgb(var(--color-border) / 0.78);
+  border-radius: 0.75rem;
+  background: rgb(var(--color-surface-light) / 0.76);
+  box-shadow: 0 18px 60px rgb(0 0 0 / 0.18);
+}
+
+.workspace-editor-sidebar {
+  flex: 0 0 18rem;
+  min-width: 13.75rem;
+  border-right: 1px solid rgb(var(--color-border) / 0.62);
+}
+
+.workspace-editor-resizer {
+  align-self: stretch;
+  flex: 0 0 0.375rem;
+  margin-inline: -0.1875rem;
+  min-height: 100%;
+  cursor: col-resize;
+  position: relative;
+  z-index: 2;
+  touch-action: none;
+  user-select: none;
+}
+
+.workspace-editor-resizer::before,
+.workspace-editor-resizer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.workspace-editor-resizer::before {
+  width: 0.875rem;
+}
+
+.workspace-editor-resizer::after {
+  width: 1px;
+  background: transparent;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.workspace-editor-resizer:hover::after,
+.workspace-editor-resizer:focus-visible::after {
+  background: rgb(var(--color-accent-light) / 0.9);
+  box-shadow: 0 0 0 1px rgb(var(--color-accent) / 0.35);
+}
+
+.workspace-editor-main {
+  flex: 1 0 31rem;
+  min-width: 31rem;
+}
+
+.workspace-document-column {
+  width: min(100%, 54rem);
+  margin-inline: auto;
+}
+
+.workspace-pane-full-width {
+  min-width: 0;
+}
+
+@container workspace-pane (max-width: 760px) {
+  .library-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .library-tabs {
+    width: 100%;
+  }
+
+  .library-tab {
+    flex: 1 1 0;
+    justify-content: center;
+  }
+
+  .workspace-pane-content [class*="md:grid-cols-"],
+  .workspace-pane-content [class*="lg:grid-cols-"],
+  .workspace-pane-content [class*="xl:grid-cols-"] {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .workspace-pane-content [class*="md:flex-row"],
+  .workspace-pane-content [class*="lg:flex-row"] {
+    align-items: stretch !important;
+    flex-direction: column !important;
+  }
+
+  .workspace-pane-content [class*="lg:min-w-["],
+  .workspace-pane-content [class*="xl:min-w-["] {
+    min-width: 0 !important;
+  }
+
+  .workspace-pane-flex-col {
+    align-items: stretch !important;
+    flex-direction: column !important;
+  }
+
+  .workspace-pane-full-width {
+    width: 100%;
+  }
+
+  .workspace-pane-hide-narrow {
+    display: none !important;
+  }
+
+  .workspace-editor-split {
+    min-height: 640px;
+  }
+}
+
+@container workspace-pane (max-width: 520px) {
+  .workspace-pane-content [class*="sm:grid-cols-"] {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .workspace-pane-content [class*="min-w-["] {
+    min-width: 0 !important;
+  }
+
+  .workspace-pane-content [class*="w-["] {
+    max-width: 100%;
+  }
+
+  .work-kanban-column {
+    width: min(18rem, calc(100cqw - 1rem));
+  }
 }
 
 /* ========== MICRO-INTERACCIONES BASE ========== */

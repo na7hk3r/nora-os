@@ -16,7 +16,7 @@ export function StepWelcome({ onNext }: Props) {
   return (
     <div className="flex flex-col items-center text-center gap-8 animate-fade-in">
       <div className="space-y-3">
-        {/* Logo oficial Nora OS — ver identidadVisual-noraOS/. */}
+        {/* Logo oficial Nora OS - ver visual-id/. */}
         <NoraLogoMark size={72} glow className="mx-auto text-foreground/80" />
         <p className="text-xs uppercase tracking-[0.25em] text-muted font-display">Bienvenidx a</p>
         <h1 className="font-display text-5xl font-bold tracking-tight bg-gradient-to-r from-white via-accent-light to-accent bg-clip-text text-transparent">

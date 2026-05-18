@@ -11,6 +11,7 @@
 
 import { ollamaService } from '@core/services/ollamaService'
 import { storageAPI } from '@core/storage/StorageAPI'
+import { getCurrentLocale } from '@core/i18n'
 import { useFinanceStore } from './store'
 import { categoryP90, monthlySpendMedian, formatCents, startOfMonth, endOfMonth, previousMonth, formatLocalDate } from './utils'
 import type { Category } from './types'
@@ -58,7 +59,7 @@ interface MonthSummary {
 }
 
 function describeMonth(date: Date): string {
-  return new Intl.DateTimeFormat('es-AR', { month: 'long', year: 'numeric' }).format(date)
+  return new Intl.DateTimeFormat(getCurrentLocale(), { month: 'long', year: 'numeric' }).format(date)
 }
 
 async function fetchSummaryRaw(start: Date, end: Date): Promise<{

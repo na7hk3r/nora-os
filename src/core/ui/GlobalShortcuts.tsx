@@ -14,7 +14,11 @@ import { eventBus } from '../events/EventBus'
  * Se evita interceptar cuando el foco está en un input/textarea/contenteditable
  * para no robar combinaciones del editor (ej. Ctrl+B en RTE).
  */
-export function GlobalShortcuts() {
+interface GlobalShortcutsProps {
+  onShortcutHandled?: () => void
+}
+
+export function GlobalShortcuts({ onShortcutHandled }: GlobalShortcutsProps) {
   const navigate = useNavigate()
   const updateSettings = useCoreStore((s) => s.updateSettings)
 
@@ -35,6 +39,8 @@ export function GlobalShortcuts() {
 
       // No interferir mientras se escribe; excepción: Ctrl+B siempre toggle sidebar.
       if (isEditingTarget(e.target) && key !== 'b') return
+
+      onShortcutHandled?.()
 
       switch (key) {
         case 'n':
@@ -64,7 +70,7 @@ export function GlobalShortcuts() {
 
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [navigate, updateSettings])
+  }, [navigate, onShortcutHandled, updateSettings])
 
   return null
 }
