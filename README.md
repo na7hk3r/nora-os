@@ -48,9 +48,11 @@ A diferencia de un dashboard de SaaS o una app cloud, **toda tu información viv
 ### 🎯 Núcleo de productividad
 
 - **Planner core** — tareas diarias, semanales y mensuales con drag & drop entre días y misiones que alimentan Pulso Nora.
+- **Workspace dual** — abri cualquier ruta al lado de la vista actual, elegi el panel activo y ajusta el split sin perder contexto.
 - **Calendario unificado** — agrega vencimientos de Work, entrenamientos de Fitness, sesiones de foco y tareas del Planner en una vista mensual con filtros por fuente.
 - **Dashboard mosaic** — los widgets principales y la actividad reciente se pueden arrastrar, reordenar y colapsar sin perder su tamaño ni romper la grilla.
-- **Command Palette (`Ctrl/Cmd + K`)** — búsqueda global instantánea sobre notas, tareas, enlaces y rutas (incluye páginas de plugins activos).
+- **Command Palette (`Ctrl/Cmd + K`)** — busqueda global instantanea sobre notas, tareas, enlaces y rutas; `Ctrl/Cmd + /` abre el resultado al lado.
+- **Idioma ES/EN** — selector local en login y Control Center, con formatos de fecha/numero acordes al idioma activo.
 - **Catálogo de atajos in-app** — página `/shortcuts` con todos los keybindings agrupados y buscables, sincronizada con `docs/SHORTCUTS.md`.
 - **Review semanal/mensual** — KPIs reales (fitness, work, Pulso Nora) con análisis IA opcional para cerrar la semana.
 - **Accesibilidad** — skip-link, landmarks ARIA, command palette como combobox/listbox real, toasts con `role="alert"` para errores y modales con `aria-modal`.
@@ -72,7 +74,7 @@ Sistema de plugins de primera clase. Hoy vienen incluidos **8 plugins oficiales*
 
 | Plugin | Dominio | Qué resuelve |
 | --- | --- | --- |
-| **Work** | productivity | Kanban con prioridades, estimaciones, checklists, vencimientos, WIP limit, distintivos visuales y archivo manual de completadas. Edición rápida: Enter guarda los campos principales de una card. Notas y enlaces con búsqueda, pin y vista previa Markdown/GFM. **Focus Engine 2.0** con pause/resume reales, Pomodoro configurable, mini timer flotante, notificaciones nativas y cleanup de sesiones zombie. **Note → Task** con extracción IA desde notas largas. |
+| **Work** | productivity | Kanban con prioridades, estimaciones, checklists, vencimientos, WIP limit, distintivos visuales y archivo manual de completadas. Edición rápida: Enter guarda los campos principales de una card. Library Workspace compartida para notas y enlaces, con búsqueda, filtros por categoría, URLs normalizadas, pin, resizer y vista previa Markdown/GFM. **Focus Engine 2.0** con pause/resume reales, Pomodoro configurable, mini timer flotante, notificaciones nativas y cleanup de sesiones zombie. **Note → Task** con extracción IA desde notas largas. |
 | **Fitness** | fitness | Tracking diario de peso, comidas, ejercicios y sueño. Tabla de medidas corporales, gráficos históricos, resumen mensual y seguimiento opcional para dejar de fumar. |
 | **Finance** | finance | Cuentas, transacciones, categorías, presupuestos mensuales, gastos recurrentes, transferencias y retiros a efectivo. Secciones configurables desde Control Center, moneda base editable, tasas manuales multi-moneda y **Insights IA opcionales** con alertas de gastos inusuales. |
 | **Habits** | habits | Tracking de hábitos con metas diarias / semanales / mensuales, rachas reales, detección de "en riesgo" y proveedor IA con top streaks. Eventos `LOGGED` / `GOAL_MET` integrados a Pulso Nora. |
@@ -101,6 +103,7 @@ Cola persistente con processor cada 30 s, horas de silencio configurables (con w
 
 - **Multiusuario local** con autenticación scrypt + salt + `timingSafeEqual`.
 - **Aislamiento total**: `auth.db` global + `personal-os-user-{userId}.db` por usuario.
+- **Preferencias locales**: idioma (`core:i18n:language`) y layout dual (`core:workspaceLayout:v1`) quedan en el equipo, sin backend.
 - **Cifrado de la DB de usuario en reposo** (opt-in desde Control Center): AES-256-GCM con KDF scrypt, sin dependencias nativas extra. Al cerrar la sesión el archivo se re-cifra; al volver a entrar se pide la passphrase en una pantalla intermedia. Si la perdés, no hay recuperación.
 - **Backup cifrado** AES-256-GCM con derivación scrypt (passphrase ≥ 8 chars).
 - **Backup programado** (diario / semanal / mensual) hacia destino local elegido por el usuario, con passphrase persistido en `safeStorage` del SO.
@@ -112,7 +115,7 @@ Cola persistente con processor cada 30 s, horas de silencio configurables (con w
 
 - IPC `app-update` con check, download y quit-and-install controlados desde Control Center.
 - Banner global no intrusivo aparece sólo cuando hay update disponible o ya descargado.
-- Fallback transparente cuando `electron-updater` no está disponible o la app no está empaquetada.
+- Fallback transparente cuando `electron-updater` no está disponible, la app no está empaquetada o falla el feed: se ofrece descarga manual desde el sitio oficial sin exponer errores técnicos.
 
 ### 🩺 Diagnóstico exportable
 
@@ -260,6 +263,7 @@ npm run dev     # abre la ventana Electron con HMR
 | Atajo | Acción |
 | --- | --- |
 | `Ctrl/Cmd + K` | Abrir Command Palette |
+| `Ctrl/Cmd + /` | Abrir el resultado seleccionado de la palette en el panel derecho |
 | `Esc` | Cerrar modales y palette |
 
 Catálogo completo y roadmap de atajos: [docs/SHORTCUTS.md](docs/SHORTCUTS.md).
@@ -316,9 +320,10 @@ nora-os/
 1. **Electron main** abre la ventana, inicializa SQLite por usuario y registra los IPC handlers: `storage`, `auth`, `backup`, `profile`, `ollama`, `notifications`, `diagnostic`, `app-update`, `scheduled-backup`, `db-encryption`.
 2. **Preload** expone los 10 bridges tipados (`window.storage`, `window.auth`, `window.backup`, `window.profile`, `window.ollama`, `window.notifications`, `window.diagnostic`, `window.appUpdate`, `window.scheduledBackup`, `window.dbEncryption`) bajo context isolation.
 3. **PluginManager** lee el registry, aplica migraciones por plugin, expone `CoreAPI` (`storage`, `events`, `ui`, `gamification`, `metrics`, `getProfile`) y monta rutas/nav items.
-4. **EventBus** persistente sirve de columna vertebral: cualquier acción del usuario emite eventos que alimentan automatizaciones, Pulso Nora, dashboard, feed reciente y métricas publicadas en `metricsRegistry`.
-5. **Consistency Auditor** corre en boot y al togglear plugins; valida 10 reglas (R1–R10) sobre logros huérfanos, eventos sin emisor, iconografía coherente con el dominio, etc.
-6. **AI opt-in**: cada plugin se registra como context provider (`registerAIContextProvider`); `aiContextService` agrega los slices → `aiSuggestionsService` lo combina con un prompt → llamada a Ollama vía IPC.
+4. **I18n + Workspace Layout** envuelven el shell: resuelven copy ES/EN y permiten navegar rutas core/plugin en panel primario o secundario.
+5. **EventBus** persistente sirve de columna vertebral: cualquier acción del usuario emite eventos que alimentan automatizaciones, Pulso Nora, dashboard, feed reciente y métricas publicadas en `metricsRegistry`.
+6. **Consistency Auditor** corre en boot y al togglear plugins; valida 10 reglas (R1–R10) sobre logros huérfanos, eventos sin emisor, iconografía coherente con el dominio, etc.
+7. **AI opt-in**: cada plugin se registra como context provider (`registerAIContextProvider`); `aiContextService` agrega los slices → `aiSuggestionsService` lo combina con un prompt → llamada a Ollama vía IPC.
 
 Para detalle: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/PLUGIN_API.md](docs/PLUGIN_API.md), [docs/EVENTS.md](docs/EVENTS.md).
 
@@ -348,7 +353,7 @@ Para detalle: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/PLUGIN_API.md]
 
 ## Identidad visual
 
-La fuente de verdad del sistema visual vive en **`identidadVisual-noraOS/`** (logos, paleta, tipografías y PDF de especificación).
+La fuente de verdad del sistema visual vive en **`visual-id/`** (logos, paleta, tipografías y PDF de especificación).
 
 **Paleta oficial**
 
@@ -370,7 +375,7 @@ La fuente de verdad del sistema visual vive en **`identidadVisual-noraOS/`** (lo
 
 Los tokens están reflejados en el tema `default` del app ([src/index.css](src/index.css)) y en la landing ([landing/src/styles/index.css](landing/src/styles/index.css)). El logo vectorial reutilizable está en [public/icons/NoraLogo.svg](public/icons/NoraLogo.svg) y como componente React en [src/core/ui/components/NoraLogo.tsx](src/core/ui/components/NoraLogo.tsx) y [landing/src/components/NoraLogo.tsx](landing/src/components/NoraLogo.tsx).
 
-> **Criterio de uso**: la identidad no es decorativa. Si hay conflicto entre estilo y claridad/legibilidad/conversión, gana siempre la legibilidad. Ver el PDF de especificación en `identidadVisual-noraOS/` para guía completa de tono y aplicación.
+> **Criterio de uso**: la identidad no es decorativa. Si hay conflicto entre estilo y claridad/legibilidad/conversión, gana siempre la legibilidad. Ver el PDF de especificación en `visual-id/` para guía completa de tono y aplicación.
 
 ---
 
@@ -393,7 +398,7 @@ Los tokens están reflejados en el tema `default` del app ([src/index.css](src/i
 
 - **Local-first**: tu data es tuya y vive en tu disco.
 - **Sin emojis en prompts de IA**: tono profesional rioplatense.
-- **Solo español** en UI por ahora.
+- **ES/EN en UI** por ahora; la landing publica tambien copy PT.
 - **Catálogo curado de plugins**: calidad sobre cantidad.
 - **Confirmación explícita** en operaciones destructivas.
 - **Sin telemetría, sin servidores, sin cuentas en la nube**.

@@ -1,5 +1,5 @@
 // Logo oficial de Nora OS — versiones imagen (PNG) tomadas de
-// `identidadVisual-noraOS/`, copiadas a `landing/public/brand/`.
+// `visual-id/`, copiadas a `landing/public/brand/`.
 //
 // Variantes:
 //   - "mark"           → solo isotipo, white/black según tema.

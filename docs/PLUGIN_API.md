@@ -2,7 +2,7 @@
 
 Esta guía documenta la superficie del CoreAPI que reciben los plugins en su `init(api)`.
 
-> Última actualización: v1.10.0
+> Ultima actualizacion: v1.18.0
 
 ## 1. Manifiesto
 
@@ -12,8 +12,10 @@ Cada plugin exporta un `PluginManifest` (ver `src/core/types.ts`):
 export const myPlugin: PluginManifest = {
   id: 'mi-plugin',          // kebab-case, único, prefijo de tablas SQLite
   name: 'Mi Plugin',
+  nameKey: 'plugins.meta.mi-plugin.name',
   version: '1.0.0',
   description: '…',
+  descriptionKey: 'plugins.meta.mi-plugin.description',
   icon: 'Boxes',            // nombre de un ícono Lucide
 
   // — Campos opcionales para el Consistency Auditor (v1.10.0+) —
@@ -24,9 +26,9 @@ export const myPlugin: PluginManifest = {
     gallery: ['CheckSquare', 'ListTodo'],
   },
 
-  navItems: [{ id, label, path, icon }],
-  pages: [{ id, path, component, title, pluginId }],
-  widgets: [{ id, name, component }],
+  navItems: [{ id, label, labelKey, path, icon }],
+  pages: [{ id, path, component, title, titleKey, pluginId }],
+  widgets: [{ id, title, titleKey, component }],
   events: { emits: [...], listens: [...] },
   migrations: [...],
 
@@ -34,6 +36,11 @@ export const myPlugin: PluginManifest = {
   async deactivate(api) { /* cleanup opcional */ },
 }
 ```
+
+Los campos `nameKey`, `descriptionKey`, `labelKey` y `titleKey` son opcionales
+desde v1.18.0. Si existen, el shell intenta resolverlos contra el catalogo i18n
+activo; si faltan o no hay traduccion, usa `name`, `description`, `label` o
+`title` como fallback.
 
 ## 2. Storage (SQLite local)
 

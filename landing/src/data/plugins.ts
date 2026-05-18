@@ -30,7 +30,7 @@ export const plugins: PluginCard[] = [
     id: 'work',
     name: 'Work',
     description:
-      'Kanban con prioridades, vencimientos, WIP limit y Focus Engine 2.0 con Pomodoro nativo. Notas y enlaces con búsqueda.',
+      'Kanban con prioridades y Focus Engine 2.0. Library Workspace suma notas, enlaces, busqueda, filtros, URLs normalizadas y Markdown.',
     domain: 'productivity',
     domainLabel: 'Productividad',
     icon: Briefcase,

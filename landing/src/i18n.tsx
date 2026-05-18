@@ -243,7 +243,7 @@ export const copy = {
           tag: 'Modular',
           title: 'Todo lo que necesitás, nada de lo que no',
           description:
-            'Activás solo los módulos que usás y ordenás el dashboard arrastrando widgets, sin romper tu flujo.',
+            'Activás solo los módulos que usás, ordenás widgets y abrís vistas lado a lado sin romper tu flujo.',
         },
         {
           tag: 'Auto-update',
@@ -311,7 +311,7 @@ export const copy = {
           name: 'Work',
           domainLabel: 'Productividad',
           description:
-            'Kanban con prioridades, vencimientos, WIP limit y edición rápida con Enter. Focus Engine 2.0, notas y enlaces con búsqueda.',
+            'Kanban con prioridades y Focus Engine 2.0. Library Workspace suma notas, enlaces, búsqueda, filtros, URLs normalizadas y Markdown.',
         },
         fitness: {
           name: 'Fitness',
@@ -427,7 +427,7 @@ export const copy = {
     screenshots: {
       eyebrow: 'Capturas',
       title: 'Pensada para usarla todos los días.',
-      description: 'Atajos globales, palette de comandos y temas dark/light cuidados al detalle.',
+      description: 'Vista dual, atajos globales, palette de comandos y temas dark/light cuidados al detalle.',
       tabAria: 'Capturas de Nora OS',
       missing: 'Captura próximamente',
       tabs: [
@@ -461,7 +461,7 @@ export const copy = {
           label: 'Work',
           src: 'screenshots/screenshot-work.png',
           alt: 'Plugin Work con kanban y Focus Engine',
-          caption: 'Plugin Work: kanban con WIP limit y Focus Engine 2.0 con Pomodoro nativo.',
+          caption: 'Plugin Work: kanban, Focus Engine 2.0 y Library Workspace para notas/enlaces.',
         },
       ],
     },
@@ -641,7 +641,7 @@ export const copy = {
           tag: 'Modular',
           title: 'Everything you need, nothing you do not',
           description:
-            'Turn on only the modules you use and arrange the dashboard by dragging widgets without breaking your flow.',
+            'Turn on only the modules you use, arrange widgets, and open views side by side without breaking your flow.',
         },
         {
           tag: 'Auto-update',
@@ -709,7 +709,7 @@ export const copy = {
           name: 'Work',
           domainLabel: 'Productivity',
           description:
-            'Kanban with priorities, due dates, WIP limits, and quick Enter-to-save editing. Focus Engine 2.0 plus searchable notes and links.',
+            'Kanban with priorities and Focus Engine 2.0. Library Workspace adds notes, links, search, filters, normalized URLs, and Markdown.',
         },
         fitness: {
           name: 'Fitness',
@@ -825,7 +825,7 @@ export const copy = {
     screenshots: {
       eyebrow: 'Screenshots',
       title: 'Designed for daily use.',
-      description: 'Global shortcuts, command palette, and carefully tuned dark and light themes.',
+      description: 'Dual view, global shortcuts, command palette, and carefully tuned dark and light themes.',
       tabAria: 'Nora OS screenshots',
       missing: 'Screenshot coming soon',
       tabs: [
@@ -858,7 +858,7 @@ export const copy = {
           label: 'Work',
           src: 'screenshots/screenshot-work.png',
           alt: 'Work plugin with kanban and Focus Engine',
-          caption: 'Work plugin: kanban with WIP limits and Focus Engine 2.0 with native Pomodoro.',
+          caption: 'Work plugin: kanban, Focus Engine 2.0, and Library Workspace for notes/links.',
         },
       ],
     },
@@ -1039,7 +1039,7 @@ export const copy = {
           tag: 'Modular',
           title: 'Tudo o que você precisa, nada do que não precisa',
           description:
-            'Ative só os módulos que usa e organize o dashboard arrastando widgets sem quebrar seu fluxo.',
+            'Ative só os módulos que usa, organize widgets e abra vistas lado a lado sem quebrar seu fluxo.',
         },
         {
           tag: 'Auto-update',
@@ -1107,7 +1107,7 @@ export const copy = {
           name: 'Work',
           domainLabel: 'Produtividade',
           description:
-            'Kanban com prioridades, vencimentos, WIP limit e edição rápida com Enter. Focus Engine 2.0, notas e links com busca.',
+            'Kanban com prioridades e Focus Engine 2.0. Library Workspace soma notas, links, busca, filtros, URLs normalizadas e Markdown.',
         },
         fitness: {
           name: 'Fitness',
@@ -1223,7 +1223,7 @@ export const copy = {
     screenshots: {
       eyebrow: 'Capturas',
       title: 'Pensado para uso diário.',
-      description: 'Atalhos globais, command palette e temas dark/light cuidados em detalhe.',
+      description: 'Vista dual, atalhos globais, command palette e temas dark/light cuidados em detalhe.',
       tabAria: 'Capturas do Nora OS',
       missing: 'Captura em breve',
       tabs: [
@@ -1257,7 +1257,7 @@ export const copy = {
           label: 'Work',
           src: 'screenshots/screenshot-work.png',
           alt: 'Plugin Work com kanban e Focus Engine',
-          caption: 'Plugin Work: kanban com WIP limit e Focus Engine 2.0 com Pomodoro nativo.',
+          caption: 'Plugin Work: kanban, Focus Engine 2.0 e Library Workspace para notas/links.',
         },
       ],
     },

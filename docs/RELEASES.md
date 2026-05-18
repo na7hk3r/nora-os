@@ -10,8 +10,11 @@ en GitHub Releases con auto-update via `electron-updater`.
 npm run lint && npm run typecheck && npm test && npm run pack
 
 # 2. Bump de version + tag
-npm version patch          # o minor / major
-git push --follow-tags
+npm version patch --no-git-tag-version          # o minor / major
+(cd landing && npm version patch --no-git-tag-version)
+git commit -am "chore(release): prepare vX.Y.Z"
+git tag -a vX.Y.Z -m "vX.Y.Z"
+git push origin main vX.Y.Z
 
 # 3. CI hace el resto:
 #    - Empaqueta NSIS + portable
@@ -44,7 +47,9 @@ git push --follow-tags
 
 1. Mergeá todo a `main`.
 2. Actualizá `CHANGELOG.md` con la version nueva.
-3. Validá local:
+3. Si la landing acompaña el release, sincronizá tambien `landing/package.json`
+   y `landing/package-lock.json`.
+4. Validá local:
    ```bash
    npm run lint
    npm run typecheck
@@ -55,15 +60,25 @@ git push --follow-tags
 ### 2. Bump + tag
 
 ```bash
-npm version patch          # 1.8.0 -> 1.8.1
+npm version patch --no-git-tag-version          # 1.8.0 -> 1.8.1
 # o:
-npm version minor          # 1.8.0 -> 1.9.0
-npm version major          # 1.8.0 -> 2.0.0
-git push --follow-tags
+npm version minor --no-git-tag-version          # 1.8.0 -> 1.9.0
+npm version major --no-git-tag-version          # 1.8.0 -> 2.0.0
+
+cd landing
+npm version 1.8.1 --no-git-tag-version          # usar la misma version
+cd ..
+
+git add package.json package-lock.json landing/package.json landing/package-lock.json CHANGELOG.md
+git commit -m "chore(release): prepare v1.8.1"
+git tag -a v1.8.1 -m "v1.8.1"
+git push origin main v1.8.1
 ```
 
-`npm version` ya crea el commit y el tag `vX.Y.Z`. El push del tag dispara el
-workflow [`release.yml`](../.github/workflows/release.yml).
+El push del tag `vX.Y.Z` dispara el workflow
+[`release.yml`](../.github/workflows/release.yml). Usamos
+`--no-git-tag-version` para poder agrupar docs, landing y versionado en el
+commit de release antes de crear el tag anotado manualmente.
 
 ### 3. CI publica
 

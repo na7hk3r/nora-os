@@ -71,6 +71,22 @@ La version `1.15.0` incorpora Pulso Nora en el copy publico:
 - El texto del copiloto puede mencionar que las acciones IA avanzadas se
   desbloquean progresivamente desde Nori nivel 6.
 
+## v1.18.0 en la landing
+
+La version `1.18.0` debe mantener el copy publico alineado con los cambios de
+producto:
+
+- El bloque de features puede nombrar workspace dual como parte de la
+  experiencia modular: abrir notas, Work, Planner o Control Center lado a lado.
+- La seccion Work debe hablar de Library Workspace para notas/enlaces, URLs
+  normalizadas, filtros por categoria y preview Markdown/GFM.
+- El bloque de productividad puede mencionar Planner con vistas mes/semana,
+  drag al calendario, filtros y tags globales.
+- El texto de privacidad puede aclarar que idioma (`core:i18n:language`) y
+  layout dual (`core:workspaceLayout:v1`) son preferencias locales.
+- Los CTAs siguen usando `useLatestRelease`; no hardcodear `1.18.0` fuera de
+  docs/package metadata.
+
 ---
 
 ## Deploy

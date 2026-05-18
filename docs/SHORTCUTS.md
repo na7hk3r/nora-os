@@ -19,10 +19,15 @@ La busqueda global acepta texto libre y tambien queries por tag: `#tag` o
 `tag:nombre`. En ese modo muestra el tag global y las notas, cards de Work o
 tareas del Planner conectadas.
 
+Cuando la vista dual esta activa, la navegacion de la palette respeta el panel
+activo. El atajo lateral siempre abre el resultado en el panel derecho sin
+reemplazar la ruta principal.
+
 | Atajo | Acción |
 | --- | --- |
 | `↑` / `↓` | Navegar resultados |
 | `Enter` | Abrir resultado seleccionado |
+| `Ctrl/Cmd + /` | Abrir resultado seleccionado en el panel derecho (activa vista dual). En teclados ES/LatAm: `Ctrl/Cmd + Shift + 7` |
 | `Esc` | Cerrar palette |
 
 ## Modales y diálogos

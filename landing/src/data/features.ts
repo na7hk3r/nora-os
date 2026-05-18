@@ -24,7 +24,7 @@ export const features: Feature[] = [
     tag: 'Modular',
     title: 'Todo lo que necesitás, nada de lo que no',
     description:
-      'Activás solo los módulos que usás: trabajo, hábitos, finanzas, fitness, journal, conocimiento.',
+      'Activás solo los módulos que usás y podés abrir vistas lado a lado sin perder contexto.',
     icon: Boxes,
   },
   {

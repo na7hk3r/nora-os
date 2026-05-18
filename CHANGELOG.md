@@ -2,6 +2,43 @@
 
 ## Unreleased
 
+## [1.18.0] - 2026-05-18
+
+### Workspace dual, idioma y navegacion
+
+- Shell suma una vista dual persistente y redimensionable: se puede abrir una
+  ruta al lado, elegir panel activo, cerrar el modo dual y conservar el layout
+  localmente en `core:workspaceLayout:v1`.
+- Command Palette permite abrir el resultado seleccionado en el panel derecho
+  con `Ctrl/Cmd + /`; en teclados ES/LatAm tambien funciona
+  `Ctrl/Cmd + Shift + 7`.
+- La app incorpora base i18n ES/EN con selector de idioma en login y Control
+  Center, guardado localmente en `core:i18n:language`.
+- Widgets, paginas, nav items y manifests de plugins aceptan claves opcionales
+  `titleKey`, `labelKey`, `nameKey` y `descriptionKey` para copy localizado.
+- Electron mantiene rutas internas dentro de Nora OS cuando se abren con click
+  modificado o activacion por teclado.
+
+### Planner y Work Library
+
+- Planner se redisenia con vistas mensual/semanal, selector mobile dia/calendario,
+  drag de misiones al calendario, filtros por estado/categoria/tag y tags
+  globales conectados a tareas.
+- Notas y enlaces pasan a una Library Workspace compartida entre rutas core y
+  Work, con tabs, contadores y superficie preparada para la vista dual.
+- El editor de notas suma columna de documento mas estable, resizer de lista,
+  preview Markdown/GFM alineado con edicion y controles compactos.
+- Enlaces normaliza URLs, genera titulo fallback, filtra por categorias en chips
+  y mejora busqueda por host/path.
+
+### Calidad operativa
+
+- Auto-update oculta errores tecnicos del feed y muestra fallback manual al sitio
+  oficial cuando falla la consulta.
+- Landing, README, shortcuts y documentacion de release quedan sincronizados con
+  `v1.18.0`.
+- El kit de identidad visual se normaliza bajo `visual-id/`.
+
 ## [1.17.0] - 2026-05-11
 
 ### Finanzas multi-moneda y retiros
@@ -181,7 +218,7 @@ Patch de pulido sobre 1.13.0 que cierra cuatro bugs visibles tras el rebrand.
 
 #### Marca — ícono del instalador Windows
 
-- [`scripts/build-icon.ps1`](scripts/build-icon.ps1) reescrito: ya no genera el monograma "PO" legacy. Ahora compone fondo cosmic-purple oficial + isotipo `identidadVisual-noraOS/nora-isotipo-original.png` centrado.
+- [`scripts/build-icon.ps1`](scripts/build-icon.ps1) reescrito: ya no genera el monograma "PO" legacy. Ahora compone fondo cosmic-purple oficial + isotipo `visual-id/nora-isotipo-original.png` centrado.
 - Regenerados [`buildResources/icon.png`](buildResources/icon.png) y [`buildResources/icon.ico`](buildResources/icon.ico) (multi-res 16/32/48/64/128/256). El instalador NSIS y el ejecutable adoptan el ícono Nora oficial.
 - Si Windows muestra el ícono cacheado tras reinstalar, ejecutá `ie4uinit.exe -show` o reiniciá `explorer.exe`.
 
@@ -203,13 +240,13 @@ Patch de pulido sobre 1.13.0 que cierra cuatro bugs visibles tras el rebrand.
 
 ### 🪐 Renombrado de repositorio + adopción del kit oficial PNG
 
-Pulido final del rebrand iniciado en 1.11/1.12: el repositorio pasa de `personal-os` a `nora-os`, los logos abandonan el SVG vectorial improvisado y la app adopta los PNG oficiales del kit (`identidadVisual-noraOS/`). Suma además mejoras de notificaciones, integración planner ↔ daily focus y detección de Ollama en el instalador NSIS.
+Pulido final del rebrand iniciado en 1.11/1.12: el repositorio pasa de `personal-os` a `nora-os`, los logos abandonan el SVG vectorial improvisado y la app adopta los PNG oficiales del kit (`visual-id/`). Suma además mejoras de notificaciones, integración planner ↔ daily focus y detección de Ollama en el instalador NSIS.
 
 #### Marca + repositorio
 
 - **Repo renombrado**: `na7hk3r/personal-os` → `na7hk3r/nora-os`. Actualizadas todas las referencias en `package.json` (name, productName, homepage, repository), `electron-builder.yml` (`appId: com.na7hk3r.nora-os`, `productName`, `publish.repo`, `shortcutName`), README, [docs/DATABASE.md](docs/DATABASE.md), [docs/LANDING.md](docs/LANDING.md), [docs/RELEASES.md](docs/RELEASES.md), `electron/main.ts` (con `app.setName`, About panel y `BrowserWindow.title`) y los servicios IPC (`app-update-ipc`, `database`, `profile-ipc`).
 - **Landing**: `vite.config.ts` con `base: '/nora-os/'`, sitemap, robots, OG image, hooks de release y tests sincronizados al nuevo slug.
-- **Adopción del kit oficial PNG**: 7 PNGs por destino (`identidadVisual-noraOS/`, `landing/public/brand/`, `public/brand/`) con todas las variantes — full, isotipo y wordmark, en white/black/original.
+- **Adopción del kit oficial PNG**: 7 PNGs por destino (`visual-id/`, `landing/public/brand/`, `public/brand/`) con todas las variantes — full, isotipo y wordmark, en white/black/original.
 - **Componentes de logo reescritos**: [landing/src/components/NoraLogo.tsx](landing/src/components/NoraLogo.tsx) y [src/core/ui/components/NoraLogo.tsx](src/core/ui/components/NoraLogo.tsx) renderizan los PNGs reales con variantes `mark | mark-original | mark-white | mark-black | wordmark | full`. Las variantes duales conmutan entre versión blanca y negra según `data-theme` vía clases `.nora-logo-dark` / `.nora-logo-light` (regla en [src/index.css](src/index.css)).
 - **Aplicación**:
   - Landing Navbar: `mark-original` 36px + wordmark 20px al lado.
@@ -242,7 +279,7 @@ Pulido final del rebrand iniciado en 1.11/1.12: el repositorio pasa de `personal
 
 ### 🎨 Identidad visual oficial Nora OS
 
-Aplicación de la identidad de marca oficial (carpeta `identidadVisual-noraOS/` como fuente de verdad) al app de escritorio, la landing y la documentación. Coherencia visual end-to-end entre login, splash, dashboard, footer y sitio público.
+Aplicación de la identidad de marca oficial (carpeta `visual-id/` como fuente de verdad) al app de escritorio, la landing y la documentación. Coherencia visual end-to-end entre login, splash, dashboard, footer y sitio público.
 
 - **Paleta Cosmic Purple**: tema `default` actualizado a `#6A39F6` (Cosmic Purple), `#DEBFD8` (Nebula Lavender), `#1B1B1F` (Deep Space Gray), `#F5F4FF` (Polar White) y `#111111` (Graphite). Tokens reflejados en [src/index.css](src/index.css) y [landing/src/styles/index.css](landing/src/styles/index.css).
 - **Logo Nora**: nuevo SVG vectorial [public/icons/NoraLogo.svg](public/icons/NoraLogo.svg) y componente React reactivo al theme `NoraLogoMark` en [src/core/ui/components/NoraLogo.tsx](src/core/ui/components/NoraLogo.tsx) y [landing/src/components/NoraLogo.tsx](landing/src/components/NoraLogo.tsx). Reemplaza al `CrystalBallEye` y a la imagen `GRUPO.png` en todos los puntos de marca.
@@ -250,7 +287,7 @@ Aplicación de la identidad de marca oficial (carpeta `identidadVisual-noraOS/` 
 - **Coherencia visual**: el logo y el gradiente cosmic purple aparecen ahora en `Sidebar`, `SystemStatusHero` (saludo "Buenas noches…"), `AuthScreen`, `UnlockScreen`, `StepWelcome` (onboarding) y `DashboardFooter`. El favicon del app pasa a `NoraLogo.svg`.
 - **Tagline oficial**: *“Tu sistema. Tu vida. Una sola IA.”* incorporado al login y a la landing.
 - **Landing rebrandeado**: rediseño inspirado en inkdrop con Navbar, mockup tipo consola, secciones reorganizadas, Framer Motion y nueva paleta/tipografía.
-- **README**: badges actualizados a `#6A39F6`, sección **Identidad visual** con paleta, tipografías y enlaces a `identidadVisual-noraOS/`, hero con logo y tagline.
+- **README**: badges actualizados a `#6A39F6`, sección **Identidad visual** con paleta, tipografías y enlaces a `visual-id/`, hero con logo y tagline.
 - **Responsividad Finanzas**: arreglo de los grids de `QuickAddTransaction` (1↚sm:2↚lg:6 cols con spans), `AccountsManager` (1↚sm:2↚lg:5) y `RecurringPage` (1↚sm:2↚lg:4) que rompían en breakpoint medio.
 
 ## [1.11.0] - 2026-05-03

@@ -2146,6 +2146,9 @@ function createWindow() {
 }
 electron.app.on("web-contents-created", (_event, contents) => {
   contents.setWindowOpenHandler(({ url: url2 }) => {
+    if (isAllowedNavigationTarget(url2)) {
+      return { action: "deny" };
+    }
     if (isSafeExternalUrl(url2)) {
       void electron.shell.openExternal(url2);
     }
