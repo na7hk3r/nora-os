@@ -128,7 +128,7 @@ export function FinanceDashboard() {
         </div>
         <div className="flex flex-wrap gap-2 text-xs">
           <NavChip icon={<ReceiptText size={12} />} label="Movimientos" onClick={() => navigate('/finance/transactions')} />
-          <NavChip icon={<BadgeDollarSign size={12} />} label="Categorias" onClick={() => navigate('/finance/categories')} />
+          <NavChip icon={<BadgeDollarSign size={12} />} label="Categorías" onClick={() => navigate('/finance/categories')} />
           {settings.recurringEnabled && <NavChip icon={<CalendarSync size={12} />} label="Recurrentes" onClick={() => navigate('/finance/recurring')} />}
           {settings.budgetsEnabled && <NavChip icon={<PiggyBank size={12} />} label="Presupuestos" onClick={() => navigate('/finance/budgets')} />}
           {settings.insightsEnabled && <NavChip icon={<ChartNoAxesCombined size={12} />} label="Insights" onClick={() => navigate('/finance/insights')} />}

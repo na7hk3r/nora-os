@@ -176,7 +176,7 @@ export function TransactionsPage() {
           <SegPreset value={range} onChange={setRange} options={[
             { v: 'this-month', l: 'Este mes' },
             { v: 'last-month', l: 'Mes pasado' },
-            { v: 'last-90', l: '90 dias' },
+            { v: 'last-90', l: '90 días' },
             { v: 'all', l: 'Todo' },
           ]} />
           <select value={accountId} onChange={(e) => setAccountId(e.target.value)}

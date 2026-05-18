@@ -27,7 +27,7 @@ export interface WorkspaceRouteDefinition {
 
 export const CORE_WORKSPACE_ROUTES: WorkspaceRouteDefinition[] = [
   { id: 'core-dashboard', pluginId: 'core', path: '/', title: 'Dashboard', titleKey: 'routes.core-dashboard', icon: 'LayoutDashboard', component: Dashboard },
-  { id: 'core-control', pluginId: 'core', path: '/control', title: 'Configuracion', titleKey: 'routes.core-control', icon: 'Settings', component: ControlCenter },
+  { id: 'core-control', pluginId: 'core', path: '/control', title: 'Configuración', titleKey: 'routes.core-control', icon: 'Settings', component: ControlCenter },
   { id: 'core-notes', pluginId: 'core', path: '/notes', title: 'Notas', titleKey: 'routes.core-notes', icon: 'NotebookPen', component: CoreNotesPage },
   { id: 'core-links', pluginId: 'core', path: '/links', title: 'Enlaces', titleKey: 'routes.core-links', icon: 'Link2', component: CoreLinksPage },
   { id: 'core-planner', pluginId: 'core', path: '/planner', title: 'Planner', titleKey: 'routes.core-planner', icon: 'ListTodo', component: CorePlannerPage },

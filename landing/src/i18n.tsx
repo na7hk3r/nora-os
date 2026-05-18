@@ -267,7 +267,7 @@ export const copy = {
           tag: 'Pulso Nora',
           title: 'Nori evoluciona con tu constancia',
           description:
-            '15 niveles, XP mas exigente y recompensas que desbloquean mejoras visibles e IA mas capaz.',
+            '15 niveles, XP más exigente y recompensas que desbloquean mejoras visibles e IA más capaz.',
         },
         {
           tag: 'IA opcional',

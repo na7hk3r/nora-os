@@ -252,7 +252,7 @@ export function SortableCard({
           {focusSessionCount > 0 && (
             <span
               className="inline-flex items-center gap-1 rounded-full bg-surface-light/60 px-2 py-0.5 text-micro text-muted border border-border/70"
-              title={`${focusSessionCount} sesion${focusSessionCount === 1 ? '' : 'es'} de foco`}
+              title={`${focusSessionCount} ${focusSessionCount === 1 ? 'sesión' : 'sesiones'} de foco`}
             >
               <Target size={10} />
               {focusSessionCount}

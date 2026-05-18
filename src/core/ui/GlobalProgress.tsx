@@ -127,7 +127,7 @@ export function GlobalProgress() {
                 <span className="font-semibold text-accent-light">{points} XP total</span>
                 <span className="text-muted">
                   {progress.isMaxLevel
-                    ? (language === 'en' ? 'Max level' : 'Nivel maximo')
+                    ? (language === 'en' ? 'Max level' : 'Nivel máximo')
                     : language === 'en'
                       ? `${progress.xpInLevel}/${progress.xpForLevel} XP toward level ${level + 1}`
                       : `${progress.xpInLevel}/${progress.xpForLevel} XP hacia nivel ${level + 1}`}
@@ -151,7 +151,7 @@ export function GlobalProgress() {
                 </div>
                 <div
                   className="relative flex h-16 w-14 shrink-0 items-center justify-center"
-                  title={progress.isMaxLevel ? (language === 'en' ? 'Final evolution unlocked' : 'Evolucion final desbloqueada') : (language === 'en' ? `Next evolution: level ${nextNoriLevel}` : `Siguiente evolucion: nivel ${nextNoriLevel}`)}
+                  title={progress.isMaxLevel ? (language === 'en' ? 'Final evolution unlocked' : 'Evolución final desbloqueada') : (language === 'en' ? `Next evolution: level ${nextNoriLevel}` : `Siguiente evolución: nivel ${nextNoriLevel}`)}
                 >
                   <div className="absolute bottom-1 h-2 w-10 rounded-[50%] bg-black/35 blur-sm" aria-hidden />
                   <NoriSprite
@@ -168,15 +168,15 @@ export function GlobalProgress() {
                 </div>
               </div>
               <p className="text-right text-caption text-muted">
-                {progress.isMaxLevel ? (language === 'en' ? 'Final evolution unlocked' : 'Evolucion final desbloqueada') : (language === 'en' ? `Next evolution locked: level ${nextNoriLevel}` : `Siguiente evolucion bloqueada: nivel ${nextNoriLevel}`)}
+                {progress.isMaxLevel ? (language === 'en' ? 'Final evolution unlocked' : 'Evolución final desbloqueada') : (language === 'en' ? `Next evolution locked: level ${nextNoriLevel}` : `Siguiente evolución bloqueada: nivel ${nextNoriLevel}`)}
               </p>
             </div>
 
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
               <PulseStat label={language === 'en' ? 'Streak' : 'Racha'} value={`${streak}d`} icon={<Flame size={14} className="text-warning" />} />
-              <PulseStat label={language === 'en' ? 'Evolution' : 'Evolucion'} value={`${level}/15`} icon={<Sparkles size={14} className="text-accent-light" />} />
+              <PulseStat label={language === 'en' ? 'Evolution' : 'Evolución'} value={`${level}/15`} icon={<Sparkles size={14} className="text-accent-light" />} />
               <PulseStat
-                label={nextReward ? (language === 'en' ? 'Next unlock' : 'Proximo desbloqueo') : (language === 'en' ? 'Status' : 'Estado')}
+                label={nextReward ? (language === 'en' ? 'Next unlock' : 'Próximo desbloqueo') : (language === 'en' ? 'Status' : 'Estado')}
                 value={nextReward ? (language === 'en' ? `Level ${nextReward.level}` : `Nivel ${nextReward.level}`) : (language === 'en' ? 'Complete' : 'Completo')}
                 icon={nextReward ? <LockKeyhole size={14} className="text-muted" /> : <Unlock size={14} className="text-success" />}
               />
@@ -195,7 +195,7 @@ export function GlobalProgress() {
             ) : (
               <div className="rounded-lg border border-success/30 bg-success/10 p-3">
                 <p className="text-xs font-semibold text-success">Nori sincronizado</p>
-                <p className="mt-1 text-xs leading-relaxed text-muted">Todas las recompensas de Pulso Nora estan activas.</p>
+                <p className="mt-1 text-xs leading-relaxed text-muted">Todas las recompensas de Pulso Nora están activas.</p>
               </div>
             )}
             {nextAchievement && (
@@ -247,7 +247,7 @@ export function GlobalProgress() {
       </section>
 
       <section className="rounded-xl border border-border bg-surface/50 p-3">
-        <p className="mb-2 text-xs uppercase tracking-eyebrow text-muted">{language === 'en' ? 'XP last 7 days' : 'XP ultimos 7 dias'}</p>
+        <p className="mb-2 text-xs uppercase tracking-eyebrow text-muted">{language === 'en' ? 'XP last 7 days' : 'XP últimos 7 días'}</p>
         <div className="h-40">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={xpByDay}>
@@ -339,7 +339,7 @@ export function GlobalProgress() {
                   ? (language === 'en' ? 'Show less' : 'Ver menos')
                   : language === 'en'
                     ? `Show ${hiddenCount} more achievement${hiddenCount !== 1 ? 's' : ''}`
-                    : `Ver ${hiddenCount} logro${hiddenCount !== 1 ? 's' : ''} mas`}
+                    : `Ver ${hiddenCount} logro${hiddenCount !== 1 ? 's' : ''} más`}
               </button>
             )}
           </>
@@ -421,7 +421,7 @@ function NoriEvolutionsDialog({
               <thead className="bg-surface text-caption uppercase tracking-eyebrow text-muted">
                 <tr>
                   <th className="w-24 px-3 py-2 font-medium">{language === 'en' ? 'Level' : 'Nivel'}</th>
-                  <th className="px-3 py-2 font-medium">{language === 'en' ? 'Evolution' : 'Evolucion'}</th>
+                  <th className="px-3 py-2 font-medium">{language === 'en' ? 'Evolution' : 'Evolución'}</th>
                   <th className="px-3 py-2 font-medium">{language === 'en' ? 'Unlock' : 'Desbloqueo'}</th>
                   <th className="w-28 px-3 py-2 font-medium">{language === 'en' ? 'Status' : 'Estado'}</th>
                 </tr>
@@ -459,7 +459,7 @@ function NoriEvolutionsDialog({
                             </p>
                             <p className="text-caption text-muted">
                               {row.unlocked
-                                ? (language === 'en' ? 'Evolution unlocked' : 'Evolucion desbloqueada')
+                                ? (language === 'en' ? 'Evolution unlocked' : 'Evolución desbloqueada')
                                 : (language === 'en' ? 'Next evolution hidden' : 'Siguiente evolucion oculta')}
                             </p>
                           </div>
@@ -467,7 +467,7 @@ function NoriEvolutionsDialog({
                       </td>
                       <td className="px-3 py-3 align-middle">
                         <p className="text-xs font-semibold text-white">{rewardCopy?.title ?? 'Pulso Nora'}</p>
-                        <p className="mt-0.5 line-clamp-2 text-caption text-muted">{rewardCopy?.description ?? (language === 'en' ? 'Nori evolution.' : 'Evolucion de Nori.')}</p>
+                        <p className="mt-0.5 line-clamp-2 text-caption text-muted">{rewardCopy?.description ?? (language === 'en' ? 'Nori evolution.' : 'Evolución de Nori.')}</p>
                       </td>
                       <td className="px-3 py-3 align-middle">
                         <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-caption font-semibold ${

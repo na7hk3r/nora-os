@@ -163,7 +163,7 @@ export function DbEncryptionSection() {
             <span>
               {language === 'en'
                 ? 'If you lose the passphrase, you lose access to your data. There is no recovery.'
-                : 'Si perdes la passphrase, perdes acceso a tus datos. No hay recuperacion.'}
+                : 'Si perdés la passphrase, perdés acceso a tus datos. No hay recuperación.'}
             </span>
           </div>
           <label className="block text-xs text-muted">

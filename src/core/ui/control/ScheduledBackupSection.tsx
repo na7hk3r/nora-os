@@ -80,7 +80,7 @@ export function ScheduledBackupSection() {
       const result = await bridge.setConfig(editableConfig)
       setStatus(result)
       setDraftConfig(result.config)
-      setFeedback({ kind: 'ok', text: language === 'en' ? 'Configuration saved.' : 'Configuracion guardada.' })
+      setFeedback({ kind: 'ok', text: language === 'en' ? 'Configuration saved.' : 'Configuración guardada.' })
     } catch (err) {
       setFeedback({ kind: 'err', text: (err as Error).message ?? t.messages.errors.generic })
     } finally {
@@ -113,7 +113,7 @@ export function ScheduledBackupSection() {
         kind: 'ok',
         text: language === 'en'
           ? 'Passphrase saved in session memory.'
-          : 'Passphrase guardada en memoria de la sesion.',
+          : 'Passphrase guardada en memoria de la sesión.',
       })
       await refresh()
     } finally {
@@ -193,7 +193,7 @@ export function ScheduledBackupSection() {
 
           <div className="space-y-1">
             <label className="text-xs text-muted">
-              {language === 'en' ? 'Keep last N copies' : 'Mantener ultimas N copias'}
+              {language === 'en' ? 'Keep last N copies' : 'Mantener últimas N copias'}
             </label>
             <input
               type="number"

@@ -19,8 +19,8 @@ const TASKS = {
     label: 'Coach diario',
     instruction:
       'Analiza los datos del usuario y responde en MAXIMO 3 oraciones: ' +
-      'que viene haciendo bien, que senal de alerta hay y un unico proximo paso accionable. ' +
-      'No uses listas, no uses markdown, no uses emojis. Si no entrena hace varios dias, motiva sin culpar.',
+      'qué viene haciendo bien, qué señal de alerta hay y un único próximo paso accionable. ' +
+      'No uses listas, no uses markdown, no uses emojis. Si no entrena hace varios días, motivá sin culpar.',
   },
   weeklyReview: {
     id: 'weekly-review',
@@ -34,7 +34,7 @@ const TASKS = {
     id: 'focus-nudge',
     label: 'Empujones de foco',
     instruction:
-      'En 1-2 oraciones, dale al usuario un empujon motivacional para arrancar una sesion de foco AHORA, ' +
+      'En 1-2 oraciones, dale al usuario un empujón motivacional para arrancar una sesión de foco AHORA, ' +
       'usando algun dato real reciente (foco semanal, tareas pendientes, racha). Sin emojis, sin markdown.',
   },
 } as const
@@ -53,11 +53,11 @@ function buildFreeChatInstruction(userMessage: string, snapshot: UserContextSnap
   const canUseActions = isRewardUnlocked('copilot-actions', snapshot.gamification.level)
   const actionLines = canUseActions
     ? [
-        'Si implicas una accion concreta, agrega AL FINAL una sola linea con uno de estos formatos exactos:',
+        'Si implicás una acción concreta, agregá AL FINAL una sola línea con uno de estos formatos exactos:',
         'ACCION: INICIAR_FOCO',
         'ACCION: CREAR_TAREA: <texto corto de la tarea>',
         'ACCION: REGISTRAR_HABITO: <id-o-nombre-del-habito>',
-        'Si no hay accion clara, no agregues la linea ACCION.',
+        'Si no hay acción clara, no agregues la línea ACCION.',
       ]
     : [
         `Pulso Nora todavia no desbloqueo acciones ejecutables. No agregues lineas ACCION; ese comportamiento se activa cuando ${PULSO_NORA_COMPANION_NAME} llega a nivel 6.`,
@@ -66,7 +66,7 @@ function buildFreeChatInstruction(userMessage: string, snapshot: UserContextSnap
   return [
     `El usuario pregunta: "${safe}".`,
     'Responde en MAXIMO 4 oraciones usando sus datos reales del contexto.',
-    `Tono: espanol rioplatense con vos, breve, como ${PULSO_NORA_SYSTEM_NAME}. Sin emojis, sin markdown, sin moralizar.`,
+    `Tono: español rioplatense con vos, breve, como ${PULSO_NORA_SYSTEM_NAME}. Sin emojis, sin markdown, sin moralizar.`,
     `Respeta los desbloqueos activos de ${PULSO_NORA_COMPANION_NAME}. No prometas capacidades que aun no esten activas.`,
     ...actionLines,
   ].join('\n')
@@ -89,7 +89,7 @@ function buildPrompt(kind: AISuggestionKind, snapshot: UserContextSnapshot): str
 
 function summarizeContext(snapshot: UserContextSnapshot): string {
   const parts: string[] = []
-  if (snapshot.fitness) parts.push(`fitness ${snapshot.fitness.daysWithDataLast7}/7 dias`)
+  if (snapshot.fitness) parts.push(`fitness ${snapshot.fitness.daysWithDataLast7}/7 días`)
   if (snapshot.work) parts.push(`work ${snapshot.work.activeCards} activas`)
   if (snapshot.planner) parts.push(`planner ${snapshot.planner.pendingToday} pendientes hoy`)
   parts.push(`Nori L${snapshot.gamification.level}`)
@@ -106,7 +106,7 @@ function assertTaskUnlocked(kind: AISuggestionKind, snapshot: UserContextSnapsho
 export const aiSuggestionsService = {
   async generate(kind: AISuggestionKind): Promise<AISuggestion> {
     const ready = await ollamaService.isReady()
-    if (!ready.enabled) throw new Error('Ollama esta deshabilitado en Configuracion')
+    if (!ready.enabled) throw new Error('Ollama está deshabilitado en Configuración')
     if (!ready.healthy) throw new Error(`Ollama no responde: ${ready.reason ?? 'sin detalle'}`)
     const snapshot = await aiContextService.snapshot()
     assertTaskUnlocked(kind, snapshot)
@@ -122,11 +122,11 @@ export const aiSuggestionsService = {
 
   /**
    * Conversacion libre con el copiloto. Usa el snapshot real del usuario y,
-   * desde nivel 6, permite que la IA sugiera una accion ejecutable al final.
+   * desde nivel 6, permite que la IA sugiera una acción ejecutable al final.
    */
   async freeChat(userMessage: string): Promise<AISuggestion> {
     const ready = await ollamaService.isReady()
-    if (!ready.enabled) throw new Error('Ollama esta deshabilitado en Configuracion')
+    if (!ready.enabled) throw new Error('Ollama está deshabilitado en Configuración')
     if (!ready.healthy) throw new Error(`Ollama no responde: ${ready.reason ?? 'sin detalle'}`)
     const snapshot = await aiContextService.snapshot()
     const context = aiContextService.asPromptContext(snapshot)

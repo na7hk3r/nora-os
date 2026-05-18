@@ -742,7 +742,7 @@ export function KanbanBoard() {
         </div>
         {tagFilter && (
           <p className="mt-1 text-caption text-muted">
-            Mostrando tareas con #{tagFilter}. El arrastre queda pausado mientras el filtro esta activo.
+            Mostrando tareas con #{tagFilter}. El arrastre queda pausado mientras el filtro está activo.
           </p>
         )}
       </div>

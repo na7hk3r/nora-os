@@ -45,7 +45,7 @@ export function FitnessDashboard() {
               Panel de control
             </h1>
             <p className="mt-1 text-sm text-muted">
-              Peso, entrenos, alimentacion y recuperacion en una sola vista.
+              Peso, entrenos, alimentación y recuperación en una sola vista.
             </p>
           </div>
         </div>
@@ -56,10 +56,10 @@ export function FitnessDashboard() {
       </header>
 
       <section className="workspace-auto-grid-sm gap-3">
-        <HeroStat label="Peso actual" value={headline.currentWeight ? `${headline.currentWeight} kg` : '--'} detail="Ultimo registro" icon={<TrendingUp size={16} />} />
-        <HeroStat label="Comidas" value={`${headline.mealPct}%`} detail="Cumplimiento 14 dias" icon={<Activity size={16} />} />
+        <HeroStat label="Peso actual" value={headline.currentWeight ? `${headline.currentWeight} kg` : '--'} detail="Último registro" icon={<TrendingUp size={16} />} />
+        <HeroStat label="Comidas" value={`${headline.mealPct}%`} detail="Cumplimiento 14 días" icon={<Activity size={16} />} />
         <HeroStat label="Entrenos" value={`${headline.workouts7d}/7`} detail={`Meta ${settings.workoutTargetPerWeek}/sem`} icon={<Dumbbell size={16} />} />
-        <HeroStat label="Sueno" value={headline.avgSleep > 0 ? `${headline.avgSleep}h` : '--'} detail="Promedio 7 dias" icon={<Activity size={16} />} />
+        <HeroStat label="Sueño" value={headline.avgSleep > 0 ? `${headline.avgSleep}h` : '--'} detail="Promedio 7 días" icon={<Activity size={16} />} />
       </section>
 
       <KpiCards settingsOverride={settings} density="full" />
@@ -67,22 +67,22 @@ export function FitnessDashboard() {
 
       <section className="workspace-auto-grid-lg gap-4">
         <div className="plugin-panel p-4">
-          <PanelHeader title="Tendencia de peso" subtitle="Ultimos registros con peso" />
+          <PanelHeader title="Tendencia de peso" subtitle="Últimos registros con peso" />
           <WeightChart />
         </div>
         <div className="plugin-panel p-4">
-          <PanelHeader title="Comidas 14 dias" subtitle="Barras por dia y objetivo" />
+          <PanelHeader title="Comidas 14 días" subtitle="Barras por día y objetivo" />
           <MealChart />
         </div>
       </section>
 
       <section className="workspace-auto-grid-lg gap-4">
         <div className="plugin-panel p-4">
-          <PanelHeader title="Recuperacion" subtitle="Horas de sueno registradas" />
+          <PanelHeader title="Recuperación" subtitle="Horas de sueño registradas" />
           <SleepChart />
         </div>
         <div className="plugin-panel p-4">
-          <PanelHeader title="Mediciones" subtitle={headline.lastMeasurement ? `Ultima: ${headline.lastMeasurement}` : 'Sin mediciones aun'} />
+          <PanelHeader title="Mediciones" subtitle={headline.lastMeasurement ? `Última: ${headline.lastMeasurement}` : 'Sin mediciones aún'} />
           <div className="workspace-auto-grid-sm min-h-[220px] gap-3">
             {[
               ['Peso', measurements.at(-1)?.weight, 'kg'],

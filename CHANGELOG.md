@@ -2,40 +2,51 @@
 
 ## Unreleased
 
+## [1.18.1] - 2026-05-18
+
+### Correcciones
+
+- Restaura diacríticos en la copia española de la app y la landing: `Español`,
+  `Contraseña`, `Configuración`, `Sueño`, `Categorías`, `acción`, `sesión` y
+  otros textos visibles vuelven a renderizarse con `ñ` y tildes.
+- Agrega cobertura i18n para evitar regresiones en etiquetas españolas críticas.
+- Regenera el build renderer para que el parche publicado incluya los textos
+  corregidos.
+
 ## [1.18.0] - 2026-05-18
 
-### Workspace dual, idioma y navegacion
+### Workspace dual, idioma y navegación
 
 - Shell suma una vista dual persistente y redimensionable: se puede abrir una
   ruta al lado, elegir panel activo, cerrar el modo dual y conservar el layout
   localmente en `core:workspaceLayout:v1`.
 - Command Palette permite abrir el resultado seleccionado en el panel derecho
-  con `Ctrl/Cmd + /`; en teclados ES/LatAm tambien funciona
+  con `Ctrl/Cmd + /`; en teclados ES/LatAm también funciona
   `Ctrl/Cmd + Shift + 7`.
 - La app incorpora base i18n ES/EN con selector de idioma en login y Control
   Center, guardado localmente en `core:i18n:language`.
-- Widgets, paginas, nav items y manifests de plugins aceptan claves opcionales
+- Widgets, páginas, nav items y manifests de plugins aceptan claves opcionales
   `titleKey`, `labelKey`, `nameKey` y `descriptionKey` para copy localizado.
 - Electron mantiene rutas internas dentro de Nora OS cuando se abren con click
-  modificado o activacion por teclado.
+  modificado o activación por teclado.
 
 ### Planner y Work Library
 
-- Planner se redisenia con vistas mensual/semanal, selector mobile dia/calendario,
-  drag de misiones al calendario, filtros por estado/categoria/tag y tags
+- Planner se rediseña con vistas mensual/semanal, selector mobile día/calendario,
+  drag de misiones al calendario, filtros por estado/categoría/tag y tags
   globales conectados a tareas.
 - Notas y enlaces pasan a una Library Workspace compartida entre rutas core y
   Work, con tabs, contadores y superficie preparada para la vista dual.
-- El editor de notas suma columna de documento mas estable, resizer de lista,
-  preview Markdown/GFM alineado con edicion y controles compactos.
-- Enlaces normaliza URLs, genera titulo fallback, filtra por categorias en chips
-  y mejora busqueda por host/path.
+- El editor de notas suma columna de documento más estable, resizer de lista,
+  preview Markdown/GFM alineado con edición y controles compactos.
+- Enlaces normaliza URLs, genera título fallback, filtra por categorías en chips
+  y mejora búsqueda por host/path.
 
 ### Calidad operativa
 
-- Auto-update oculta errores tecnicos del feed y muestra fallback manual al sitio
+- Auto-update oculta errores técnicos del feed y muestra fallback manual al sitio
   oficial cuando falla la consulta.
-- Landing, README, shortcuts y documentacion de release quedan sincronizados con
+- Landing, README, shortcuts y documentación de release quedan sincronizados con
   `v1.18.0`.
 - El kit de identidad visual se normaliza bajo `visual-id/`.
 
@@ -191,7 +202,7 @@ Patch de calidad que consolida la experiencia inicial de Nora OS, reduce friccio
 
 - Onboarding Fitness: si el usuario elige mantener peso, ya no se solicita peso objetivo y el flujo puede avanzar sin bloquearse por datos innecesarios.
 - Navegacion: se agrega un boton flotante para volver atras, visible solo cuando existe historial disponible para evitar bloqueos de clic o ruido visual.
-- Auth: login y registro incorporan boton de ojo para mostrar u ocultar la contrasena.
+- Auth: login y registro incorporan botón de ojo para mostrar u ocultar la contraseña.
 - Ollama: la habilitacion inicial facilita la descarga/configuracion de modelos para usuarios no tecnicos, evitando depender de abrir una terminal manualmente.
 - Configuracion: los iconos de modulos activos, widgets y tarjetas de marca dejan de usar fondo blanco para conservar contraste correcto en todos los temas.
 

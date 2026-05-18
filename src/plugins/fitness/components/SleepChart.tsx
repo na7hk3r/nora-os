@@ -17,7 +17,7 @@ export function SleepChart() {
   if (data.length === 0) {
     return (
       <div className="flex h-[220px] items-center justify-center rounded-xl border border-dashed border-border bg-surface/40 text-sm text-muted">
-        Sin datos de sueno aun.
+        Sin datos de sueño aún.
       </div>
     )
   }
@@ -35,7 +35,7 @@ export function SleepChart() {
         <Line
           type="monotone"
           dataKey="sleep"
-          name="Sueno"
+          name="Sueño"
           stroke={CHART_STYLE.line}
           strokeWidth={3}
           dot={{ r: 3, strokeWidth: 2 }}

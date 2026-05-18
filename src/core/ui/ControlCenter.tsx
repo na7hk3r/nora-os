@@ -332,7 +332,7 @@ export function ControlCenter() {
     const labels: string[] = []
     if (!sameJson(profileDraft, profile)) labels.push('Cuenta')
     if (!sameJson(settingsDraft, settings)) labels.push('Apariencia')
-    if (!samePluginIds(draftActivePluginIds, activePluginIds)) labels.push('Modulos')
+    if (!samePluginIds(draftActivePluginIds, activePluginIds)) labels.push('Módulos')
     if (!sameJson(fitnessSettings, savedFitnessSettings)) labels.push('Fitness')
     if (!sameJson(workSettings, savedWorkSettings)) labels.push('Work')
     if (!sameJson(financeSettings, savedFinanceSettings)) labels.push('Finanzas')
@@ -355,7 +355,7 @@ export function ControlCenter() {
   const hasDirtySections = dirtyLabels.length > 0
   const profileDirty = dirtyLabels.includes('Cuenta')
   const settingsDirty = dirtyLabels.includes('Apariencia')
-  const modulesDirty = dirtyLabels.includes('Modulos')
+  const modulesDirty = dirtyLabels.includes('Módulos')
   const fitnessDirty = dirtyLabels.includes('Fitness')
   const workDirty = dirtyLabels.includes('Work')
   const financeDirty = dirtyLabels.includes('Finanzas')
@@ -715,7 +715,7 @@ export function ControlCenter() {
           title={language === 'en' ? 'Module settings' : 'Ajustes de modulos'}
           description={language === 'en'
             ? 'Each active module saves its own changes.'
-            : 'Cada modulo activo guarda sus propios cambios.'}
+            : 'Cada módulo activo guarda sus propios cambios.'}
           icon={<Wrench size={18} aria-hidden />}
           defaultOpen={false}
           summary={[isFitnessActive && 'Fitness', isWorkActive && 'Work', isFinanceActive && (language === 'en' ? 'Finance' : 'Finanzas')].filter(Boolean).join(' - ')}
@@ -745,7 +745,7 @@ export function ControlCenter() {
               </label>
 
               <label className="space-y-1">
-                <span className="text-xs text-muted">{language === 'en' ? 'Sleep target (h)' : 'Sueno objetivo (h)'}</span>
+                <span className="text-xs text-muted">{language === 'en' ? 'Sleep target (h)' : 'Sueño objetivo (h)'}</span>
                 <input
                   type="number"
                   min={4}
@@ -1141,7 +1141,7 @@ export function ControlCenter() {
       {/* Servicios y mantenimiento — agrupado y plegado por defecto */}
       <CollapsibleSection
         id="organization"
-        title={language === 'en' ? 'Organization' : 'Organizacion'}
+        title={language === 'en' ? 'Organization' : 'Organización'}
         description={language === 'en'
           ? 'Shared tags for notes, Work tasks, and Planner.'
           : 'Tags compartidos para notas, tareas Work y Planner.'}

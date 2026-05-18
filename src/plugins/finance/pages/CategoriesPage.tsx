@@ -76,7 +76,7 @@ export function CategoriesPage() {
   return (
     <div className="space-y-4">
       <header className="rounded-2xl border border-border bg-surface-light/90 p-4 shadow-xl">
-        <h1 className="text-sm font-semibold text-white">Categorias</h1>
+        <h1 className="text-sm font-semibold text-white">Categorías</h1>
         <div className="mt-3 grid grid-cols-1 gap-2 md:grid-cols-[1fr_auto_auto_auto_auto]">
           <input
             value={name}

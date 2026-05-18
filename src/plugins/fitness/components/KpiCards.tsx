@@ -64,7 +64,7 @@ function KpiCardsContent({ settings, density }: { settings: FitnessPluginSetting
       tone: workouts7d >= settings.workoutTargetPerWeek ? 'text-emerald-300' : 'text-warning',
     },
     {
-      label: 'Sueno promedio',
+      label: 'Sueño promedio',
       value: avgSleep > 0 ? `${avgSleep}h` : '--',
       hint: `Objetivo ${settings.sleepTargetHours}h por noche`,
       icon: Moon,

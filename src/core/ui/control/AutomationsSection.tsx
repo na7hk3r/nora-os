@@ -20,7 +20,7 @@ const SIMPLE_ACTIONS: SimpleActionType[] = ['notify', 'add_xp', 'emit_event']
 const RECIPES: AutomationRecipe[] = [
   {
     id: 'focus-completed',
-    label: 'Cuando completo una sesion de foco',
+    label: 'Cuando completo una sesión de foco',
     description: 'Ideal para celebrar avances o sumar XP extra.',
     triggerEvent: 'WORK_FOCUS_COMPLETED',
   },
@@ -382,7 +382,7 @@ export function AutomationsSection() {
               <datalist id="known-events">{KNOWN_EVENTS.map((ev) => <option key={ev} value={ev} />)}</datalist>
             </label>
             <label className="space-y-1">
-              <span className="text-xs text-muted">{language === 'en' ? 'Action' : 'Accion'}</span>
+              <span className="text-xs text-muted">{language === 'en' ? 'Action' : 'Acción'}</span>
               <select
                 value={actionType}
                 onChange={(e) => {

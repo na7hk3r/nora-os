@@ -126,9 +126,9 @@ export function getAchievementProgress(id: string, stats: GamificationStats): Ac
     case 'first-entry':
       return toProgress(stats.totalEntries, 1, 'registros')
     case 'week-streak':
-      return toProgress(stats.dailyStreak, 7, 'dias de racha')
+      return toProgress(stats.dailyStreak, 7, 'días de racha')
     case 'month-streak':
-      return toProgress(stats.dailyStreak, 30, 'dias de racha')
+      return toProgress(stats.dailyStreak, 30, 'días de racha')
     case 'centurion':
       return toProgress(stats.totalPoints, 100, 'puntos')
     case 'workout-10':
@@ -140,7 +140,7 @@ export function getAchievementProgress(id: string, stats: GamificationStats): Ac
     case 'note-taker':
       return toProgress(stats.notesCreated, 10, 'notas')
     case 'consistency-3':
-      return toProgress(stats.dailyStreak, 3, 'dias de racha')
+      return toProgress(stats.dailyStreak, 3, 'días de racha')
     case 'points-500':
       return toProgress(stats.totalPoints, 500, 'puntos')
     case 'points-1000':

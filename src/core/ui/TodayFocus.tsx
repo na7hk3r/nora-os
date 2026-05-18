@@ -283,7 +283,7 @@ export function TodayFocus() {
           {hasFocusTasks && (
             <div className="mt-4">
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <p className="text-caption uppercase tracking-eyebrow text-muted">Misiones de accion</p>
+                <p className="text-caption uppercase tracking-eyebrow text-muted">Misiones de acción</p>
                 <div className="flex min-w-0 flex-wrap items-center justify-end gap-1.5">
                   {overdueCount > 0 && (
                     <StatusBadge tone="danger" icon={<CircleAlert size={11} />}>
@@ -433,13 +433,13 @@ function CollapsedFocus({
         <div className="min-w-0 flex-1">
           <p className="flex min-w-0 items-center gap-1.5 text-caption uppercase tracking-wider text-accent-light">
             <Flame size={12} className="shrink-0" />
-            Siguiente mejor accion
+            Siguiente mejor acción
           </p>
           <p className="mt-1 line-clamp-2 break-words text-sm font-semibold text-white">
             {topTask?.title ?? (language === 'en' ? 'Nothing urgent for now' : 'Nada urgente por ahora')}
           </p>
           <p className="mt-0.5 break-words text-caption text-muted">
-            {topTask ? `${sourceLabel(topTask.source)} - ${DIFFICULTY_LABEL[topTask.difficulty]}` : 'Tu foco esta limpio'}
+            {topTask ? `${sourceLabel(topTask.source)} - ${DIFFICULTY_LABEL[topTask.difficulty]}` : 'Tu foco está limpio'}
           </p>
         </div>
         {topTask && <ArrowRight size={15} className="mt-1 shrink-0 text-accent-light" />}

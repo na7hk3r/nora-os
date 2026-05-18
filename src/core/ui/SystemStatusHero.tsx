@@ -111,7 +111,7 @@ export function SystemStatusHero() {
             </span>
             {streak >= 3 && (
               <span className="inline-flex items-center gap-1.5 rounded-full border border-warning/35 bg-warning/10 px-3 py-1 text-xs font-semibold text-warning">
-                🔥 {streak} dias en racha - no la rompas
+                🔥 {streak} días en racha - no la rompas
               </span>
             )}
           </div>

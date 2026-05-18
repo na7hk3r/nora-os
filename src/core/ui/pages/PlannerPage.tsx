@@ -49,7 +49,7 @@ const COMPLEXITY_XP: Record<PlannerComplexity, number> = {
 }
 
 const CATEGORY_LABELS: Record<PlannerCategory, string> = {
-  domestica: 'Domestica',
+  domestica: 'Doméstica',
   recordatorio: 'Recordatorio',
   trabajo: 'Trabajo',
   personal: 'Personal',

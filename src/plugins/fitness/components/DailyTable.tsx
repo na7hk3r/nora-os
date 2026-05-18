@@ -20,7 +20,7 @@ export function DailyTable() {
             <th className="px-3 py-3">Comidas</th>
             <th className="px-3 py-3">Entreno</th>
             {settings.smokingCessationEnabled && <th className="px-3 py-3">Cig.</th>}
-            <th className="px-3 py-3">Sueno</th>
+            <th className="px-3 py-3">Sueño</th>
           </tr>
         </thead>
         <tbody>

@@ -112,7 +112,7 @@ export function DailyEntry() {
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h3 className="text-lg font-semibold text-white">Registro diario</h3>
-          <p className="text-xs text-muted">Comidas, entreno, sueno, peso y notas.</p>
+          <p className="text-xs text-muted">Comidas, entreno, sueño, peso y notas.</p>
         </div>
         <div className="flex items-center gap-2">
           <IconButton label="Dia anterior" onClick={() => setCurrentDate((d) => subDays(d, 1))}>
@@ -186,7 +186,7 @@ export function DailyEntry() {
             />
           )}
           <NumberField
-            label="Sueno (h)"
+            label="Sueño (h)"
             value={form.sleep}
             min={0}
             step={0.5}

@@ -302,7 +302,7 @@ export function RecentActivityFeed({ compact = false, maxItems }: { compact?: bo
               : 'border-border bg-surface text-muted hover:text-white'
           }`}
         >
-          {timeFilter === '24h' ? 'Ultimas 24h' : 'Todo el historial'}
+          {timeFilter === '24h' ? 'Últimas 24h' : 'Todo el historial'}
         </button>
       </div>
       )}

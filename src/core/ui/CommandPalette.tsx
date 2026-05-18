@@ -23,7 +23,7 @@ export interface CommandResult {
 
 const NAV_RESULTS: CommandResult[] = [
   { id: 'nav:dashboard', kind: 'nav', title: 'Dashboard', titleKey: 'routes.core-dashboard', ctaPath: '/' },
-  { id: 'nav:control', kind: 'nav', title: 'Configuracion', titleKey: 'routes.core-control', ctaPath: '/control' },
+  { id: 'nav:control', kind: 'nav', title: 'Configuración', titleKey: 'routes.core-control', ctaPath: '/control' },
   { id: 'nav:notes', kind: 'nav', title: 'Notas', titleKey: 'routes.core-notes', ctaPath: '/notes' },
   { id: 'nav:links', kind: 'nav', title: 'Enlaces', titleKey: 'routes.core-links', ctaPath: '/links' },
   { id: 'nav:planner', kind: 'nav', title: 'Planner', titleKey: 'routes.core-planner', ctaPath: '/planner' },

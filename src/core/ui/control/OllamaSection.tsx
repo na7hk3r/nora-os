@@ -12,7 +12,7 @@ const RECOMMENDED_MODELS = [
   {
     name: 'mistral:7b',
     label: 'Mas capaz',
-    detail: 'Mejor calidad, requiere mas recursos.',
+    detail: 'Mejor calidad, requiere más recursos.',
   },
 ]
 
@@ -101,7 +101,7 @@ export function OllamaSection() {
     try {
       await ollamaService.saveSettings(settings)
       setSavedSettings(settings)
-      setStatus(language === 'en' ? 'Settings saved' : 'Configuracion guardada')
+      setStatus(language === 'en' ? 'Settings saved' : 'Configuración guardada')
     } finally {
       setBusy(false)
     }
@@ -139,7 +139,7 @@ export function OllamaSection() {
           <div>
             <p className="text-sm font-medium">{language === 'en' ? 'Enable Ollama' : 'Habilitar Ollama'}</p>
             <p className="text-xs text-muted">
-              {language === 'en' ? 'When it is off, no network calls are made.' : 'Si esta apagado no se hace ninguna llamada de red'}
+              {language === 'en' ? 'When it is off, no network calls are made.' : 'Si está apagado no se hace ninguna llamada de red'}
             </p>
           </div>
           <input
@@ -155,7 +155,7 @@ export function OllamaSection() {
             <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <p className="text-sm font-medium text-white">
-                  {language === 'en' ? 'Initial model setup' : 'Configuracion inicial del modelo'}
+                  {language === 'en' ? 'Initial model setup' : 'Configuración inicial del modelo'}
                 </p>
                 <p className="mt-0.5 text-xs text-muted">
                   {language === 'en'

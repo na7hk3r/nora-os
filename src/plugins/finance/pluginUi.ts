@@ -28,7 +28,7 @@ export function buildFinanceUi(settings: FinancePluginSettings): FinancePluginUi
   const pages: PageDefinition[] = [
     { id: 'finance-dashboard', pluginId: 'finance', path: '/finance', title: 'Finanzas', icon: 'Landmark', component: FinanceDashboard },
     { id: 'finance-tx', pluginId: 'finance', path: '/finance/transactions', title: 'Movimientos', icon: 'ReceiptText', component: TransactionsPage },
-    { id: 'finance-cat', pluginId: 'finance', path: '/finance/categories', title: 'Categorias', icon: 'BadgeDollarSign', component: CategoriesPage },
+    { id: 'finance-cat', pluginId: 'finance', path: '/finance/categories', title: 'Categorías', icon: 'BadgeDollarSign', component: CategoriesPage },
   ]
 
   const navItems: NavItemDefinition[] = [
@@ -46,7 +46,7 @@ export function buildFinanceUi(settings: FinancePluginSettings): FinancePluginUi
     navItems.push({ id: 'finance-rec-nav', pluginId: 'finance', label: 'Recurrentes', icon: 'CalendarSync', path: '/finance/recurring', order: 33, parentId: 'finance-nav' })
   }
 
-  navItems.push({ id: 'finance-cat-nav', pluginId: 'finance', label: 'Categorias', icon: 'BadgeDollarSign', path: '/finance/categories', order: 34, parentId: 'finance-nav' })
+  navItems.push({ id: 'finance-cat-nav', pluginId: 'finance', label: 'Categorías', icon: 'BadgeDollarSign', path: '/finance/categories', order: 34, parentId: 'finance-nav' })
 
   if (settings.insightsEnabled) {
     pages.push({ id: 'finance-ins', pluginId: 'finance', path: '/finance/insights', title: 'Insights', icon: 'ChartNoAxesCombined', component: InsightsPage })

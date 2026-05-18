@@ -25,10 +25,10 @@ export function MonthlySummary() {
   const monthName = formatDate(now, { month: 'long', year: 'numeric' })
 
   const stats = [
-    { label: 'Dias registrados', value: String(totalDays), icon: CalendarCheck2, tone: 'text-accent-light' },
+    { label: 'Días registrados', value: String(totalDays), icon: CalendarCheck2, tone: 'text-accent-light' },
     { label: 'Comidas', value: `${mealPct}%`, icon: Utensils, tone: 'text-emerald-300' },
     { label: 'Entrenos', value: String(workouts), icon: Dumbbell, tone: 'text-warning' },
-    { label: 'Sueno promedio', value: avgSleep > 0 ? `${avgSleep.toFixed(1)}h` : '--', icon: Moon, tone: 'text-sky-300' },
+    { label: 'Sueño promedio', value: avgSleep > 0 ? `${avgSleep.toFixed(1)}h` : '--', icon: Moon, tone: 'text-sky-300' },
     ...(settings.smokingCessationEnabled
       ? [{ label: 'Cigarrillos prom.', value: avgCigs.toFixed(1), icon: BarChart3, tone: 'text-orange-300' }]
       : []),

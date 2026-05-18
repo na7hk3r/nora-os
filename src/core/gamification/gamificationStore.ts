@@ -139,7 +139,7 @@ const DEFAULT_ACHIEVEMENTS: Achievement[] = [
   {
     id: 'consistency-3',
     title: 'Consistencia inicial',
-    description: 'Mantiene una racha de 3 dias',
+    description: 'Mantiene una racha de 3 días',
     icon: 'Flame',
     condition: (s) => s.dailyStreak >= 3,
   },
@@ -160,7 +160,7 @@ const DEFAULT_ACHIEVEMENTS: Achievement[] = [
   {
     id: 'early-bird',
     title: 'Early bird',
-    description: 'Registra una accion antes de las 9:00',
+    description: 'Registra una acción antes de las 9:00',
     icon: 'Sunrise',
     condition: (s) => s.actionsBeforeNine >= 1,
   },
@@ -174,7 +174,7 @@ const DAILY_MISSION_TEMPLATES: DailyMissionTemplate[] = [
   {
     id: 'fitness-entry',
     title: 'Registra fitness hoy',
-    description: 'Registra tu entrada de fitness del dia',
+    description: 'Registra tu entrada de fitness del día',
     xp: 5,
     triggerEvents: [FITNESS_EVENTS.DAILY_ENTRY_SAVED],
     requiredPlugins: ['fitness'],
@@ -182,22 +182,22 @@ const DAILY_MISSION_TEMPLATES: DailyMissionTemplate[] = [
   {
     id: 'work-task',
     title: 'Completa 1 tarea de trabajo',
-    description: 'Mueve una tarea a hecho para cerrar una mision',
+    description: 'Mueve una tarea a hecho para cerrar una misión',
     xp: 10,
     triggerEvents: [WORK_EVENTS.TASK_COMPLETED],
     requiredPlugins: ['work'],
   },
   {
     id: 'focus-start',
-    title: 'Inicia una sesion de foco',
-    description: 'Activa al menos una sesion de foco hoy',
+    title: 'Inicia una sesión de foco',
+    description: 'Activa al menos una sesión de foco hoy',
     xp: 5,
     triggerEvents: [WORK_EVENTS.FOCUS_STARTED],
     requiredPlugins: ['work'],
   },
   {
     id: 'core-planner-task',
-    title: 'Completa una mision del planner',
+    title: 'Completa una misión del planner',
     description: 'Cierra al menos una tarea del planner core',
     xp: 8,
     triggerEvents: [CORE_EVENTS.PLANNER_TASK_COMPLETED],
@@ -452,7 +452,7 @@ export const useGamificationStore = create<GamificationState>((set, get) => ({
     })
 
     if (n > prev && n >= 5 && n % 5 === 0) {
-      get().addPoints(20, `Bonus de racha x${n} dias`)
+      get().addPoints(20, `Bonus de racha x${n} días`)
     }
   },
 
@@ -562,7 +562,7 @@ export const useGamificationStore = create<GamificationState>((set, get) => ({
     persistState(getPersistPayload(next))
 
     if (nextStreak > previous.streak && nextStreak >= 5 && nextStreak % 5 === 0) {
-      get().addPoints(20, `Bonus de racha x${nextStreak} dias`)
+      get().addPoints(20, `Bonus de racha x${nextStreak} días`)
     }
   },
 
@@ -603,7 +603,7 @@ export const useGamificationStore = create<GamificationState>((set, get) => ({
       get().addPoints(15, 'Todas las misiones del dia completadas')
 
       if (latest.streak >= 7) {
-        get().addPoints(5, `Bonus de racha x${latest.streak} dias`)
+        get().addPoints(5, `Bonus de racha x${latest.streak} días`)
       }
     }
 

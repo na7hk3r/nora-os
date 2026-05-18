@@ -13,7 +13,7 @@ describe('FeedbackPage', () => {
 
     render(<FeedbackPage feedbackEndpoint="https://forms.example.com/feedback" />)
 
-    expect(screen.getByRole('heading', { name: /contanos que tal va nora os/i })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /contanos qué tal va nora os/i })).toBeInTheDocument()
     expect(screen.getByLabelText(/tu mensaje/i)).toBeRequired()
 
     const form = screen.getByRole('form', { name: /formulario de feedback beta/i })
@@ -33,7 +33,7 @@ describe('FeedbackPage', () => {
       fireEvent.submit(screen.getByRole('form', { name: /formulario de feedback beta/i }))
     })
 
-    expect(screen.getByText(/todavia no esta configurado/i)).toBeInTheDocument()
+    expect(screen.getByText(/todavía no está configurado/i)).toBeInTheDocument()
     expect(screen.queryByText(/gracias, feedback enviado/i)).not.toBeInTheDocument()
   })
 

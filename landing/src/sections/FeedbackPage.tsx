@@ -63,7 +63,7 @@ export function FeedbackPage({ feedbackEndpoint = getFeedbackEndpoint() }: Feedb
     setError('')
     if (!endpoint) {
       event.preventDefault()
-      setError('El formulario temporal todavia no esta configurado.')
+      setError('El formulario temporal todavía no está configurado.')
       return
     }
     setStatus('sending')
@@ -97,7 +97,7 @@ export function FeedbackPage({ feedbackEndpoint = getFeedbackEndpoint() }: Feedb
               <div className="min-w-0">
                 <p className="text-xs uppercase tracking-[0.22em] text-muted">Beta privada</p>
                 <h1 className="mt-1 text-2xl font-semibold text-foreground sm:text-3xl">
-                  Contanos que tal va Nora OS
+                  Contanos qué tal va Nora OS
                 </h1>
               </div>
             </div>
@@ -224,7 +224,7 @@ export function FeedbackPage({ feedbackEndpoint = getFeedbackEndpoint() }: Feedb
                 <p className="max-w-md text-xs leading-relaxed text-muted">
                   {status === 'sending'
                     ? 'Enviando feedback...'
-                    : 'El envio ocurre dentro de esta pagina. No se abre GitHub ni tu cliente de correo.'}
+                    : 'El envío ocurre dentro de esta página. No se abre GitHub ni tu cliente de correo.'}
                 </p>
                 <Button type="submit" disabled={status === 'sending'} rightIcon={<Send size={16} />}>
                   {status === 'sending' ? 'Enviando...' : 'Enviar feedback'}

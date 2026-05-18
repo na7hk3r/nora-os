@@ -66,14 +66,14 @@ function buildPrompt(contextText: string, level: number): string {
     contextText,
     '',
     toneLine,
-    'TAREA: Devolveme UNA sola linea (maximo 14 palabras) con el proximo paso accionable mas util para hoy.',
-    'Tono: espanol rioplatense con vos. Sin emojis, sin markdown, sin signos de exclamacion, sin moralizar.',
-    'Si no hay datos relevantes, sugeri registrar la primera accion del dia.',
+    'TAREA: Devolveme UNA sola línea (máximo 14 palabras) con el próximo paso accionable más útil para hoy.',
+    'Tono: español rioplatense con vos. Sin emojis, sin markdown, sin signos de exclamación, sin moralizar.',
+    'Si no hay datos relevantes, sugerí registrar la primera acción del día.',
   ].join('\n')
 }
 
 function fallbackLine(): string {
-  return 'Empeza registrando la primera accion del dia para anclar el ritmo.'
+  return 'Empezá registrando la primera acción del día para anclar el ritmo.'
 }
 
 function trimToOneLine(raw: string): string {

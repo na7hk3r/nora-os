@@ -15,6 +15,8 @@ function I18nProbe() {
     <div>
       <output data-testid="language">{language}</output>
       <output data-testid="label">{t.language.label}</output>
+      <output data-testid="spanish-name">{t.language.es}</output>
+      <output data-testid="password-label">{t.auth.password}</output>
       <output data-testid="date">{formatDate('2026-05-18', { month: 'long' })}</output>
       <output data-testid="number">{formatNumber(1234.5)}</output>
       <LanguageSelector />
@@ -58,6 +60,8 @@ describe('i18n', () => {
 
     expect(screen.getByTestId('language')).toHaveTextContent('es')
     expect(screen.getByTestId('label')).toHaveTextContent('Idioma')
+    expect(screen.getByTestId('spanish-name')).toHaveTextContent('Español')
+    expect(screen.getByTestId('password-label')).toHaveTextContent('Contraseña')
     await waitFor(() => {
       expect(document.documentElement.lang).toBe('es')
       expect(window.localStorage.getItem(I18N_STORAGE_KEY)).toBe('es')

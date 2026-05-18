@@ -27,7 +27,7 @@ const RULE_META: Record<RuleId, { title: string; impact: string; action: string 
   R1: {
     title: 'Logros vinculados a modulos apagados',
     impact: 'Puede aparecer progreso que ya no corresponde al flujo activo.',
-    action: 'Revisa si queres reactivar el modulo o dejar de ver ese logro.',
+    action: 'Revisá si querés reactivar el módulo o dejar de ver ese logro.',
   },
   R2: {
     title: 'Misiones con dependencias faltantes',
@@ -37,7 +37,7 @@ const RULE_META: Record<RuleId, { title: string; impact: string; action: string 
   R3: {
     title: 'Eventos sin origen claro',
     impact: 'Una automatizacion o aviso podria no dispararse como esperas.',
-    action: 'Revisa el modulo relacionado o vuelve a escanear despues de abrirlo.',
+    action: 'Revisá el módulo relacionado o vuelve a escanear después de abrirlo.',
   },
   R4: {
     title: 'Avisos de modulos inactivos',
@@ -47,27 +47,27 @@ const RULE_META: Record<RuleId, { title: string; impact: string; action: string 
   R5: {
     title: 'Pantallas o widgets invisibles',
     impact: 'Hay elementos registrados que no deberian estar disponibles.',
-    action: 'Revisa el modulo y guarda su estado actual.',
+    action: 'Revisá el módulo y guardá su estado actual.',
   },
   R6: {
     title: 'Iconos poco coherentes',
-    impact: 'La navegacion puede ser confusa si un modulo usa iconos que no lo representan.',
+    impact: 'La navegación puede ser confusa si un módulo usa iconos que no lo representan.',
     action: 'Aplica la sugerencia segura cuando este disponible.',
   },
   R7: {
     title: 'Conexiones entre modulos pendientes',
-    impact: 'Un modulo podria estar esperando datos de otro que no esta activo.',
-    action: 'Activa el modulo requerido o ignora esta revision si es intencional.',
+    impact: 'Un módulo podría estar esperando datos de otro que no está activo.',
+    action: 'Activá el módulo requerido o ignorá esta revisión si es intencional.',
   },
   R8: {
     title: 'Accesos rapidos inconsistentes',
-    impact: 'Un acceso directo podria llevar a una zona que no esta disponible.',
+    impact: 'Un acceso directo podría llevar a una zona que no está disponible.',
     action: 'Ajusta los modulos activos o ignora el acceso si no lo usas.',
   },
   R9: {
     title: 'Onboarding pendiente',
-    impact: 'Un modulo puede estar incompleto porque no termino su configuracion inicial.',
-    action: 'Abre el modulo o revisa su configuracion.',
+    impact: 'Un módulo puede estar incompleto porque no terminó su configuración inicial.',
+    action: 'Abrí el módulo o revisá su configuración.',
   },
   R10: {
     title: 'Datos residuales',
@@ -311,7 +311,7 @@ export function AuditPanel() {
                           <p className="font-semibold text-white">{rule.title}</p>
                           <p className="mt-1 text-xs opacity-90">{rule.impact}</p>
                           <p className="mt-1 text-xs opacity-90">
-                            {language === 'en' ? 'Recommended action' : 'Accion recomendada'}: {rule.action}
+                            {language === 'en' ? 'Recommended action' : 'Acción recomendada'}: {rule.action}
                           </p>
                           <details className="mt-2 text-xs opacity-80">
                             <summary className="cursor-pointer text-muted hover:text-white">
@@ -344,9 +344,9 @@ export function AuditPanel() {
                         <button
                           onClick={() => dismissFinding(f.id)}
                           className="text-xs text-muted underline hover:text-white"
-                          title={language === 'en' ? 'Hide from this review' : 'Ocultar de esta revision'}
+                          title={language === 'en' ? 'Hide from this review' : 'Ocultar de esta revisión'}
                         >
-                          {language === 'en' ? 'Ignore this review' : 'Ignorar esta revision'}
+                          {language === 'en' ? 'Ignore this review' : 'Ignorar esta revisión'}
                         </button>
                       </div>
                     </li>
