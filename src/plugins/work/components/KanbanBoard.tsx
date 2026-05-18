@@ -30,6 +30,7 @@ import { eventBus } from '@core/events/EventBus'
 import { WORK_EVENTS } from '../events'
 import { useToast } from '@core/ui/components/ToastProvider'
 import { messages } from '@core/ui/messages'
+import { useI18n } from '@core/i18n'
 import { interruptWorkFocusSession, startWorkFocusSession, completeWorkFocusSession, completeWorkTask, stopWorkTask } from '../focus'
 import { isDoneColumn as isDoneColumnUtil } from '../utils/columnUtils'
 import {
@@ -75,14 +76,14 @@ function ColumnDropZone({ id, className, children }: ColumnDropZoneProps) {
   )
 }
 
-function formatArchiveMonth(timestamp: number | null | undefined): string {
+function formatArchiveMonth(timestamp: number | null | undefined, locale: string): string {
   if (!timestamp) return 'Sin fecha'
-  return new Date(timestamp).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' })
+  return new Date(timestamp).toLocaleDateString(locale, { month: 'long', year: 'numeric' })
 }
 
-function formatArchiveDate(timestamp: number | null | undefined): string {
+function formatArchiveDate(timestamp: number | null | undefined, locale: string): string {
   if (!timestamp) return 'Sin fecha'
-  return new Date(timestamp).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })
+  return new Date(timestamp).toLocaleDateString(locale, { day: '2-digit', month: 'short', year: 'numeric' })
 }
 
 function formatFocusDuration(durationMs: number): string {
@@ -112,6 +113,7 @@ function colorForTagName(name: string): string {
 export function KanbanBoard() {
   const { columns, cards, focusSessions, addCard, reorderCards, deleteCard, currentFocusSession, setColumns, setCards } = useWorkStore()
   const { toast } = useToast()
+  const { locale, compareText } = useI18n()
   const [newCardTitle, setNewCardTitle] = useState<Record<string, string>>({})
   const [activeCard, setActiveCard] = useState<Card | null>(null)
   const [dragCards, setDragCards] = useState<Card[] | null>(null)
@@ -139,8 +141,8 @@ export function KanbanBoard() {
         byName.set(key, { name: current?.name ?? clean, count: (current?.count ?? 0) + 1 })
       }
     }
-    return [...byName.values()].sort((a, b) => a.name.localeCompare(b.name, 'es'))
-  }, [cards])
+    return [...byName.values()].sort((a, b) => compareText(a.name, b.name))
+  }, [cards, compareText])
   const filteredDisplayCards = tagFilter
     ? displayCards.filter((card) => card.labels.some((label) => label.toLowerCase() === tagFilter.toLowerCase()))
     : displayCards
@@ -196,11 +198,11 @@ export function KanbanBoard() {
   const archivedCardsByMonth = useMemo(() => {
     const groups = new Map<string, Card[]>()
     for (const card of archivedCards) {
-      const key = formatArchiveMonth(card.archivedAt)
+      const key = formatArchiveMonth(card.archivedAt, locale)
       groups.set(key, [...(groups.get(key) ?? []), card])
     }
     return [...groups.entries()]
-  }, [archivedCards])
+  }, [archivedCards, locale])
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -790,7 +792,7 @@ export function KanbanBoard() {
                                   {card.title}
                                 </p>
                                 <p className="mt-0.5 text-caption text-muted">
-                                  Archivada {formatArchiveDate(card.archivedAt)}
+                                  Archivada {formatArchiveDate(card.archivedAt, locale)}
                                   {focusMs > 0 ? ` · foco ${formatFocusDuration(focusMs)}` : ''}
                                 </p>
                               </div>

@@ -1,12 +1,24 @@
-import { useEffect, useMemo, useState } from 'react'
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  createContext,
+  useContext,
+  type ChangeEvent as ReactChangeEvent,
+  type KeyboardEvent as ReactKeyboardEvent,
+  type PointerEvent as ReactPointerEvent,
+} from 'react'
 import ReactMarkdown, { type Components } from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import { Eye, PencilLine, Pin, PinOff, Plus, Search, Sparkles, Trash2 } from 'lucide-react'
+import { Check, Eye, PencilLine, Pin, PinOff, Plus, Search, Sparkles, Trash2, Upload } from 'lucide-react'
 import { useWorkStore } from '../store'
+import type { Note } from '../types'
 import { eventBus } from '@core/events/EventBus'
 import { WORK_EVENTS } from '../events'
 import { useToast } from '@core/ui/components/ToastProvider'
 import { messages } from '@core/ui/messages'
+import { useI18n } from '@core/i18n'
 import { noteExtractionService } from '../noteExtractionService'
 import { GlobalTagChip, GlobalTagPicker, type TagSelection } from '@core/ui/components/GlobalTagPicker'
 import { TAG_ENTITY_TYPES, tagsService } from '@core/services/tagsService'
@@ -14,7 +26,28 @@ import { TAG_ENTITY_TYPES, tagsService } from '@core/services/tagsService'
 type SortMode = 'recent' | 'alpha'
 type NoteViewMode = 'edit' | 'preview'
 
-const markdownComponents: Components = {
+const NOTE_EDITOR_SIDEBAR_WIDTH_KEY = 'work:noteEditorSidebarWidth:v1'
+const DEFAULT_SIDEBAR_WIDTH = 288
+const MIN_SIDEBAR_WIDTH = 220
+const MAX_SIDEBAR_WIDTH = 420
+const MARKDOWN_TASK_LINE_RE = /^(\s*[-*+]\s+\[)( |x|X)(\])(.*?)(\r?)$/
+
+interface MarkdownTaskLine {
+  lineIndex: number
+  checked: boolean
+}
+
+const MarkdownTaskLineContext = createContext<number | null>(null)
+
+type MarkdownNodeWithPosition = {
+  position?: {
+    start?: {
+      line?: number
+    }
+  }
+}
+
+const baseMarkdownComponents: Components = {
   a: ({ children, ...props }) => (
     <a
       {...props}
@@ -46,10 +79,6 @@ const markdownComponents: Components = {
   h2: ({ children }) => <h2 className="text-lg font-semibold text-white">{children}</h2>,
   h3: ({ children }) => <h3 className="text-base font-semibold text-white">{children}</h3>,
   hr: () => <hr className="border-border" />,
-  input: ({ checked, type }) => (
-    <input type={type} checked={checked} readOnly disabled className="mr-2 align-middle accent-accent" />
-  ),
-  li: ({ children }) => <li className="pl-1">{children}</li>,
   ol: ({ children }) => <ol className="list-decimal space-y-1 pl-5">{children}</ol>,
   p: ({ children }) => <p>{children}</p>,
   pre: ({ children }) => (
@@ -71,15 +100,18 @@ const markdownComponents: Components = {
   ul: ({ children }) => <ul className="list-disc space-y-1 pl-5">{children}</ul>,
 }
 
-function formatNoteUpdatedAt(value: string): string {
+function formatNoteUpdatedAt(
+  value: string,
+  formatDate: (value: Date | string | number, options?: Intl.DateTimeFormatOptions) => string,
+): string {
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return 'Sin fecha'
-  return new Intl.DateTimeFormat('es', {
+  return formatDate(date, {
     day: '2-digit',
     month: 'short',
     hour: '2-digit',
     minute: '2-digit',
-  }).format(date)
+  })
 }
 
 function noteExcerpt(content: string): string {
@@ -88,8 +120,64 @@ function noteExcerpt(content: string): string {
   return clean.length > 92 ? `${clean.slice(0, 92)}...` : clean
 }
 
+function getMarkdownTaskLines(markdown: string): MarkdownTaskLine[] {
+  const tasks: MarkdownTaskLine[] = []
+  markdown.split('\n').forEach((line, lineIndex) => {
+    const match = MARKDOWN_TASK_LINE_RE.exec(line)
+    if (!match) return
+    tasks.push({ lineIndex, checked: match[2].toLowerCase() === 'x' })
+  })
+  return tasks
+}
+
+function getMarkdownNodeLineIndex(node: unknown): number | null {
+  const line = (node as MarkdownNodeWithPosition | undefined)?.position?.start?.line
+  return typeof line === 'number' && Number.isFinite(line) ? line - 1 : null
+}
+
+function updateMarkdownTaskLine(markdown: string, lineIndex: number, checked: boolean): string {
+  const lines = markdown.split('\n')
+  if (!MARKDOWN_TASK_LINE_RE.test(lines[lineIndex] ?? '')) return markdown
+
+  lines[lineIndex] = lines[lineIndex].replace(
+    MARKDOWN_TASK_LINE_RE,
+    (_full, before: string, _current: string, after: string, rest: string, end: string) =>
+      `${before}${checked ? 'x' : ' '}${after}${rest}${end}`,
+  )
+  return lines.join('\n')
+}
+
+function getImportedMarkdownTitle(fileName: string, markdown: string): string {
+  const heading = markdown
+    .split(/\r?\n/)
+    .map((line) => /^\s{0,3}#(?!#)\s+(.+?)\s*#*\s*$/.exec(line)?.[1]?.trim())
+    .find((value): value is string => Boolean(value))
+
+  if (heading) return heading
+
+  const title = fileName.replace(/\.(markdown|md)$/i, '').trim()
+  return title || 'Nota importada'
+}
+
+function isMarkdownFile(file: File): boolean {
+  const lowerName = file.name.toLowerCase()
+  return lowerName.endsWith('.md') || lowerName.endsWith('.markdown') || file.type === 'text/markdown'
+}
+
+function clampSidebarWidth(value: number): number {
+  return Math.min(MAX_SIDEBAR_WIDTH, Math.max(MIN_SIDEBAR_WIDTH, Math.round(value)))
+}
+
+function readSidebarWidth(): number {
+  if (typeof window === 'undefined') return DEFAULT_SIDEBAR_WIDTH
+  const raw = window.localStorage.getItem(NOTE_EDITOR_SIDEBAR_WIDTH_KEY)
+  const parsed = raw ? Number.parseInt(raw, 10) : NaN
+  return Number.isFinite(parsed) ? clampSidebarWidth(parsed) : DEFAULT_SIDEBAR_WIDTH
+}
+
 export function NoteEditor() {
   const { notes, addNote, updateNote, deleteNote } = useWorkStore()
+  const { compareText, formatDate } = useI18n()
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
@@ -99,8 +187,15 @@ export function NoteEditor() {
   const { toast } = useToast()
   const [extracting, setExtracting] = useState(false)
   const [selectedTags, setSelectedTags] = useState<TagSelection[]>([])
+  const [sidebarWidth, setSidebarWidth] = useState(readSidebarWidth)
+  const importInputRef = useRef<HTMLInputElement | null>(null)
 
   const selected = notes.find((n) => n.id === selectedId)
+  const markdownTaskLines = useMemo(() => getMarkdownTaskLines(content), [content])
+  const markdownTasksByLineIndex = useMemo(
+    () => new Map(markdownTaskLines.map((task) => [task.lineIndex, task])),
+    [markdownTaskLines],
+  )
   const contentWordCount = useMemo(() => {
     const clean = content.trim()
     return clean ? clean.split(/\s+/).length : 0
@@ -151,8 +246,8 @@ export function NoteEditor() {
         byName.set(key, { name: current?.name ?? clean, count: (current?.count ?? 0) + 1 })
       }
     }
-    return [...byName.values()].sort((a, b) => a.name.localeCompare(b.name, 'es'))
-  }, [notes])
+    return [...byName.values()].sort((a, b) => compareText(a.name, b.name))
+  }, [compareText, notes])
 
   const tagSearch = useMemo(() => {
     const q = search.trim()
@@ -176,12 +271,12 @@ export function NoteEditor() {
 
     const sorted = [...filtered].sort((a, b) => {
       if (Boolean(a.pinned) !== Boolean(b.pinned)) return a.pinned ? -1 : 1
-      if (sortMode === 'alpha') return a.title.localeCompare(b.title, 'es')
+      if (sortMode === 'alpha') return compareText(a.title, b.title)
       return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
     })
 
     return sorted
-  }, [notes, search, sortMode, tagSearch])
+  }, [compareText, notes, search, sortMode, tagSearch])
 
   const handleNew = () => {
     const id = crypto.randomUUID()
@@ -210,6 +305,62 @@ export function NoteEditor() {
     eventBus.emit(WORK_EVENTS.NOTE_CREATED, { id, title: note.title })
   }
 
+  const handleImportClick = () => {
+    if (importInputRef.current) {
+      importInputRef.current.value = ''
+      importInputRef.current.click()
+    }
+  }
+
+  const handleImportMarkdown = async (event: ReactChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.currentTarget.files ?? []).filter(isMarkdownFile)
+    event.currentTarget.value = ''
+
+    if (files.length === 0) {
+      toast.info('No habia archivos Markdown para importar.')
+      return
+    }
+
+    const importedNotes: Note[] = []
+    try {
+      for (const file of files) {
+        const fileContent = await file.text()
+        const id = crypto.randomUUID()
+        const now = new Date().toISOString()
+        const note: Note = {
+          id,
+          title: getImportedMarkdownTitle(file.name, fileContent),
+          content: fileContent,
+          tags: [],
+          createdAt: now,
+          updatedAt: now,
+          pinned: false,
+        }
+
+        await window.storage.execute(
+          'INSERT INTO work_notes (id, title, content, tags, created_at, updated_at, pinned) VALUES (?, ?, ?, ?, ?, ?, 0)',
+          [note.id, note.title, note.content, '[]', note.createdAt, note.updatedAt],
+        )
+        addNote(note)
+        importedNotes.push(note)
+        eventBus.emit(WORK_EVENTS.NOTE_CREATED, { id: note.id, title: note.title })
+      }
+
+      const firstImported = importedNotes[0]
+      if (firstImported) {
+        setSelectedId(firstImported.id)
+        setTitle(firstImported.title)
+        setContent(firstImported.content)
+        setSelectedTags([])
+        setViewMode('edit')
+      }
+      toast.success(`Importadas ${importedNotes.length} ${importedNotes.length === 1 ? 'nota' : 'notas'} Markdown.`)
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'No pude importar Markdown.'
+      toast.error(msg)
+    }
+  }
+
   useEffect(() => {
     const onCreate = () => handleNew()
     window.addEventListener('work:new-note', onCreate)
@@ -231,6 +382,27 @@ export function NoteEditor() {
 
   const handleSave = async () => {
     await persistNote()
+  }
+
+  const handleMarkdownTaskChange = async (lineIndex: number, checked: boolean) => {
+    if (!selectedId) return
+
+    const nextContent = updateMarkdownTaskLine(content, lineIndex, checked)
+    if (nextContent === content) return
+
+    const now = new Date().toISOString()
+    setContent(nextContent)
+    updateNote(selectedId, { content: nextContent, updatedAt: now })
+
+    try {
+      await window.storage.execute(
+        'UPDATE work_notes SET content = ?, updated_at = ? WHERE id = ?',
+        [nextContent, now, selectedId],
+      )
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'No pude actualizar la tarea.'
+      toast.error(msg)
+    }
   }
 
   const handleViewModeChange = (nextMode: NoteViewMode) => {
@@ -293,25 +465,162 @@ export function NoteEditor() {
     }
   }
 
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(NOTE_EDITOR_SIDEBAR_WIDTH_KEY, String(sidebarWidth))
+    } catch {
+      // ignore storage failures
+    }
+  }, [sidebarWidth])
+
+  const startSidebarResize = (event: ReactPointerEvent<HTMLButtonElement>) => {
+    event.preventDefault()
+    const startX = Number.isFinite(event.clientX) ? event.clientX : 0
+    const startWidth = sidebarWidth
+    const originalCursor = document.body.style.cursor
+    const originalUserSelect = document.body.style.userSelect
+
+    document.body.style.cursor = 'col-resize'
+    document.body.style.userSelect = 'none'
+
+    const onMove = (moveEvent: PointerEvent) => {
+      const currentX = Number.isFinite(moveEvent.clientX) ? moveEvent.clientX : startX
+      const nextWidth = clampSidebarWidth(startWidth + currentX - startX)
+      setSidebarWidth(nextWidth)
+    }
+
+    const onUp = () => {
+      document.body.style.cursor = originalCursor
+      document.body.style.userSelect = originalUserSelect
+      window.removeEventListener('pointermove', onMove)
+      window.removeEventListener('pointerup', onUp)
+    }
+
+    window.addEventListener('pointermove', onMove)
+    window.addEventListener('pointerup', onUp)
+  }
+
+  const handleSidebarResizeKeyDown = (event: ReactKeyboardEvent<HTMLButtonElement>) => {
+    const step = event.shiftKey ? 40 : 16
+
+    if (event.key === 'ArrowLeft') {
+      event.preventDefault()
+      setSidebarWidth((current) => clampSidebarWidth(current - step))
+    } else if (event.key === 'ArrowRight') {
+      event.preventDefault()
+      setSidebarWidth((current) => clampSidebarWidth(current + step))
+    } else if (event.key === 'Home') {
+      event.preventDefault()
+      setSidebarWidth(MIN_SIDEBAR_WIDTH)
+    } else if (event.key === 'End') {
+      event.preventDefault()
+      setSidebarWidth(MAX_SIDEBAR_WIDTH)
+    }
+  }
+
+  const markdownComponents: Components = {
+    ...baseMarkdownComponents,
+    li: ({ children, className, node, ...props }) => {
+      const lineIndex = getMarkdownNodeLineIndex(node)
+      const task = lineIndex == null ? undefined : markdownTasksByLineIndex.get(lineIndex)
+      const taskDoneClass = task?.checked ? 'text-muted line-through decoration-white/35' : ''
+
+      return (
+        <MarkdownTaskLineContext.Provider value={lineIndex}>
+          <li {...props} className={`${className ?? ''} ${taskDoneClass} pl-1 transition-colors`}>
+            {children}
+          </li>
+        </MarkdownTaskLineContext.Provider>
+      )
+    },
+    input: function MarkdownTaskCheckbox({ checked, type, node, ...props }) {
+      const parentLineIndex = useContext(MarkdownTaskLineContext)
+      if (type !== 'checkbox') {
+        return <input {...props} type={type} className="mr-2 align-middle accent-accent" />
+      }
+
+      const lineIndex = getMarkdownNodeLineIndex(node) ?? parentLineIndex
+      const task = lineIndex == null ? undefined : markdownTasksByLineIndex.get(lineIndex)
+      const isChecked = task?.checked ?? Boolean(checked)
+
+      return (
+        <label
+          className={`mr-2 inline-flex items-center align-middle ${
+            task ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'
+          }`}
+          onClick={(event) => event.stopPropagation()}
+        >
+          <input
+            {...props}
+            type="checkbox"
+            checked={isChecked}
+            disabled={!task}
+            onChange={(event) => {
+              event.stopPropagation()
+              if (lineIndex == null) return
+              void handleMarkdownTaskChange(lineIndex, event.currentTarget.checked)
+            }}
+            aria-label={isChecked ? 'Marcar tarea como pendiente' : 'Marcar tarea como hecha'}
+            className="peer sr-only"
+          />
+          <span
+            aria-hidden="true"
+            className={`flex h-4 w-4 items-center justify-center rounded border transition-colors ${
+              isChecked
+                ? 'border-accent bg-accent text-white shadow-sm shadow-accent/20'
+                : 'border-border bg-surface text-transparent hover:border-accent/60'
+            } peer-focus-visible:ring-2 peer-focus-visible:ring-accent/35`}
+          >
+            <Check size={11} strokeWidth={3} className={isChecked ? 'opacity-100' : 'opacity-0'} />
+          </span>
+        </label>
+      )
+    },
+  }
+
   return (
-    <div className="flex min-h-[640px] gap-4">
-      <aside className="flex w-72 flex-shrink-0 flex-col overflow-hidden rounded-xl border border-border/80 bg-surface-light/80 shadow-xl">
-        <div className="flex items-center justify-between border-b border-border/70 px-3 py-2.5">
+    <div className="workspace-editor-split">
+      <aside
+        data-testid="note-editor-sidebar"
+        className="workspace-editor-sidebar flex flex-col overflow-hidden bg-surface-light/70"
+        style={{ flexBasis: sidebarWidth, width: sidebarWidth }}
+      >
+        <div className="flex items-center justify-between border-b border-border/60 px-3 py-2">
           <div className="min-w-0">
             <span className="block text-sm font-semibold text-white">Notas</span>
             <span className="text-micro text-muted">{filteredNotes.length} visibles</span>
           </div>
-          <button
-            type="button"
-            onClick={handleNew}
-            className="inline-flex items-center gap-1 rounded-md bg-accent/15 px-2 py-1 text-xs text-accent-light hover:bg-accent/25"
-          >
-            <Plus size={12} />
-            Nueva
-          </button>
+          <div className="flex shrink-0 items-center gap-1">
+            <button
+              type="button"
+              onClick={handleImportClick}
+              title="Importar archivos Markdown"
+              className="inline-flex items-center gap-1 rounded-md border border-border/70 bg-surface/70 px-2 py-1 text-xs text-muted hover:border-accent/40 hover:text-accent-light"
+            >
+              <Upload size={12} />
+              Importar .md
+            </button>
+            <button
+              type="button"
+              onClick={handleNew}
+              className="inline-flex items-center gap-1 rounded-md bg-accent/15 px-2 py-1 text-xs text-accent-light hover:bg-accent/25"
+            >
+              <Plus size={12} />
+              Nueva
+            </button>
+          </div>
+          <input
+            ref={importInputRef}
+            data-testid="note-editor-import-input"
+            type="file"
+            multiple
+            accept=".md,.markdown,text/markdown"
+            className="hidden"
+            onChange={(event) => void handleImportMarkdown(event)}
+          />
         </div>
 
-        <div className="space-y-2 border-b border-border/60 p-2.5">
+        <div className="space-y-2 border-b border-border/55 p-2.5">
           <div className="relative">
             <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted" />
             <input
@@ -369,7 +678,7 @@ export function NoteEditor() {
           )}
         </div>
 
-        <div className="flex-1 space-y-1 overflow-y-auto p-2">
+        <div className="flex-1 space-y-1 overflow-y-auto p-1.5">
           {filteredNotes.length === 0 && (
             <div className="rounded-lg border border-dashed border-border/70 px-3 py-8 text-center text-xs text-muted/60">
               {search ? 'Sin resultados' : 'No hay notas todavía'}
@@ -379,157 +688,182 @@ export function NoteEditor() {
             <div
               key={n.id}
               onClick={() => handleSelect(n.id)}
-              className={`group cursor-pointer rounded-lg border px-3 py-2.5 text-sm transition-colors ${
+              className={`group relative cursor-pointer rounded-md px-2.5 py-2 text-sm transition-colors ${
                 selectedId === n.id
-                  ? 'border-accent/35 bg-accent/15 text-white'
-                  : 'border-transparent text-muted hover:border-border/70 hover:bg-surface/70 hover:text-white'
+                  ? 'bg-accent/14 text-white'
+                  : 'text-muted hover:bg-surface/65 hover:text-white'
               }`}
             >
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-1.5">
-                    {n.pinned && <Pin size={10} className="shrink-0 text-accent-light" />}
-                    <span className="truncate font-medium">{n.title || 'Sin titulo'}</span>
-                  </div>
-                  <p className="mt-1 line-clamp-2 text-caption leading-snug text-muted/80">
-                    {noteExcerpt(n.content)}
-                  </p>
-                  <div className="mt-2 flex items-center justify-between gap-2">
-                    <span className="shrink-0 text-micro text-muted/70">{formatNoteUpdatedAt(n.updatedAt)}</span>
-                    {n.tags.length > 0 && (
-                      <div className="flex min-w-0 justify-end gap-1 overflow-hidden">
-                        {n.tags.slice(0, 2).map((tag) => (
-                          <GlobalTagChip
-                            key={tag}
-                            tag={{ name: tag, color: null }}
-                            selected={tagSearch === tag.toLowerCase()}
-                            className="px-1.5 py-0.5 text-[9px]"
-                          />
-                        ))}
-                      </div>
-                    )}
-                  </div>
+              <div className="min-w-0 pr-10">
+                <div className="flex items-center gap-1.5">
+                  {n.pinned && <Pin size={10} className="shrink-0 text-accent-light" />}
+                  <span className="truncate font-medium">{n.title || 'Sin titulo'}</span>
                 </div>
-                <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleTogglePin(n.id, Boolean(n.pinned))
-                    }}
-                    title={n.pinned ? 'Quitar pin' : 'Fijar nota'}
-                    className="rounded p-1 text-muted hover:bg-surface-lighter hover:text-accent-light"
-                  >
-                    {n.pinned ? <PinOff size={11} /> : <Pin size={11} />}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleDelete(n.id)
-                    }}
-                    title="Eliminar nota"
-                    className="flex h-6 w-6 items-center justify-center rounded text-micro font-medium text-muted hover:bg-red-500/10 hover:text-red-400"
-                  >
-                    <Trash2 size={11} />
-                  </button>
+                <p className="mt-1 line-clamp-2 break-words text-caption leading-snug text-muted/80">
+                  {noteExcerpt(n.content)}
+                </p>
+                <div className="mt-1.5 flex items-center justify-between gap-2">
+                  <span className="shrink-0 text-micro text-muted/70">{formatNoteUpdatedAt(n.updatedAt, formatDate)}</span>
+                  {n.tags.length > 0 && (
+                    <div className="flex min-w-0 justify-end gap-1 overflow-hidden">
+                      {n.tags.slice(0, 2).map((tag) => (
+                        <GlobalTagChip
+                          key={tag}
+                          tag={{ name: tag, color: null }}
+                          selected={tagSearch === tag.toLowerCase()}
+                          className="px-1.5 py-0.5 text-[9px]"
+                        />
+                      ))}
+                    </div>
+                  )}
                 </div>
+              </div>
+              <div className="pointer-events-none absolute right-1.5 top-1.5 flex items-center gap-0.5 opacity-0 transition-opacity group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleTogglePin(n.id, Boolean(n.pinned))
+                  }}
+                  title={n.pinned ? 'Quitar pin' : 'Fijar nota'}
+                  aria-label={n.pinned ? 'Quitar pin' : 'Fijar nota'}
+                  className="rounded p-1 text-muted hover:bg-surface-lighter hover:text-accent-light"
+                >
+                  {n.pinned ? <PinOff size={11} /> : <Pin size={11} />}
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleDelete(n.id)
+                  }}
+                  title="Eliminar nota"
+                  aria-label="Eliminar nota"
+                  className="flex h-5 w-5 items-center justify-center rounded text-muted hover:bg-red-500/10 hover:text-red-400"
+                >
+                  <Trash2 size={11} />
+                </button>
               </div>
             </div>
           ))}
         </div>
       </aside>
 
-      <section className="flex min-w-0 flex-1 flex-col gap-2">
+      <button
+        type="button"
+        data-testid="note-editor-sidebar-resizer"
+        className="workspace-editor-resizer"
+        onPointerDown={startSidebarResize}
+        onKeyDown={handleSidebarResizeKeyDown}
+        onDoubleClick={() => setSidebarWidth(DEFAULT_SIDEBAR_WIDTH)}
+        role="separator"
+        aria-orientation="vertical"
+        aria-valuemin={MIN_SIDEBAR_WIDTH}
+        aria-valuemax={MAX_SIDEBAR_WIDTH}
+        aria-valuenow={sidebarWidth}
+        aria-label="Ajustar ancho de la lista de notas"
+        title="Arrastrar para ajustar la lista de notas. Doble click para restaurar."
+      />
+
+      <section className="workspace-editor-main flex min-w-0 flex-col bg-surface-light/55">
         {selected && (
-          <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border/70 bg-surface-light/60 px-2 py-1.5 shadow-sm">
-            <div className="flex items-center gap-2 px-1 text-micro uppercase tracking-eyebrow text-muted">
-              <span>{contentWordCount} {contentWordCount === 1 ? 'palabra' : 'palabras'}</span>
-              <span aria-hidden className="h-1 w-1 rounded-full bg-muted/50" />
-              <span>{viewMode === 'edit' ? 'Edicion' : 'Vista previa'}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              {(content ?? '').trim().length > 200 && (
-                <button
-                  type="button"
-                  onClick={() => void handleExtractTasks()}
-                  disabled={extracting}
-                  className="inline-flex h-7 items-center gap-1.5 rounded-md border border-border bg-surface px-2 text-caption text-muted hover:border-accent/40 hover:text-accent-light disabled:opacity-50"
-                  title="Extraer tareas accionables con IA"
-                >
-                  <Sparkles size={11} />
-                  {extracting ? 'Extrayendo…' : 'Extraer tareas'}
-                </button>
-              )}
-              <div className="flex rounded-md border border-border bg-surface p-0.5" aria-label="Cambiar modo de nota">
-                <button
-                  type="button"
-                  onClick={() => handleViewModeChange('edit')}
-                  aria-pressed={viewMode === 'edit'}
-                  className={`inline-flex h-6 items-center gap-1 rounded px-2 text-caption transition-colors ${
-                    viewMode === 'edit' ? 'bg-accent/15 text-accent-light' : 'text-muted hover:text-white'
-                  }`}
-                >
-                  <PencilLine size={10} aria-hidden />
-                  Editar
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleViewModeChange('preview')}
-                  aria-pressed={viewMode === 'preview'}
-                  className={`inline-flex h-6 items-center gap-1 rounded px-2 text-caption transition-colors ${
-                    viewMode === 'preview' ? 'bg-accent/15 text-accent-light' : 'text-muted hover:text-white'
-                  }`}
-                >
-                  <Eye size={10} aria-hidden />
-                  Vista
-                </button>
+          <div className="border-b border-border/55 bg-surface-light/40">
+            <div className="workspace-document-column flex flex-wrap items-center justify-between gap-2 px-5 py-2">
+              <div className="flex items-center gap-2 text-micro uppercase tracking-eyebrow text-muted">
+                <span>{contentWordCount} {contentWordCount === 1 ? 'palabra' : 'palabras'}</span>
+                <span aria-hidden className="h-1 w-1 rounded-full bg-muted/50" />
+                <span>{viewMode === 'edit' ? 'Edicion' : 'Vista previa'}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                {(content ?? '').trim().length > 200 && (
+                  <button
+                    type="button"
+                    onClick={() => void handleExtractTasks()}
+                    disabled={extracting}
+                    className="inline-flex h-7 items-center gap-1.5 rounded-md border border-border bg-surface px-2 text-caption text-muted hover:border-accent/40 hover:text-accent-light disabled:opacity-50"
+                    title="Extraer tareas accionables con IA"
+                  >
+                    <Sparkles size={11} />
+                    {extracting ? 'Extrayendo...' : 'Extraer tareas'}
+                  </button>
+                )}
+                <div className="flex rounded-md border border-border bg-surface p-0.5" aria-label="Cambiar modo de nota">
+                  <button
+                    type="button"
+                    onClick={() => handleViewModeChange('edit')}
+                    aria-pressed={viewMode === 'edit'}
+                    className={`inline-flex h-6 items-center gap-1 rounded px-2 text-caption transition-colors ${
+                      viewMode === 'edit' ? 'bg-accent/15 text-accent-light' : 'text-muted hover:text-white'
+                    }`}
+                  >
+                    <PencilLine size={10} aria-hidden />
+                    Editar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleViewModeChange('preview')}
+                    aria-pressed={viewMode === 'preview'}
+                    className={`inline-flex h-6 items-center gap-1 rounded px-2 text-caption transition-colors ${
+                      viewMode === 'preview' ? 'bg-accent/15 text-accent-light' : 'text-muted hover:text-white'
+                    }`}
+                  >
+                    <Eye size={10} aria-hidden />
+                    Vista
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         )}
 
-        <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-border/80 bg-surface-light/90 shadow-xl">
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
           {selected ? (
             <>
-              <div className="border-b border-border/50 px-6 pb-3 pt-5">
-                <input
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  onBlur={() => void handleSave()}
-                  className="w-full bg-transparent text-2xl font-semibold leading-tight text-white outline-none placeholder:text-muted/45"
-                  placeholder="Título"
-                />
-                <GlobalTagPicker
-                  selected={selectedTags}
-                  onChange={(tags) => {
-                    setSelectedTags(tags)
-                    void persistNote(tags)
-                  }}
-                  label="Tags"
-                  placeholder="Buscar o crear tag para esta nota"
-                  className="mt-3 max-w-3xl [&>label>div]:rounded-lg [&>label>div]:border-border/60 [&>label>div]:bg-surface/45 [&>label>div]:p-2 [&>label>span]:text-micro [&_input]:text-xs"
-                />
+              <div className="border-b border-border/45 bg-surface-light/35">
+                <div data-testid="note-editor-title-shell" className="workspace-document-column px-6 pb-3 pt-5">
+                  <input
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    onBlur={() => void handleSave()}
+                    className="w-full bg-transparent text-2xl font-semibold leading-tight text-white outline-none placeholder:text-muted/45"
+                    placeholder="Título"
+                  />
+                  <GlobalTagPicker
+                    selected={selectedTags}
+                    onChange={(tags) => {
+                      setSelectedTags(tags)
+                      void persistNote(tags)
+                    }}
+                    label="Tags"
+                    placeholder="Buscar o crear tag para esta nota"
+                    className="mt-3 [&>label>div]:rounded-lg [&>label>div]:border-border/60 [&>label>div]:bg-surface/45 [&>label>div]:p-2 [&>label>span]:text-micro [&_input]:text-xs"
+                  />
+                </div>
               </div>
               {viewMode === 'edit' ? (
-                <textarea
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  onBlur={() => void handleSave()}
-                  className="min-h-[430px] flex-1 resize-none bg-transparent px-6 py-5 text-[15px] leading-7 text-white/90 outline-none placeholder:text-muted/50"
-                  placeholder="Escribí la nota…"
-                />
+                <div className="flex min-h-0 flex-1 justify-center overflow-hidden">
+                  <textarea
+                    data-testid="note-editor-textarea"
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
+                    onBlur={() => void handleSave()}
+                    className="workspace-document-column h-full min-h-[430px] flex-1 resize-none bg-transparent px-6 py-5 text-[15px] leading-7 text-white/90 outline-none placeholder:text-muted/50"
+                    placeholder="Escribí la nota…"
+                  />
+                </div>
               ) : (
-                <div className="min-h-[430px] flex-1 overflow-y-auto px-6 py-5 text-[15px] leading-7 text-white/85">
-                  {content.trim() ? (
-                    <div className="max-w-3xl space-y-3">
-                      <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
-                        {content}
-                      </ReactMarkdown>
-                    </div>
-                  ) : (
-                    <p className="text-muted">Sin contenido todavía.</p>
-                  )}
+                <div className="min-h-[430px] flex-1 overflow-y-auto text-[15px] leading-7 text-white/85">
+                  <div data-testid="note-editor-preview" className="workspace-document-column px-6 py-5">
+                    {content.trim() ? (
+                      <div className="space-y-3">
+                        <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+                          {content}
+                        </ReactMarkdown>
+                      </div>
+                    ) : (
+                      <p className="text-muted">Sin contenido todavía.</p>
+                    )}
+                  </div>
                 </div>
               )}
             </>

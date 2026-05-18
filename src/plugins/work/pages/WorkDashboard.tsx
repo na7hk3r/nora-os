@@ -19,6 +19,7 @@ import { useFocusNudge } from '../components/useFocusNudge'
 import { CheckCircle2, ClipboardList, ExternalLink, History, KanbanSquare, ListChecks, NotebookPen, Sparkles, TimerReset, Play, Pause, Square, XCircle } from 'lucide-react'
 import { BrandIcon } from '@core/ui/components/BrandIcon'
 import { useToast } from '@core/ui/components/ToastProvider'
+import { useI18n } from '@core/i18n'
 
 const WORK_ACTIVITY_EVENTS: Set<string> = new Set([
   WORK_EVENTS.TASK_CREATED,
@@ -198,6 +199,7 @@ function describeActivity(entry: EventLogEntry, ctx: ActivityContext): ActivityD
 export function WorkDashboard() {
   const { boards, columns, cards, notes, focusSessions, currentFocusSession } = useWorkStore()
   const { toast } = useToast()
+  const { formatDate } = useI18n()
   useFocusNudge()
   const [now, setNow] = useState(Date.now())
   const [recentEvents, setRecentEvents] = useState<EventLogEntry[]>([])
@@ -389,12 +391,12 @@ export function WorkDashboard() {
   return (
     <div className="plugin-shell plugin-shell-work space-y-6">
       <section className="plugin-panel rounded-2xl p-5 border-l-4 border-l-accent/70 shadow-[inset_1px_0_0_0_rgba(249,115,22,0.18)]">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex items-start gap-4">
+        <div className="workspace-pane-flex-col flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex min-w-0 items-start gap-4">
             <BrandIcon name="LaptopShell" size={40} className="shrink-0 mt-1" />
-            <div>
+            <div className="min-w-0">
               <p className="text-xs uppercase tracking-[0.24em] text-accent-light flex items-center gap-2"><Sparkles size={12} /> Now Panel</p>
-              <h2 className="mt-2 text-2xl font-semibold text-white">
+              <h2 className="mt-2 line-clamp-2 break-words text-2xl font-semibold text-white">
                 {currentTask?.title ?? (currentFocusSession ? 'Foco libre en curso' : 'Sin foco activo')}
               </h2>
               <p className="mt-2 max-w-2xl text-sm text-muted">
@@ -402,14 +404,14 @@ export function WorkDashboard() {
                   ? 'Elegí una tarea desde el tablero o iniciá una sesión libre para activar el motor de ejecución.'
                   : isPaused
                     ? 'Sesión pausada. Reanudá para seguir sumando tiempo efectivo.'
-                    : `Corriendo desde ${new Date(currentFocusSession.startTime).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}.`}
+                    : `Corriendo desde ${formatDate(new Date(currentFocusSession.startTime), { hour: '2-digit', minute: '2-digit' })}.`}
               </p>
             </div>
           </div>
 
-          <div className="flex flex-col items-start gap-3 rounded-2xl border border-border/70 bg-surface px-4 py-3 lg:min-w-[320px]">
-            <div className="flex items-center justify-between w-full gap-2 text-xs uppercase tracking-eyebrow text-muted">
-              <span className="flex items-center gap-2">
+          <div className="workspace-pane-full-width flex min-w-0 flex-col items-start gap-3 rounded-2xl border border-border/70 bg-surface px-4 py-3 lg:min-w-[320px]">
+            <div className="flex w-full flex-wrap items-center justify-between gap-2 text-xs uppercase tracking-eyebrow text-muted">
+              <span className="flex min-w-0 items-center gap-2">
                 <TimerReset size={14} />
                 Tiempo efectivo {isPaused && <span className="text-warning">(pausado)</span>}
               </span>
@@ -539,7 +541,7 @@ export function WorkDashboard() {
         </div>
       </section>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div className="workspace-auto-grid-sm gap-4">
         <div className="plugin-panel min-h-[96px] p-4">
           <p className="text-xs text-muted mb-1 flex items-center gap-1.5">
             <ClipboardList size={14} />
@@ -580,7 +582,7 @@ export function WorkDashboard() {
         <KanbanBoard />
       </div>
 
-      <div className="grid min-w-0 items-stretch gap-6 xl:grid-cols-2">
+      <div className="workspace-auto-grid-lg min-w-0 items-stretch gap-6">
         <section className="plugin-panel flex h-[420px] min-h-0 min-w-0 flex-col overflow-hidden rounded-2xl p-5 border-l-4 border-l-success/70 shadow-[inset_1px_0_0_0_rgba(34,197,94,0.18)]">
           <div className="flex items-center justify-between gap-3">
             <div>
@@ -621,10 +623,10 @@ export function WorkDashboard() {
 
               return (
                 <div key={card.id} className={`min-h-[76px] rounded-xl border px-4 py-3 transition-colors ${cardClass}`}>
-                  <div className="flex min-w-0 flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                  <div className="workspace-pane-flex-col flex min-w-0 flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
-                        <p className="truncate text-sm font-medium text-white">{card.title}</p>
+                        <p className="line-clamp-2 min-w-0 break-words text-sm font-medium text-white">{card.title}</p>
                         <span className={`flex-shrink-0 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-micro uppercase tracking-wide ${stateClass}`}>
                           {isFocusedPaused ? <Pause size={10} /> : isFocused ? <Play size={10} /> : <ListChecks size={10} />}
                           {stateLabel}

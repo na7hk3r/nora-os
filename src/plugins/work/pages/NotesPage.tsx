@@ -1,9 +1,9 @@
-import { NoteEditor } from '../components/NoteEditor'
+import { LibraryWorkspace } from '../components/LibraryWorkspace'
 
 export function NotesPage() {
   return (
     <div className="plugin-shell plugin-shell-work">
-      <NoteEditor />
+      <LibraryWorkspace activeTab="notes" />
     </div>
   )
 }

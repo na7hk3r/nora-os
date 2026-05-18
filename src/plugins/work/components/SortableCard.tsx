@@ -4,6 +4,7 @@ import { CSS } from '@dnd-kit/utilities'
 import type { Card } from '../types'
 import { CalendarClock, CheckCircle2, CheckSquare, FileText, Flag, Pause, Play, Target, Timer } from 'lucide-react'
 import { GlobalTagChip } from '@core/ui/components/GlobalTagPicker'
+import { useI18n, type AppLanguage } from '@core/i18n'
 
 interface Props {
   card: Card
@@ -58,7 +59,11 @@ function formatEstimate(minutes: number): string {
   return m === 0 ? `${h}h` : `${h}h ${m}m`
 }
 
-function formatDueDate(iso: string): { label: string; overdue: boolean } {
+function formatDueDate(
+  iso: string,
+  language: AppLanguage,
+  formatDate: (value: Date | string | number, options?: Intl.DateTimeFormatOptions) => string,
+): { label: string; overdue: boolean } {
   const dueMs = new Date(iso).getTime()
   if (Number.isNaN(dueMs)) return { label: iso, overdue: false }
 
@@ -71,12 +76,12 @@ function formatDueDate(iso: string): { label: string; overdue: boolean } {
   const overdue = diffDays < 0
 
   let label: string
-  if (diffDays === 0) label = 'Hoy'
-  else if (diffDays === 1) label = 'Mañana'
-  else if (diffDays === -1) label = 'Ayer'
-  else if (diffDays > 1 && diffDays <= 6) label = `En ${diffDays}d`
-  else if (diffDays < -1 && diffDays >= -6) label = `Hace ${-diffDays}d`
-  else label = due.toLocaleDateString('es-AR', { day: '2-digit', month: 'short' })
+  if (diffDays === 0) label = language === 'en' ? 'Today' : 'Hoy'
+  else if (diffDays === 1) label = language === 'en' ? 'Tomorrow' : 'Mañana'
+  else if (diffDays === -1) label = language === 'en' ? 'Yesterday' : 'Ayer'
+  else if (diffDays > 1 && diffDays <= 6) label = language === 'en' ? `In ${diffDays}d` : `En ${diffDays}d`
+  else if (diffDays < -1 && diffDays >= -6) label = language === 'en' ? `${-diffDays}d ago` : `Hace ${-diffDays}d`
+  else label = formatDate(due, { day: '2-digit', month: 'short' })
 
   return { label, overdue }
 }
@@ -93,6 +98,7 @@ export function SortableCard({
   dragDisabled = false,
   activeTag = null,
 }: Props) {
+  const { language, formatDate } = useI18n()
   const {
     attributes,
     listeners,
@@ -124,7 +130,7 @@ export function SortableCard({
         cursor: dragDisabled ? 'default' : 'grab',
       }
 
-  const due = card.dueDate ? formatDueDate(card.dueDate) : null
+  const due = card.dueDate ? formatDueDate(card.dueDate, language, formatDate) : null
   const visibleLabels = card.labels.slice(0, 3)
   const extraLabels = Math.max(0, card.labels.length - visibleLabels.length)
   const priorityStyle = card.priority ? PRIORITY_STYLES[card.priority] : null

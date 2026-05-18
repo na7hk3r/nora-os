@@ -6,6 +6,7 @@ import {
   type WorkFocusMessage,
   type WorkFocusSnapshot,
 } from '../focusSync'
+import { useI18n } from '@core/i18n'
 
 function formatDuration(durationMs: number): string {
   const totalSeconds = Math.max(0, Math.floor(durationMs / 1000))
@@ -29,6 +30,7 @@ const EMPTY_SNAPSHOT: WorkFocusSnapshot = {
 }
 
 export function WorkFocusMiniPage() {
+  const { formatDate } = useI18n()
   const [snapshot, setSnapshot] = useState<WorkFocusSnapshot>(EMPTY_SNAPSHOT)
   const [now, setNow] = useState(Date.now())
 
@@ -91,7 +93,7 @@ export function WorkFocusMiniPage() {
               </p>
               {snapshot.startedAt && (
                 <p className="shrink-0 text-micro text-muted">
-                  {new Date(snapshot.startedAt).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}
+                  {formatDate(new Date(snapshot.startedAt), { hour: '2-digit', minute: '2-digit' })}
                 </p>
               )}
             </div>
