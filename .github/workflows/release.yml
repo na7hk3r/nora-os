@@ -6,31 +6,26 @@ on:
       - "v*.*.*"
   workflow_dispatch:
 
-# Permite a la action publicar el GitHub Release con assets.
 permissions:
   contents: write
 
 jobs:
-  # ─────────────────────────────────────────────────────────
-  # Windows: instalador NSIS + portable + latest.yml para
-  # auto-update vía electron-updater.
-  # ─────────────────────────────────────────────────────────
   build-windows:
     name: Build Windows installer
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node
+      - name: Setup Node 20
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
 
-      - name: Install deps
+      - name: Install dependencies
         run: npm ci
-        # Acá sí dejamos correr postinstall: necesita rebuild de better-sqlite3
-        # contra la versión de Electron del package.json.
+        # Keep postinstall enabled here: better-sqlite3 must be rebuilt for
+        # the Electron version declared in the root package.json.
 
       - name: Lint
         run: npm run lint
@@ -41,18 +36,18 @@ jobs:
       - name: Test
         run: npm test
 
-      - name: Build & Publish (NSIS + portable)
+      - name: Build and publish Windows assets
         run: npm run release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VITE_FEEDBACK_FORM_URL: https://na7hk3r.github.io/nora-os/#feedback
-          # Code signing (opcional). Para activarlo:
-          #   1. Subir el .pfx a GitHub Secrets como CSC_LINK (base64) o URL.
-          #   2. Subir el password como CSC_KEY_PASSWORD.
+          # Optional Windows code signing:
+          # 1. Add the .pfx as WIN_CSC_LINK (base64 or HTTPS URL).
+          # 2. Add the certificate password as WIN_CSC_KEY_PASSWORD.
           # CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
           # CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
 
-      - name: Upload artifacts (debug)
+      - name: Upload artifacts for debugging
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -63,48 +58,66 @@ jobs:
             release/*.blockmap
           if-no-files-found: ignore
 
-  # ─────────────────────────────────────────────────────────
-  # Linux: AppImage + .deb (opcional).
-  # ─────────────────────────────────────────────────────────
   build-linux:
     name: Build Linux packages
     runs-on: ubuntu-latest
-    if: ${{ false }} # Activar quitando este `if` cuando se quiera publicar Linux.
+    if: ${{ false }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
-      - run: npm ci
-      - run: npm run lint
-      - run: npm run typecheck
-      - run: npm test
-      - run: npm run release -- --linux
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+      - name: Build and publish Linux assets
+        run: npm run release -- --linux
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  # ─────────────────────────────────────────────────────────
-  # macOS: dmg sin firmar (opcional). Con firma requiere
-  # CSC_LINK + CSC_KEY_PASSWORD + APPLE_ID + APPLE_APP_SPECIFIC_PASSWORD.
-  # ─────────────────────────────────────────────────────────
   build-mac:
     name: Build macOS dmg
     runs-on: macos-latest
-    if: ${{ false }} # Activar quitando este `if` cuando se quiera publicar macOS.
+    if: ${{ false }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
-      - run: npm ci
-      - run: npm run lint
-      - run: npm run typecheck
-      - run: npm test
-      - run: npm run release -- --mac
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+      - name: Build and publish macOS assets
+        run: npm run release -- --mac
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Optional macOS signing and notarization:
           # CSC_LINK: ${{ secrets.MAC_CSC_LINK }}
           # CSC_KEY_PASSWORD: ${{ secrets.MAC_CSC_KEY_PASSWORD }}
           # APPLE_ID: ${{ secrets.APPLE_ID }}

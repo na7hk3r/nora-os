@@ -7,42 +7,91 @@ on:
     branches: [main]
 
 jobs:
-  quality:
-    name: Typecheck & Lint
+  desktop:
+    name: Desktop quality
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node
+      - name: Setup Node 20
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
 
-      - name: Install deps
-        run: npm ci --ignore-scripts
-        # better-sqlite3 native rebuild is not needed for typecheck/lint and
-        # keeps CI fast. The postinstall script runs for real builds only.
+      - name: Install dependencies
+        run: npm ci
 
       - name: Typecheck
         run: npm run typecheck
 
       - name: Lint
-        run: npm run lint --if-present
+        run: npm run lint
 
       - name: Test
         run: npm test
 
-  # Smoke test del empaquetado: corre electron-builder en modo --dir (sin
-  # generar instalador) para detectar problemas de config sin firmar ni
-  # subir artefactos. Solo Windows porque es el target principal.
-  pack:
-    name: Pack smoke test (Windows)
-    runs-on: windows-latest
+  landing:
+    name: Landing quality
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/landing
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: apps/landing/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+  mobile:
+    name: Mobile quality
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/mobile
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Flutter 3.44.0
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.0'
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Test
+        run: flutter test
+
+  pack:
+    name: Pack smoke test (Windows)
+    runs-on: windows-latest
+    needs: desktop
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node 20
         uses: actions/setup-node@v4
         with:
           node-version: 20
