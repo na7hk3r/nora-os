@@ -1,0 +1,17 @@
+{
+  "name": "@nora/shared-types",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Shared contracts, interfaces, schemas, and domain models for Nora apps.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "lint": "echo \"@nora/shared-types: no lint target yet\"",
+    "test": "echo \"@nora/shared-types: no tests yet\""
+  }
+}
+

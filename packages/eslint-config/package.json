@@ -1,0 +1,15 @@
+{
+  "name": "@nora/eslint-config",
+  "private": true,
+  "version": "0.1.0",
+  "type": "commonjs",
+  "description": "Shared ESLint rules for Nora TypeScript apps.",
+  "main": "index.cjs",
+  "scripts": {
+    "build": "echo \"@nora/eslint-config: config-only package\"",
+    "typecheck": "echo \"@nora/eslint-config: config-only package\"",
+    "lint": "echo \"@nora/eslint-config: config-only package\"",
+    "test": "echo \"@nora/eslint-config: config-only package\""
+  }
+}
+

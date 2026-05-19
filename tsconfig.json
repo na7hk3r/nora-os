@@ -12,12 +12,15 @@
     "isolatedModules": true,
     "noEmit": true,
     "paths": {
-      "@/*": ["./src/*"],
-      "@core/*": ["./src/core/*"],
-      "@plugins/*": ["./src/plugins/*"],
-      "@shared/*": ["./src/shared/*"]
+      "@/*": ["./apps/desktop/src/*"],
+      "@core/*": ["./apps/desktop/src/core/*"],
+      "@plugins/*": ["./apps/desktop/src/plugins/*"],
+      "@shared/*": ["./apps/desktop/src/shared/*"],
+      "@nora/shared-types": ["./packages/shared-types/src/index.ts"],
+      "@nora/utils": ["./packages/utils/src/index.ts"],
+      "@nora/api-client": ["./packages/api-client/src/index.ts"]
     }
   },
-  "include": ["src/**/*", "electron/**/*"],
+  "include": ["apps/desktop/src/**/*", "apps/desktop/electron/**/*", "packages/*/src/**/*"],
   "exclude": ["node_modules", "dist", "out"]
 }

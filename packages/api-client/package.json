@@ -1,0 +1,17 @@
+{
+  "name": "@nora/api-client",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Shared API client boundary for Nora cloud/sync capabilities.",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "lint": "echo \"@nora/api-client: no lint target yet\"",
+    "test": "echo \"@nora/api-client: no tests yet\""
+  }
+}
+

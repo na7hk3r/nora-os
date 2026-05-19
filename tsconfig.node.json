@@ -7,8 +7,8 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "outDir": "out/electron",
-    "rootDir": "electron",
+    "rootDir": "apps/desktop/electron",
     "resolveJsonModule": true
   },
-  "include": ["electron/**/*"]
+  "include": ["apps/desktop/electron/**/*"]
 }

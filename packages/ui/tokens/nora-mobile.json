@@ -1,0 +1,31 @@
+{
+  "color": {
+    "base": "#0B0B12",
+    "surface": "#1B1B1F",
+    "surfaceLight": "#26262E",
+    "surfaceLighter": "#363640",
+    "accent": "#6A39F6",
+    "accentLight": "#DEBFD8",
+    "text": "#F5F4FF",
+    "muted": "#A8A2C4",
+    "border": "#3C375A",
+    "success": "#20C997",
+    "warning": "#F5B84B",
+    "info": "#4C8DFF",
+    "danger": "#EF476F"
+  },
+  "radius": {
+    "sm": 10,
+    "md": 16,
+    "lg": 24,
+    "pill": 999
+  },
+  "spacing": {
+    "xs": 4,
+    "sm": 8,
+    "md": 12,
+    "lg": 16,
+    "xl": 24,
+    "xxl": 32
+  }
+}

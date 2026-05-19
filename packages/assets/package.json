@@ -1,0 +1,14 @@
+{
+  "name": "@nora/assets",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Shared Nora brand, product, and marketing assets.",
+  "files": ["brand-kit"],
+  "scripts": {
+    "build": "echo \"@nora/assets: asset-only package\"",
+    "typecheck": "echo \"@nora/assets: asset-only package\"",
+    "lint": "echo \"@nora/assets: asset-only package\"",
+    "test": "echo \"@nora/assets: asset-only package\""
+  }
+}
+

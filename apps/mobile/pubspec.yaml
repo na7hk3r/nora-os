@@ -1,0 +1,46 @@
+name: nora_mobile
+description: Nora OS mobile-first native app.
+publish_to: "none"
+version: 0.1.0+1
+
+environment:
+  sdk: ">=3.4.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  collection: ^1.19.0
+  crypto: ^3.0.6
+  flutter_riverpod: ^2.6.1
+  flutter_secure_storage: ^9.2.4
+  go_router: ^14.8.1
+  intl: ^0.19.0
+  path: ^1.9.1
+  sqflite: ^2.4.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.14.4
+  flutter_native_splash: ^2.4.4
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/brand/nora-isotipo-original.png
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: assets/brand/nora-isotipo-original.png
+  adaptive_icon_background: "#0B0B12"
+  adaptive_icon_foreground: assets/brand/nora-isotipo-original.png
+  remove_alpha_ios: true
+
+flutter_native_splash:
+  color: "#0B0B12"
+  image: assets/brand/nora-isotipo-original.png
+  android_12:
+    color: "#0B0B12"
+    image: assets/brand/nora-isotipo-original.png

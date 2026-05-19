@@ -1,0 +1,15 @@
+{
+  "name": "@nora/desktop",
+  "private": true,
+  "version": "1.18.1",
+  "type": "module",
+  "description": "Nora OS Electron desktop app source package.",
+  "scripts": {
+    "dev": "npm --prefix ../.. run desktop:dev",
+    "build": "npm --prefix ../.. run desktop:build",
+    "start": "npm --prefix ../.. run desktop:start",
+    "typecheck": "npm --prefix ../.. run desktop:typecheck",
+    "lint": "npm --prefix ../.. run desktop:lint",
+    "test": "npm --prefix ../.. run desktop:test"
+  }
+}

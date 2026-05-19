@@ -1,0 +1,5 @@
+package app.nora.mobile
+
+import io.flutter.embedding.android.FlutterActivity
+
+class MainActivity : FlutterActivity()

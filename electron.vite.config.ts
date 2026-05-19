@@ -5,13 +5,14 @@ import { readFileSync } from 'fs'
 
 const pkg = JSON.parse(readFileSync(resolve(__dirname, 'package.json'), 'utf-8')) as { version: string }
 const APP_VERSION = JSON.stringify(pkg.version)
+const desktopRoot = resolve(__dirname, 'apps/desktop')
 
 export default defineConfig({
   main: {
     build: {
-      outDir: 'out/main',
+      outDir: resolve(__dirname, 'out/main'),
       lib: {
-        entry: resolve(__dirname, 'electron/main.ts'),
+        entry: resolve(desktopRoot, 'electron/main.ts'),
         fileName: () => 'index.js',
       },
       rollupOptions: {
@@ -24,9 +25,9 @@ export default defineConfig({
   },
   preload: {
     build: {
-      outDir: 'out/preload',
+      outDir: resolve(__dirname, 'out/preload'),
       lib: {
-        entry: resolve(__dirname, 'electron/preload.ts'),
+        entry: resolve(desktopRoot, 'electron/preload.ts'),
         fileName: () => 'index.js',
       },
       rollupOptions: {
@@ -37,20 +38,21 @@ export default defineConfig({
     },
   },
   renderer: {
-    root: '.',
+    root: desktopRoot,
     base: './',
     build: {
-      outDir: 'out/renderer',
+      outDir: resolve(__dirname, 'out/renderer'),
+      emptyOutDir: false,
       rollupOptions: {
-        input: resolve(__dirname, 'index.html'),
+        input: resolve(desktopRoot, 'index.html'),
       },
     },
     resolve: {
       alias: {
-        '@': resolve(__dirname, 'src'),
-        '@core': resolve(__dirname, 'src/core'),
-        '@plugins': resolve(__dirname, 'src/plugins'),
-        '@shared': resolve(__dirname, 'src/shared'),
+        '@': resolve(desktopRoot, 'src'),
+        '@core': resolve(desktopRoot, 'src/core'),
+        '@plugins': resolve(desktopRoot, 'src/plugins'),
+        '@shared': resolve(desktopRoot, 'src/shared'),
       },
     },
     define: {

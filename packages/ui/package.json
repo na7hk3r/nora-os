@@ -1,0 +1,18 @@
+{
+  "name": "@nora/ui",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Shared Nora design tokens and UI foundations.",
+  "exports": {
+    ".": "./src/index.ts",
+    "./tokens/nora-mobile.json": "./tokens/nora-mobile.json"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "lint": "echo \"@nora/ui: no lint target yet\"",
+    "test": "echo \"@nora/ui: no tests yet\""
+  }
+}
+
