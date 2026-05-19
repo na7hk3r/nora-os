@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="public/brand/nora-logo-white.png" alt="Nora OS" width="300" />
+<img src="apps/desktop/public/brand/nora-logo-white.png" alt="Nora OS" width="300" />
 
 
 **Tu sistema. Tu vida. Una sola IA.**
@@ -19,12 +19,12 @@ Electron 41 · React 19 · TypeScript 5.7 · SQLite
 <br />
 
 <p>
-  <img src="public/icons/LaptopShell.svg"   alt="Productividad" width="56" height="56" />
-  <img src="public/icons/Magic.svg"         alt="Hábitos & salud" width="56" height="56" />
-  <img src="public/icons/TreasureChest.svg" alt="Finanzas" width="56" height="56" />
-  <img src="public/icons/HourGlass.svg"     alt="Tiempo" width="56" height="56" />
-  <img src="public/icons/TomeIdea.svg"      alt="Conocimiento" width="56" height="56" />
-  <img src="public/icons/CrystalBallEye.svg" alt="Copiloto IA" width="56" height="56" />
+  <img src="apps/desktop/public/icons/LaptopShell.svg"   alt="Productividad" width="56" height="56" />
+  <img src="apps/desktop/public/icons/Magic.svg"         alt="Hábitos & salud" width="56" height="56" />
+  <img src="apps/desktop/public/icons/TreasureChest.svg" alt="Finanzas" width="56" height="56" />
+  <img src="apps/desktop/public/icons/HourGlass.svg"     alt="Tiempo" width="56" height="56" />
+  <img src="apps/desktop/public/icons/TomeIdea.svg"      alt="Conocimiento" width="56" height="56" />
+  <img src="apps/desktop/public/icons/CrystalBallEye.svg" alt="Copiloto IA" width="56" height="56" />
 </p>
 
 <sub>Iconos por <a href="https://github.com/xero/svg-icons">xero/svg-icons</a> (CC0 / dominio público).</sub>
@@ -139,7 +139,7 @@ Cola persistente con processor cada 30 s, horas de silencio configurables (con w
 ### Pulso Nora
 
 Pulso Nora es el sistema vivo de progreso de Nora OS. La mascota Nori evoluciona
-en 15 etapas usando sprites propios (`public/nora-evo/nori-01.png` a
+en 15 etapas usando sprites propios (`apps/desktop/public/nora-evo/nori-01.png` a
 `nori-15.png`), aparece libre en Progreso, en miniatura en la sidebar y en los
 overlays de level-up.
 
@@ -235,6 +235,9 @@ npm ci          # postinstall ejecuta electron-rebuild para better-sqlite3
 npm run dev     # abre la ventana Electron con HMR
 ```
 
+NPM es el gestor estable del repo para desarrollo, CI y releases. No uses
+`pnpm` como ruta de producción salvo que se reabra una migración específica.
+
 ### Comandos disponibles
 
 | Comando | Descripción |
@@ -245,9 +248,25 @@ npm run dev     # abre la ventana Electron con HMR
 | `npm test` | Suite de tests (Vitest, no-watch) |
 | `npm run test:watch` | Tests en modo watch |
 | `npm run typecheck` | `tsc --noEmit` |
-| `npm run lint` / `lint:fix` | ESLint sobre `src` y `electron` |
+| `npm run lint` / `lint:fix` | ESLint sobre `apps/desktop/src` y `apps/desktop/electron` |
 | `npm run format` / `format:check` | Prettier |
 | `npm run create-plugin -- <id>` | Scaffolding de plugin nuevo |
+| `npm run landing:typecheck` / `landing:test` / `landing:build` | Validación y build de `apps/landing` |
+| `npm run mobile:analyze` | Análisis Flutter de `apps/mobile` |
+| `npm run mobile:test` | Tests Flutter de `apps/mobile` |
+
+### CI/CD de producción
+
+Los workflows de GitHub Actions validan cada superficie por separado:
+
+| Workflow | Qué valida |
+| --- | --- |
+| `.github/workflows/ci.yml` | Desktop (`typecheck`, `lint`, `test`), landing (`typecheck`, `test`, `build`), mobile (`flutter analyze`, `flutter test`) y smoke de empaquetado Windows (`npm run pack`) |
+| `.github/workflows/landing.yml` | Deploy de `apps/landing/dist` a GitHub Pages cuando cambia la landing |
+| `.github/workflows/release.yml` | Publicación de assets Windows al GitHub Release del tag `vX.Y.Z` |
+
+Los artefactos generados (`out/`, `release/`, `dist/`, `apps/landing/dist/`,
+builds Flutter, caches y cobertura) quedan fuera de git por `.gitignore`.
 
 ### Activar IA (opcional)
 
@@ -272,8 +291,38 @@ Catálogo completo y roadmap de atajos: [docs/SHORTCUTS.md](docs/SHORTCUTS.md).
 
 ## Estructura del proyecto
 
-```
+La estructura vigente del monorepo es:
+
+```text
 nora-os/
+├── apps/
+│   ├── desktop/          # Electron app actual
+│   ├── landing/          # Landing publica y marketing web
+│   ├── mobile/           # App Flutter mobile-first
+│   └── docs/             # Workspace reservado para docs futuras
+├── packages/
+│   ├── ui/               # Design tokens y fundamentos UI compartidos
+│   ├── config/           # Configuracion compartida
+│   ├── shared-types/     # Contratos y modelos serializados
+│   ├── api-client/       # Cliente API compartido futuro
+│   ├── utils/            # Helpers reutilizables
+│   ├── assets/           # Branding/assets canonicos
+│   └── eslint-config/    # Reglas ESLint compartidas
+├── infrastructure/
+├── tooling/
+├── docs/
+├── buildResources/
+├── electron-builder.yml
+├── electron.vite.config.ts
+└── package.json
+```
+
+La app desktop ya vive en `apps/desktop`, pero los comandos productivos de raiz siguen funcionando para no romper CI/CD, releases ni habitos de desarrollo: `npm run build`, `npm run pack`, `npm run dist:win` y `npm run release` siguen siendo la ruta estable.
+
+Vista interna resumida de la app desktop:
+
+```
+apps/desktop/
 ├── electron/                    # Proceso principal Electron
 │   ├── main.ts                  # Bootstrap de ventana + servicios
 │   ├── preload.ts               # Context Bridge — 10 bridges (ver más abajo)
@@ -334,6 +383,7 @@ Para detalle: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/PLUGIN_API.md]
 | Doc | Tema |
 | --- | --- |
 | [ARCHITECTURE](docs/ARCHITECTURE.md) | Arquitectura general |
+| [MONOREPO](docs/MONOREPO.md) | Organización multiplataforma del repo |
 | [AUTH](docs/AUTH.md) | Multiusuario, sesiones, criptografía |
 | [DATABASE](docs/DATABASE.md) | Esquema SQL completo |
 | [EVENTS](docs/EVENTS.md) | Catálogo de eventos del sistema |
@@ -353,7 +403,7 @@ Para detalle: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/PLUGIN_API.md]
 
 ## Identidad visual
 
-La fuente de verdad del sistema visual vive en **`visual-id/`** (logos, paleta, tipografías y PDF de especificación).
+La fuente de verdad del sistema visual vive en **`packages/assets/brand-kit/`** (logos, paleta, tipografías y PDF de especificación).
 
 **Paleta oficial**
 
@@ -373,9 +423,9 @@ La fuente de verdad del sistema visual vive en **`visual-id/`** (logos, paleta, 
 
 **Tagline oficial**: _Tu sistema. Tu vida. Una sola IA._
 
-Los tokens están reflejados en el tema `default` del app ([src/index.css](src/index.css)) y en la landing ([landing/src/styles/index.css](landing/src/styles/index.css)). El logo vectorial reutilizable está en [public/icons/NoraLogo.svg](public/icons/NoraLogo.svg) y como componente React en [src/core/ui/components/NoraLogo.tsx](src/core/ui/components/NoraLogo.tsx) y [landing/src/components/NoraLogo.tsx](landing/src/components/NoraLogo.tsx).
+Los tokens están reflejados en `packages/ui`, en el tema `default` del app ([apps/desktop/src/index.css](apps/desktop/src/index.css)) y en la landing ([apps/landing/src/styles/index.css](apps/landing/src/styles/index.css)). El logo vectorial reutilizable está en [apps/desktop/public/icons/NoraLogo.svg](apps/desktop/public/icons/NoraLogo.svg) y como componente React en [apps/desktop/src/core/ui/components/NoraLogo.tsx](apps/desktop/src/core/ui/components/NoraLogo.tsx) y [apps/landing/src/components/NoraLogo.tsx](apps/landing/src/components/NoraLogo.tsx).
 
-> **Criterio de uso**: la identidad no es decorativa. Si hay conflicto entre estilo y claridad/legibilidad/conversión, gana siempre la legibilidad. Ver el PDF de especificación en `visual-id/` para guía completa de tono y aplicación.
+> **Criterio de uso**: la identidad no es decorativa. Si hay conflicto entre estilo y claridad/legibilidad/conversión, gana siempre la legibilidad. Ver el PDF de especificación en `packages/assets/brand-kit/` para guía completa de tono y aplicación.
 
 ---
 

@@ -7,11 +7,14 @@ en GitHub Releases con auto-update via `electron-updater`.
 
 ```bash
 # 1. Validar local
-npm run lint && npm run typecheck && npm test && npm run pack
+npm run lint && npm run typecheck && npm test
+npm run landing:typecheck && npm run landing:test && npm run landing:build
+npm run mobile:analyze && npm run mobile:test
+npm run pack
 
 # 2. Bump de version + tag
 npm version patch --no-git-tag-version          # o minor / major
-(cd landing && npm version patch --no-git-tag-version)
+(cd apps/landing && npm version patch --no-git-tag-version)
 git commit -am "chore(release): prepare vX.Y.Z"
 git tag -a vX.Y.Z -m "vX.Y.Z"
 git push origin main vX.Y.Z
@@ -25,6 +28,7 @@ git push origin main vX.Y.Z
 ## Requisitos
 
 - Node 20+, npm 9+ (ver `.nvmrc`).
+- Flutter 3.44.0 si vas a validar o publicar cambios de `apps/mobile`.
 - En Windows: VS Build Tools si vas a empaquetar local (better-sqlite3).
 - Repo configurado con `publish.provider: github` apuntando a `na7hk3r/nora-os`
   (ver [`electron-builder.yml`](../electron-builder.yml)).
@@ -47,13 +51,18 @@ git push origin main vX.Y.Z
 
 1. Mergeá todo a `main`.
 2. Actualizá `CHANGELOG.md` con la version nueva.
-3. Si la landing acompaña el release, sincronizá tambien `landing/package.json`
-   y `landing/package-lock.json`.
+3. Si la landing acompaña el release, sincronizá tambien `apps/landing/package.json`
+   y `apps/landing/package-lock.json`.
 4. Validá local:
    ```bash
    npm run lint
    npm run typecheck
    npm test
+   npm run landing:typecheck
+   npm run landing:test
+   npm run landing:build
+   npm run mobile:analyze
+   npm run mobile:test
    npm run pack   # smoke test del empaquetado
    ```
 
@@ -65,11 +74,11 @@ npm version patch --no-git-tag-version          # 1.8.0 -> 1.8.1
 npm version minor --no-git-tag-version          # 1.8.0 -> 1.9.0
 npm version major --no-git-tag-version          # 1.8.0 -> 2.0.0
 
-cd landing
+cd apps/landing
 npm version 1.8.1 --no-git-tag-version          # usar la misma version
-cd ..
+cd ../..
 
-git add package.json package-lock.json landing/package.json landing/package-lock.json CHANGELOG.md
+git add package.json package-lock.json apps/landing/package.json apps/landing/package-lock.json CHANGELOG.md
 git commit -m "chore(release): prepare v1.8.1"
 git tag -a v1.8.1 -m "v1.8.1"
 git push origin main v1.8.1
@@ -93,6 +102,12 @@ El job `build-windows` corre en `windows-latest`:
 
 Los jobs `build-linux` y `build-mac` estan apagados con `if: false`. Activarlos
 quitando ese flag cuando se quiera publicar esos targets.
+
+El workflow de CI general corre tambien landing y mobile antes de mergear:
+
+- Landing: `npm ci`, `npm run typecheck`, `npm test`, `npm run build`.
+- Mobile: Flutter `3.44.0`, `flutter pub get`, `flutter analyze`,
+  `flutter test`.
 
 ## Code signing
 
@@ -118,8 +133,8 @@ Sin firma, Windows SmartScreen muestra "Editor desconocido" la primera vez.
 
 ## Auto-update en runtime
 
-- Configurado por `electron-updater` (ver `electron/services/app-update-ipc.ts`
-  y `electron/updater.ts`).
+- Configurado por `electron-updater` (ver `apps/desktop/electron/services/app-update-ipc.ts`
+  y `apps/desktop/electron/updater.ts`).
 - En **dev** (`!app.isPackaged`) el scheduler esta deshabilitado.
 - En **prod** dispara un primer check 10s despues del boot y luego cada 6h.
 - El usuario puede chequear / instalar manualmente desde Control Center

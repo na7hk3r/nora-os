@@ -11,7 +11,7 @@ Stack: **Vite + React 19 + TypeScript + TailwindCSS**, sin backend.
 ## Estructura
 
 ```
-landing/
+apps/landing/
   package.json
   vite.config.ts
   tsconfig.json
@@ -41,8 +41,8 @@ landing/
 ## Desarrollo local
 
 ```bash
-cd landing
-npm install
+cd apps/landing
+npm ci
 npm run dev          # http://localhost:5173/nora-os/
 ```
 
@@ -52,7 +52,7 @@ npm run dev          # http://localhost:5173/nora-os/
 
 | Script | Qué hace |
 | --- | --- |
-| `npm run build` | Genera el sitio estático en `landing/dist/`. |
+| `npm run build` | Genera el sitio estático en `apps/landing/dist/`. |
 | `npm run preview` | Sirve el build local para verificar. |
 | `npm run typecheck` | Corre `tsc --noEmit`. |
 | `npm test` | Corre vitest (tests de Hero, DownloadButton, useLatestRelease, detectOS). |
@@ -91,18 +91,18 @@ producto:
 
 ## Deploy
 
-El deploy es **automático** vía GitHub Actions. Cualquier push a `main` que toque `landing/**` (o el propio workflow) dispara `.github/workflows/landing.yml`, que:
+El deploy es **automático** vía GitHub Actions. Cualquier push a `main` que toque `apps/landing/**` (o el propio workflow) dispara `.github/workflows/landing.yml`, que:
 
-1. Instala dependencias en `landing/`.
+1. Instala dependencias en `apps/landing/`.
 2. Corre `typecheck` + `test`.
 3. Construye con `npm run build`, inyectando `VITE_FEEDBACK_ENDPOINT` y `VITE_GOATCOUNTER_ENDPOINT`.
-4. Sube `landing/dist/` como artifact de Pages.
+4. Sube `apps/landing/dist/` como artifact de Pages.
 5. Despliega en `github-pages`.
 
 El primer deploy requiere habilitar Pages manualmente:
 
 1. **Settings → Pages → Build and deployment → Source: GitHub Actions.**
-2. Mergear cualquier cambio a `main` que toque `landing/`.
+2. Mergear cualquier cambio a `main` que toque `apps/landing/`.
 3. La URL final aparece en la pestaña **Actions** del repo.
 
 También se puede disparar manualmente con **Run workflow** desde la pestaña Actions.
@@ -166,8 +166,8 @@ GoatCounter marca las descargas como eventos (`e=true`); el path del evento func
 ## Cómo agregar capturas
 
 1. Exportá la captura como PNG (1600×1000 px recomendado, 16:10).
-2. Guardala en `landing/public/screenshots/` con nombre estable (`dashboard.png`, `plugins.png`, `auditor.png`).
-3. Si querés agregar capturas nuevas (no las tres por defecto), editá `landing/src/sections/Screenshots.tsx` y agregá un objeto al array `shots`.
+2. Guardala en `apps/landing/public/screenshots/` con nombre estable (`dashboard.png`, `plugins.png`, `auditor.png`).
+3. Si querés agregar capturas nuevas (no las tres por defecto), editá `apps/landing/src/sections/Screenshots.tsx` y agregá un objeto al array `shots`.
 
 Si una captura falta, la grilla muestra un placeholder discreto en su lugar (no rompe el build).
 
@@ -175,7 +175,7 @@ Si una captura falta, la grilla muestra un placeholder discreto en su lugar (no 
 
 ## Cómo agregar plugins a la landing
 
-Los plugins se listan estáticamente en `landing/src/data/plugins.ts`. Para agregar uno:
+Los plugins se listan estáticamente en `apps/landing/src/data/plugins.ts`. Para agregar uno:
 
 ```ts
 {
@@ -195,7 +195,7 @@ Los plugins se listan estáticamente en `landing/src/data/plugins.ts`. Para agre
 
 ## Cómo agregar features
 
-Editá `landing/src/data/features.ts` y agregá un objeto con `title`, `description` e `icon` (lucide-react). La grilla es responsiva (1 / 2 / 4 columnas).
+Editá `apps/landing/src/data/features.ts` y agregá un objeto con `title`, `description` e `icon` (lucide-react). La grilla es responsiva (1 / 2 / 4 columnas).
 
 ---
 
@@ -225,7 +225,7 @@ El componente `DownloadButton` autodetecta el SO con `navigator.userAgent` (vía
 ## Tests
 
 ```bash
-cd landing
+cd apps/landing
 npm test
 ```
 
@@ -244,14 +244,14 @@ Cobertura:
 Antes de mergear cambios significativos:
 
 ```bash
-cd landing
-npm install
+cd apps/landing
+npm ci
 npm run typecheck
 npm test
 npm run build
 ```
 
-Verificar que `landing/dist/index.html` contenga rutas con prefijo `/nora-os/`.
+Verificar que `apps/landing/dist/index.html` contenga rutas con prefijo `/nora-os/`.
 
 ### Lighthouse
 
@@ -259,7 +259,7 @@ Objetivo: **≥ 90** en Performance, Accessibility, Best Practices y SEO. Para c
 
 ```bash
 npm install -g @lhci/cli
-cd landing
+cd apps/landing
 npm run build && npx serve dist
 # en otra terminal
 lhci autorun --collect.url=http://localhost:3000/nora-os/

@@ -6,7 +6,7 @@ Esta guía documenta la superficie del CoreAPI que reciben los plugins en su `in
 
 ## 1. Manifiesto
 
-Cada plugin exporta un `PluginManifest` (ver `src/core/types.ts`):
+Cada plugin exporta un `PluginManifest` (ver `apps/desktop/src/core/types.ts`):
 
 ```ts
 export const myPlugin: PluginManifest = {
@@ -69,7 +69,7 @@ const off = api.events.on('FITNESS_WORKOUT_COMPLETED', (payload) => { /* … */ 
 api.events.emit('MI_EVENTO', { foo: 1 }, { source: 'mi-plugin', persist: true })
 ```
 
-Eventos core: ver `src/core/events/events.ts` (`CORE_EVENTS`, `GAMIFICATION_EVENTS`).
+Eventos core: ver `apps/desktop/src/core/events/events.ts` (`CORE_EVENTS`, `GAMIFICATION_EVENTS`).
 
 Convención: nombres `MAYUS_CON_GUION_BAJO`. Si el evento es del plugin, prefijalo (`FINANZAS_*`).
 
@@ -140,7 +140,7 @@ import { useGamificationStore } from '@core/gamification/gamificationStore'
 useGamificationStore.getState().addPoints(25, 'mi-acción')
 ```
 
-Eventos gamificados se distribuyen por reglas en `src/core/gamification/gamificationUtils.ts`.
+Eventos gamificados se distribuyen por reglas en `apps/desktop/src/core/gamification/gamificationUtils.ts`.
 
 ## 6. Servicios core
 
@@ -173,10 +173,10 @@ Eventos gamificados se distribuyen por reglas en `src/core/gamification/gamifica
 npm run create-plugin -- mi-plugin
 ```
 
-El script genera la estructura mínima en `src/plugins/<id>/`. Acordate de:
+El script genera la estructura mínima en `apps/desktop/src/plugins/<id>/`. Acordate de:
 
-1. Importarlo en `src/App.tsx`: `import './plugins/<id>'`
-2. Registrarlo en `src/core/plugins/PluginRegistry.ts`
+1. Importarlo en `apps/desktop/src/App.tsx`: `import './plugins/<id>'`
+2. Registrarlo en `apps/desktop/src/core/plugins/PluginRegistry.ts`
 3. Definir migraciones SQL con prefijo `<id>_` antes de leer/escribir.
 
 ## 9. Buenas prácticas

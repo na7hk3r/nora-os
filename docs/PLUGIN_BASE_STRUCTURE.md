@@ -10,10 +10,10 @@ Esta guía define la estructura base obligatoria para cualquier plugin nuevo en 
 
 ## Estructura base recomendada
 
-Ruta base: `src/plugins/<plugin-id>/`
+Ruta base: `apps/desktop/src/plugins/<plugin-id>/`
 
 ```text
-src/plugins/my-plugin/
+apps/desktop/src/plugins/my-plugin/
   index.ts
   events.ts
   types.ts
@@ -128,4 +128,4 @@ Para mantener identidad por plugin sin romper consistencia global:
 - Work: `plugin-shell plugin-shell-work`
 - Paneles internos: `plugin-panel`
 
-Estas clases viven en `src/index.css`.
+Estas clases viven en `apps/desktop/src/index.css`.
