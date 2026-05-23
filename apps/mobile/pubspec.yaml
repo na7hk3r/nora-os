@@ -29,6 +29,8 @@ flutter:
   uses-material-design: true
   assets:
     - assets/brand/nora-isotipo-original.png
+    - assets/brand/nora-white.png
+    - assets/nora-evo/
 
 flutter_launcher_icons:
   android: true

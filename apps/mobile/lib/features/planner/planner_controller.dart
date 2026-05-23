@@ -1,22 +1,37 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/models/nora_models.dart';
+import '../../core/pulso/nora_pulso.dart';
+import '../../core/pulso/pulso_controller.dart';
+import '../../core/pulso/pulso_repository.dart';
 import '../auth/auth_controller.dart';
 import 'planner_repository.dart';
 
 final plannerControllerProvider =
     StateNotifierProvider<PlannerController, AsyncValue<List<PlannerItem>>>((ref) {
   final ownerId = ref.watch(authControllerProvider).user?.id;
-  return PlannerController(ref.watch(plannerRepositoryProvider), ownerId);
+  return PlannerController(
+    ref.watch(plannerRepositoryProvider),
+    ref.watch(pulsoRepositoryProvider),
+    ownerId,
+    () => ref.read(pulsoControllerProvider.notifier).load(),
+  );
 });
 
 class PlannerController extends StateNotifier<AsyncValue<List<PlannerItem>>> {
-  PlannerController(this._repository, this._ownerId) : super(const AsyncValue.loading()) {
+  PlannerController(
+    this._repository,
+    this._pulsoRepository,
+    this._ownerId,
+    this._onExperienceChanged,
+  ) : super(const AsyncValue.loading()) {
     load();
   }
 
   final PlannerRepository _repository;
+  final PulsoRepository _pulsoRepository;
   final String? _ownerId;
+  final Future<void> Function() _onExperienceChanged;
 
   Future<void> load() async {
     final ownerId = _ownerId;
@@ -65,12 +80,23 @@ class PlannerController extends StateNotifier<AsyncValue<List<PlannerItem>>> {
   Future<void> toggleComplete(PlannerItem item) async {
     final ownerId = _ownerId;
     if (ownerId == null) return;
+    final completing = !item.isCompleted;
     await _repository.save(
       item.copyWith(
         status: item.isCompleted ? TaskStatus.pending : TaskStatus.completed,
         updatedAt: DateTime.now(),
       ),
     );
+    if (completing) {
+      await _pulsoRepository.addExperience(
+        ownerId: ownerId,
+        amount: plannerCompletionXp(item.priority),
+        reason: 'Planner ${item.priority.label.toLowerCase()} completado',
+        source: 'planner',
+        sourceEvent: 'MOBILE_PLANNER_ITEM_COMPLETED',
+      );
+      await _onExperienceChanged();
+    }
     await load();
   }
 

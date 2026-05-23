@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:crypto/crypto.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nora_mobile/core/models/nora_models.dart';
 import 'package:nora_mobile/core/storage/local_store.dart';
@@ -123,6 +126,58 @@ void main() {
     final loggedIn = await repository.login(username: 'natalia', password: 'password123');
     expect(loggedIn.id, user.id);
   });
+
+  test('new users are created with the current password hash version', () async {
+    final store = FakeAuthLocalStore();
+    final repository = AuthRepository(store: store, sessionStore: FakeSessionStore());
+
+    final user = await repository.register(
+      username: 'natalia',
+      password: 'password123',
+      recoveryQuestion: 'Cual es tu proyecto favorito?',
+      recoveryAnswer: 'Nora',
+    );
+
+    expect(
+      store.rowsById[user.id]?['password_version'],
+      AuthRepository.currentPasswordVersion,
+    );
+  });
+
+  test('legacy password hash is upgraded after successful login', () async {
+    final store = FakeAuthLocalStore();
+    final repository = AuthRepository(store: store, sessionStore: FakeSessionStore());
+    const salt = 'legacy-salt';
+    const username = 'natalia';
+    const password = 'password123';
+    const userId = 'user-legacy';
+    final legacyHash = legacyPasswordHash(password, salt);
+    store.rowsById[userId] = {
+      'id': userId,
+      'username': username,
+      'display_name': 'Natalia',
+      'password_hash': legacyHash,
+      'salt': salt,
+      'password_version': AuthRepository.legacyPasswordVersion,
+      'created_at': DateTime.utc(2026, 5, 19).toIso8601String(),
+      'last_login_at': DateTime.utc(2026, 5, 19).toIso8601String(),
+    };
+
+    await repository.login(username: username, password: password);
+
+    expect(store.rowsById[userId]?['password_version'], AuthRepository.currentPasswordVersion);
+    expect(store.rowsById[userId]?['password_hash'], isNot(legacyHash));
+    expect(store.rowsById[userId]?['salt'], isNot(salt));
+  });
+}
+
+String legacyPasswordHash(String password, String salt) {
+  List<int> bytes = utf8.encode('$salt:$password');
+  final saltBytes = utf8.encode(salt);
+  for (var i = 0; i < 12000; i++) {
+    bytes = sha256.convert([...bytes, ...saltBytes]).bytes;
+  }
+  return base64Url.encode(bytes);
 }
 
 class FakeSessionStore implements SessionStore {
@@ -178,6 +233,7 @@ class FakeAuthLocalStore implements AuthLocalStore {
     required String displayName,
     required String passwordHash,
     required String salt,
+    required String passwordVersion,
     String? recoveryQuestion,
     String? recoveryAnswerHash,
     String? recoverySalt,
@@ -188,6 +244,7 @@ class FakeAuthLocalStore implements AuthLocalStore {
       'display_name': displayName,
       'password_hash': passwordHash,
       'salt': salt,
+      'password_version': passwordVersion,
       'recovery_question': recoveryQuestion,
       'recovery_answer_hash': recoveryAnswerHash,
       'recovery_salt': recoverySalt,
@@ -201,11 +258,13 @@ class FakeAuthLocalStore implements AuthLocalStore {
     required String userId,
     required String passwordHash,
     required String salt,
+    required String passwordVersion,
   }) async {
     final row = rowsById[userId];
     if (row == null) return;
     row['password_hash'] = passwordHash;
     row['salt'] = salt;
+    row['password_version'] = passwordVersion;
     row['last_login_at'] = DateTime.utc(2026, 5, 19).toIso8601String();
   }
 

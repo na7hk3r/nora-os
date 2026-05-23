@@ -15,8 +15,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Crear cuenta'), findsWidgets);
-    expect(find.text('Usuario'), findsOneWidget);
-    expect(find.text('Pregunta de recuperacion (min 10 caracteres)'), findsOneWidget);
+    expect(find.text('Usuario'), findsWidgets);
+    expect(find.text('Pregunta de recuperación (min 10 caracteres)'), findsOneWidget);
     expect(find.text('Primer arranque: crea tu cuenta local para entrar a Nora OS.'), findsOneWidget);
   });
 
@@ -28,13 +28,13 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Iniciar sesion'), findsOneWidget);
-    expect(find.text('Pregunta de recuperacion (min 10 caracteres)'), findsNothing);
+    expect(find.text('Pregunta de recuperación (min 10 caracteres)'), findsNothing);
 
     await tester.tap(find.text('Registro'));
     await tester.pumpAndSettle();
 
     expect(find.text('Crear cuenta'), findsWidgets);
-    expect(find.text('Pregunta de recuperacion (min 10 caracteres)'), findsOneWidget);
+    expect(find.text('Pregunta de recuperación (min 10 caracteres)'), findsOneWidget);
 
     await tester.tap(find.text('Recuperar'));
     await tester.pumpAndSettle();
@@ -140,6 +140,7 @@ class FakeAuthLocalStore implements AuthLocalStore {
     required String displayName,
     required String passwordHash,
     required String salt,
+    required String passwordVersion,
     String? recoveryQuestion,
     String? recoveryAnswerHash,
     String? recoverySalt,
@@ -150,6 +151,7 @@ class FakeAuthLocalStore implements AuthLocalStore {
     required String userId,
     required String passwordHash,
     required String salt,
+    required String passwordVersion,
   }) async {}
 
   @override

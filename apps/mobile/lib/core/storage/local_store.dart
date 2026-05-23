@@ -1,7 +1,11 @@
+import 'dart:convert';
+
 import 'package:path/path.dart' as p;
 import 'package:sqflite/sqflite.dart';
 
+import '../events/nora_event.dart';
 import '../models/nora_models.dart';
+import '../pulso/pulso_repository.dart';
 
 abstract class AuthLocalStore {
   Future<void> insertUser({
@@ -10,6 +14,7 @@ abstract class AuthLocalStore {
     required String displayName,
     required String passwordHash,
     required String salt,
+    required String passwordVersion,
     String? recoveryQuestion,
     String? recoveryAnswerHash,
     String? recoverySalt,
@@ -23,12 +28,13 @@ abstract class AuthLocalStore {
     required String userId,
     required String passwordHash,
     required String salt,
+    required String passwordVersion,
   });
   Future<void> touchLogin(String userId);
   Future<void> seedUserDataIfEmpty(String ownerId);
 }
 
-class NoraLocalStore implements AuthLocalStore {
+class NoraLocalStore implements AuthLocalStore, PulsoLocalStore {
   NoraLocalStore._();
 
   static final NoraLocalStore instance = NoraLocalStore._();
@@ -43,7 +49,7 @@ class NoraLocalStore implements AuthLocalStore {
     final path = p.join(root, 'nora_mobile.db');
     final db = await openDatabase(
       path,
-      version: 2,
+      version: 3,
       onCreate: _createSchema,
       onUpgrade: _upgradeSchema,
       onConfigure: (db) async {
@@ -62,6 +68,7 @@ class NoraLocalStore implements AuthLocalStore {
         display_name TEXT NOT NULL,
         password_hash TEXT NOT NULL,
         salt TEXT NOT NULL,
+        password_version TEXT NOT NULL,
         recovery_question TEXT,
         recovery_answer_hash TEXT,
         recovery_salt TEXT,
@@ -129,9 +136,22 @@ class NoraLocalStore implements AuthLocalStore {
       )
     ''');
 
+    await db.execute('''
+      CREATE TABLE events_log (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        owner_id TEXT NOT NULL,
+        event_type TEXT NOT NULL,
+        source TEXT NOT NULL,
+        payload TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        FOREIGN KEY(owner_id) REFERENCES users(id) ON DELETE CASCADE
+      )
+    ''');
+
     await db.execute('CREATE INDEX idx_planner_owner_date ON planner_items(owner_id, date)');
     await db.execute('CREATE INDEX idx_tasks_owner_status ON task_items(owner_id, status)');
     await db.execute('CREATE INDEX idx_notifications_owner_created ON notifications(owner_id, created_at)');
+    await db.execute('CREATE INDEX idx_events_owner_created ON events_log(owner_id, created_at)');
   }
 
   Future<void> _upgradeSchema(Database db, int oldVersion, int newVersion) async {
@@ -139,6 +159,21 @@ class NoraLocalStore implements AuthLocalStore {
       await db.execute('ALTER TABLE users ADD COLUMN recovery_question TEXT');
       await db.execute('ALTER TABLE users ADD COLUMN recovery_answer_hash TEXT');
       await db.execute('ALTER TABLE users ADD COLUMN recovery_salt TEXT');
+    }
+    if (oldVersion < 3) {
+      await db.execute("ALTER TABLE users ADD COLUMN password_version TEXT NOT NULL DEFAULT 'legacy_sha256_v1'");
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS events_log (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          owner_id TEXT NOT NULL,
+          event_type TEXT NOT NULL,
+          source TEXT NOT NULL,
+          payload TEXT NOT NULL,
+          created_at TEXT NOT NULL,
+          FOREIGN KEY(owner_id) REFERENCES users(id) ON DELETE CASCADE
+        )
+      ''');
+      await db.execute('CREATE INDEX IF NOT EXISTS idx_events_owner_created ON events_log(owner_id, created_at)');
     }
   }
 
@@ -149,6 +184,7 @@ class NoraLocalStore implements AuthLocalStore {
     required String displayName,
     required String passwordHash,
     required String salt,
+    required String passwordVersion,
     String? recoveryQuestion,
     String? recoveryAnswerHash,
     String? recoverySalt,
@@ -161,6 +197,7 @@ class NoraLocalStore implements AuthLocalStore {
       'display_name': displayName,
       'password_hash': passwordHash,
       'salt': salt,
+      'password_version': passwordVersion,
       'recovery_question': recoveryQuestion,
       'recovery_answer_hash': recoveryAnswerHash,
       'recovery_salt': recoverySalt,
@@ -193,6 +230,7 @@ class NoraLocalStore implements AuthLocalStore {
     required String userId,
     required String passwordHash,
     required String salt,
+    required String passwordVersion,
   }) async {
     final db = await database;
     await db.update(
@@ -200,6 +238,7 @@ class NoraLocalStore implements AuthLocalStore {
       {
         'password_hash': passwordHash,
         'salt': salt,
+        'password_version': passwordVersion,
         'last_login_at': DateTime.now().toIso8601String(),
       },
       where: 'id = ?',
@@ -324,6 +363,70 @@ class NoraLocalStore implements AuthLocalStore {
       where: 'owner_id = ? AND read_at IS NULL',
       whereArgs: [ownerId],
     );
+  }
+
+  @override
+  Future<String?> getSetting(String ownerId, String key) async {
+    final db = await database;
+    final rows = await db.query(
+      'settings',
+      columns: ['value'],
+      where: 'owner_id = ? AND key = ?',
+      whereArgs: [ownerId, key],
+      limit: 1,
+    );
+    return rows.isEmpty ? null : rows.first['value'] as String?;
+  }
+
+  @override
+  Future<void> setSetting(String ownerId, String key, String value) async {
+    final db = await database;
+    await db.insert(
+      'settings',
+      {'owner_id': ownerId, 'key': key, 'value': value},
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  @override
+  Future<void> logEvent({
+    required String ownerId,
+    required String eventType,
+    required String source,
+    required Map<String, Object?> payload,
+  }) async {
+    final db = await database;
+    await db.insert('events_log', {
+      'owner_id': ownerId,
+      'event_type': eventType,
+      'source': source,
+      'payload': jsonEncode(payload),
+      'created_at': DateTime.now().toIso8601String(),
+    });
+  }
+
+  @override
+  Future<List<NoraEventLogEntry>> listRecentEvents(String ownerId, {int limit = 30}) async {
+    final db = await database;
+    final rows = await db.query(
+      'events_log',
+      where: 'owner_id = ?',
+      whereArgs: [ownerId],
+      orderBy: 'created_at DESC',
+      limit: limit,
+    );
+    return rows.map((row) {
+      final payloadRaw = row['payload'] as String? ?? '{}';
+      final decoded = jsonDecode(payloadRaw);
+      return NoraEventLogEntry(
+        id: row['id'] as int,
+        ownerId: row['owner_id'] as String,
+        eventType: row['event_type'] as String,
+        source: row['source'] as String,
+        payload: decoded is Map ? Map<String, Object?>.from(decoded) : const {},
+        createdAt: DateTime.parse(row['created_at'] as String),
+      );
+    }).toList();
   }
 
   @override

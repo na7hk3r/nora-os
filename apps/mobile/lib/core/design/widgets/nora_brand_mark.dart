@@ -44,3 +44,34 @@ class NoraBrandMark extends StatelessWidget {
     );
   }
 }
+
+class NoraBrandWordmark extends StatelessWidget {
+  const NoraBrandWordmark({
+    super.key,
+    this.height = 24,
+    this.maxWidth = 200,
+    this.semanticLabel = 'Nora OS',
+  });
+
+  final double height;
+  final double maxWidth;
+  final String semanticLabel;
+
+  static const asset = 'assets/brand/nora-white.png';
+
+  @override
+  Widget build(BuildContext context) {
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: maxWidth),
+      child: Image.asset(
+        asset,
+        height: height,
+        width: maxWidth,
+        alignment: Alignment.centerLeft,
+        fit: BoxFit.contain,
+        filterQuality: FilterQuality.high,
+        semanticLabel: semanticLabel,
+      ),
+    );
+  }
+}

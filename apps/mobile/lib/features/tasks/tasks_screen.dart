@@ -3,8 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/design/nora_colors.dart';
 import '../../core/design/nora_spacing.dart';
+import '../../core/design/widgets/nora_empty_state.dart';
+import '../../core/design/widgets/nora_error_state.dart';
 import '../../core/design/widgets/nora_card.dart';
 import '../../core/design/widgets/nora_fab.dart';
+import '../../core/design/widgets/nora_swipe_action.dart';
 import '../../core/models/nora_models.dart';
 import '../create/create_sheet.dart';
 import 'tasks_controller.dart';
@@ -27,7 +30,11 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
       children: [
         tasksState.when(
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (error, stackTrace) => const Center(child: Text('No se pudieron cargar tareas.')),
+          error: (error, stackTrace) => NoraErrorState(
+            title: 'No se pudieron cargar tareas',
+            message: 'Tu lista local no se sincroniza con ningun servidor.',
+            onRetry: () => ref.read(tasksControllerProvider.notifier).load(),
+          ),
           data: (tasks) {
             final filtered = tasks.where((task) => task.status == _status).toList();
             final groups = _groupTasks(filtered);
@@ -52,7 +59,13 @@ class _TasksScreenState extends ConsumerState<TasksScreen> {
                 ),
                 const SizedBox(height: NoraSpacing.lg),
                 if (filtered.isEmpty)
-                  const _TasksEmpty()
+                  NoraEmptyState(
+                    icon: Icons.checklist_rounded,
+                    title: 'Sin tareas en esta vista',
+                    message: 'Crea una tarea para empezar con lo importante.',
+                    actionLabel: 'Crear tarea',
+                    onAction: () => showNoraCreateSheet(context),
+                  )
                 else
                   ...groups.entries.map((entry) {
                     return _TaskGroup(title: entry.key, tasks: entry.value);
@@ -269,45 +282,11 @@ class _DismissBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return NoraSwipeAction(
       alignment: alignment,
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      margin: const EdgeInsets.only(bottom: 10),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.22),
-        borderRadius: BorderRadius.circular(22),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, color: color),
-          const SizedBox(width: 6),
-          Text(label, style: TextStyle(color: color, fontWeight: FontWeight.w700)),
-        ],
-      ),
-    );
-  }
-}
-
-class _TasksEmpty extends StatelessWidget {
-  const _TasksEmpty();
-
-  @override
-  Widget build(BuildContext context) {
-    return NoraCard(
-      child: Column(
-        children: [
-          const Icon(Icons.checklist_rounded, color: NoraColors.muted),
-          const SizedBox(height: NoraSpacing.sm),
-          Text('Sin tareas en esta vista', style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: NoraSpacing.xs),
-          Text(
-            'Crea una tarea para empezar.',
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: NoraColors.muted),
-          ),
-        ],
-      ),
+      icon: icon,
+      label: label,
+      color: color,
     );
   }
 }

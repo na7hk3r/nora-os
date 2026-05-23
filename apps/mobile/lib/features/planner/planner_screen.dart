@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/design/nora_colors.dart';
 import '../../core/design/nora_spacing.dart';
+import '../../core/design/widgets/nora_empty_state.dart';
+import '../../core/design/widgets/nora_error_state.dart';
 import '../../core/design/widgets/nora_card.dart';
 import '../../core/design/widgets/nora_fab.dart';
 import '../../core/design/widgets/nora_panel.dart';
@@ -35,7 +37,11 @@ class _PlannerScreenState extends ConsumerState<PlannerScreen> {
       children: [
         plannerState.when(
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (error, stackTrace) => Center(child: Text('No se pudo cargar el planner.')),
+          error: (error, stackTrace) => NoraErrorState(
+            title: 'No se pudo cargar el planner',
+            message: 'Tus datos siguen en este dispositivo. Reintenta en unos segundos.',
+            onRetry: () => ref.read(plannerControllerProvider.notifier).load(),
+          ),
           data: (items) {
             final selectedKey = noraDateKey(_selectedDate);
             final selectedItems = items.where((item) => item.date == selectedKey).toList()
@@ -58,7 +64,13 @@ class _PlannerScreenState extends ConsumerState<PlannerScreen> {
                     child: const Text('Hoy'),
                   ),
                   child: selectedItems.isEmpty
-                      ? const _PlannerEmpty()
+                      ? NoraEmptyState(
+                          icon: Icons.calendar_today_outlined,
+                          title: 'Dia vacio',
+                          message: 'Agrega una tarea o bloque de foco al planner.',
+                          actionLabel: 'Crear',
+                          onAction: () => showNoraCreateSheet(context),
+                        )
                       : Column(
                           children: selectedItems.map((item) {
                             return _TimelineItem(item: item);
@@ -276,30 +288,6 @@ class _Tag extends StatelessWidget {
       child: Text(
         label,
         style: Theme.of(context).textTheme.labelMedium?.copyWith(color: color),
-      ),
-    );
-  }
-}
-
-class _PlannerEmpty extends StatelessWidget {
-  const _PlannerEmpty();
-
-  @override
-  Widget build(BuildContext context) {
-    return NoraCard(
-      glass: false,
-      child: Column(
-        children: [
-          const Icon(Icons.calendar_today_outlined, color: NoraColors.muted),
-          const SizedBox(height: NoraSpacing.sm),
-          Text('Dia vacio', style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: NoraSpacing.xs),
-          Text(
-            'Agrega una tarea o bloque de foco al planner.',
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: NoraColors.muted),
-          ),
-        ],
       ),
     );
   }

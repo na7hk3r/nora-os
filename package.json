@@ -38,6 +38,8 @@
     "landing:test": "npm --prefix apps/landing test",
     "mobile:test": "node tooling/automation/flutter-app.mjs test",
     "mobile:analyze": "node tooling/automation/flutter-app.mjs analyze",
+    "mobile:build:apk": "node tooling/automation/flutter-app.mjs build apk --release",
+    "mobile:build:appbundle": "node tooling/automation/flutter-app.mjs build appbundle --release",
     "create-plugin": "node scripts/create-plugin.mjs",
     "pack": "npm run desktop:build && electron-builder --dir",
     "dist": "npm run desktop:build && electron-builder",

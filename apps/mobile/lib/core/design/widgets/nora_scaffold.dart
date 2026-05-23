@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../nora_colors.dart';
 import '../nora_spacing.dart';
+import 'nora_brand_mark.dart';
 
 class NoraScaffold extends StatelessWidget {
   const NoraScaffold({
@@ -46,12 +47,7 @@ class NoraScaffold extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                title!,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: Theme.of(context).textTheme.titleLarge,
-                              ),
+                              NoraBrandWordmark(semanticLabel: title!),
                               if (subtitle != null) ...[
                                 const SizedBox(height: NoraSpacing.xs),
                                 Text(

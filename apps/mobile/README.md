@@ -32,6 +32,37 @@ npm run mobile:analyze
 npm run mobile:test
 ```
 
+## Build
+
+For the Android release APK from the repository root:
+
+```powershell
+npm run mobile:build:apk
+```
+
+The APK is generated at:
+
+```text
+apps/mobile/build/app/outputs/flutter-apk/app-release.apk
+```
+
+For a Google Play/App Bundle release:
+
+```powershell
+npm run mobile:build:appbundle
+```
+
+The AAB is generated at:
+
+```text
+apps/mobile/build/app/outputs/bundle/release/app-release.aab
+```
+
+Equivalent direct Flutter commands from `apps/mobile` are `flutter build apk --release`
+and `flutter build appbundle --release`. Android release builds currently use the
+debug signing config so local release runs work; replace it with a real keystore
+before publishing outside internal/beta testing.
+
 The MVP stores local data on-device through SQLite and keeps the session token in secure storage.
 
 Generated Flutter state is intentionally ignored: `.dart_tool/`, build outputs,

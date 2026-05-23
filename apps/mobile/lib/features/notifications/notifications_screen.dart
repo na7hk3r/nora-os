@@ -6,6 +6,8 @@ import '../../core/design/nora_colors.dart';
 import '../../core/design/nora_spacing.dart';
 import '../../core/design/widgets/nora_button.dart';
 import '../../core/design/widgets/nora_card.dart';
+import '../../core/design/widgets/nora_empty_state.dart';
+import '../../core/design/widgets/nora_error_state.dart';
 import '../../core/models/nora_models.dart';
 import 'notifications_controller.dart';
 
@@ -18,7 +20,11 @@ class NotificationsScreen extends ConsumerWidget {
 
     return state.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (error, stackTrace) => const Center(child: Text('No se pudieron cargar avisos.')),
+      error: (error, stackTrace) => NoraErrorState(
+        title: 'No se pudieron cargar avisos',
+        message: 'Las alertas viven solo en este dispositivo.',
+        onRetry: () => ref.read(notificationsControllerProvider.notifier).load(),
+      ),
       data: (items) {
         final today = noraDateKey(DateTime.now());
         final yesterday = noraDateKey(DateTime.now().subtract(const Duration(days: 1)));
@@ -58,7 +64,11 @@ class NotificationsScreen extends ConsumerWidget {
             ),
             const SizedBox(height: NoraSpacing.lg),
             if (items.isEmpty)
-              const _NotificationsEmpty()
+              const NoraEmptyState(
+                icon: Icons.notifications_paused_outlined,
+                title: 'Sin notificaciones',
+                message: 'Nora OS mostrara aca solo lo relevante.',
+              )
             else
               ...groups.entries.where((entry) => entry.value.isNotEmpty).map((entry) {
                 return _NotificationGroup(title: entry.key, items: entry.value);
@@ -200,28 +210,5 @@ class _NotificationTile extends StatelessWidget {
       case NoraNotificationKind.reminder:
         return NoraColors.warning;
     }
-  }
-}
-
-class _NotificationsEmpty extends StatelessWidget {
-  const _NotificationsEmpty();
-
-  @override
-  Widget build(BuildContext context) {
-    return NoraCard(
-      child: Column(
-        children: [
-          const Icon(Icons.notifications_paused_outlined, color: NoraColors.muted),
-          const SizedBox(height: NoraSpacing.sm),
-          Text('Sin notificaciones', style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: NoraSpacing.xs),
-          Text(
-            'Nora OS mostrara aca solo lo relevante.',
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: NoraColors.muted),
-          ),
-        ],
-      ),
-    );
   }
 }

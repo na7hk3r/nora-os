@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter/services.dart';
 
 import '../../core/design/nora_colors.dart';
 import '../../core/design/nora_spacing.dart';
@@ -65,10 +66,25 @@ class ProfileScreen extends ConsumerWidget {
         const SizedBox(height: NoraSpacing.xl),
         _Section(
           title: 'Cuenta',
-          children: const [
-            _SettingsRow(icon: Icons.person_outline_rounded, label: 'Mi perfil'),
-            _SettingsRow(icon: Icons.settings_outlined, label: 'Ajustes'),
-            _SettingsRow(icon: Icons.storage_outlined, label: 'Datos locales'),
+          children: [
+            _SettingsRow(
+              icon: Icons.person_outline_rounded,
+              label: 'Mi perfil',
+              onTap: () => _showInfoDialog(
+                context,
+                title: 'Mi perfil',
+                body: 'Usuario local: ${user?.username ?? 'local'}\nNombre: ${user?.displayName ?? 'Nora'}',
+              ),
+            ),
+            _SettingsRow(
+              icon: Icons.storage_outlined,
+              label: 'Datos locales',
+              onTap: () => _showInfoDialog(
+                context,
+                title: 'Datos locales',
+                body: 'Nora Mobile guarda tu cuenta, planner, tareas, alertas y Pulso Nora en SQLite del dispositivo. No hay cloud ni tracking.',
+              ),
+            ),
           ],
         ),
         const SizedBox(height: NoraSpacing.lg),
@@ -76,15 +92,25 @@ class ProfileScreen extends ConsumerWidget {
           title: 'Preferencias',
           children: const [
             _SettingsRow(icon: Icons.dark_mode_outlined, label: 'Tema', trailing: 'Oscuro'),
-            _SettingsRow(icon: Icons.notifications_none_rounded, label: 'Alertas'),
             _SettingsRow(icon: Icons.sync_disabled_rounded, label: 'Modo de datos', trailing: 'Local'),
           ],
         ),
         const SizedBox(height: NoraSpacing.lg),
         _Section(
           title: 'Soporte',
-          children: const [
-            _SettingsRow(icon: Icons.help_outline_rounded, label: 'Documentacion'),
+          children: [
+            _SettingsRow(
+              icon: Icons.help_outline_rounded,
+              label: 'Documentacion',
+              trailing: 'Copiar link',
+              onTap: () async {
+                await Clipboard.setData(const ClipboardData(text: 'https://na7hk3r.github.io/nora-os/'));
+                if (!context.mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Link de documentacion copiado.')),
+                );
+              },
+            ),
           ],
         ),
         const SizedBox(height: NoraSpacing.xl),
@@ -101,6 +127,22 @@ class ProfileScreen extends ConsumerWidget {
                 },
         ),
       ],
+    );
+  }
+
+  void _showInfoDialog(BuildContext context, {required String title, required String body}) {
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: Text(body),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cerrar'),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -145,16 +187,18 @@ class _SettingsRow extends StatelessWidget {
     required this.icon,
     required this.label,
     this.trailing,
+    this.onTap,
   });
 
   final IconData icon;
   final String label;
   final String? trailing;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: () {},
+      onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 15),
         child: Row(
@@ -168,7 +212,7 @@ class _SettingsRow extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: NoraColors.muted),
               ),
             const SizedBox(width: NoraSpacing.sm),
-            const Icon(Icons.chevron_right_rounded, color: NoraColors.muted),
+            if (onTap != null) const Icon(Icons.chevron_right_rounded, color: NoraColors.muted),
           ],
         ),
       ),

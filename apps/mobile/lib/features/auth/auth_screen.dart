@@ -144,7 +144,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
       NoraInput(
         controller: _usernameController,
         label: 'Usuario',
-        hint: 'natalia',
+        hint: 'Usuario',
         icon: Icons.person_outline_rounded,
         textInputAction: TextInputAction.next,
         autofillHints: const [AutofillHints.username],
@@ -157,7 +157,8 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
         const SizedBox(height: NoraSpacing.md),
         NoraInput(
           controller: _passwordController,
-          label: 'Contrasena',
+          label: 'Contraseña',
+          hint: '********',
           icon: Icons.lock_outline_rounded,
           obscureText: !_showPassword,
           textInputAction: TextInputAction.done,
@@ -177,7 +178,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
         const SizedBox(height: NoraSpacing.md),
         NoraInput(
           controller: _passwordController,
-          label: 'Contrasena (min 8 caracteres)',
+          label: 'Contraseña (min 8 caracteres)',
           icon: Icons.lock_outline_rounded,
           obscureText: !_showPassword,
           textInputAction: TextInputAction.next,
@@ -191,8 +192,8 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
         const SizedBox(height: NoraSpacing.md),
         NoraInput(
           controller: _recoveryQuestionController,
-          label: 'Pregunta de recuperacion (min 10 caracteres)',
-          hint: 'Ej: cual es tu proyecto favorito?',
+          label: 'Pregunta de recuperación (min 10 caracteres)',
+          hint: 'Ej: ¿Cuál es tu proyecto favorito?',
           icon: Icons.help_outline_rounded,
           textInputAction: TextInputAction.next,
           onChanged: (_) => _onFieldChanged(),

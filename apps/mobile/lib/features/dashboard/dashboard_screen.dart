@@ -6,8 +6,12 @@ import '../../core/design/nora_colors.dart';
 import '../../core/design/nora_spacing.dart';
 import '../../core/design/widgets/nora_button.dart';
 import '../../core/design/widgets/nora_card.dart';
+import '../../core/design/widgets/nora_metric_tile.dart';
 import '../../core/design/widgets/nora_panel.dart';
+import '../../core/design/widgets/nora_section_header.dart';
+import '../../core/design/widgets/nori_sprite.dart';
 import '../../core/models/nora_models.dart';
+import '../../core/pulso/pulso_controller.dart';
 import '../auth/auth_controller.dart';
 import '../notifications/notifications_controller.dart';
 import '../planner/planner_controller.dart';
@@ -22,6 +26,7 @@ class DashboardScreen extends ConsumerWidget {
     final planner = ref.watch(plannerControllerProvider).valueOrNull ?? [];
     final tasks = ref.watch(tasksControllerProvider).valueOrNull ?? [];
     final notifications = ref.watch(notificationsControllerProvider).valueOrNull ?? [];
+    final pulso = ref.watch(pulsoControllerProvider).valueOrNull;
     final today = noraDateKey(DateTime.now());
     final todayPlanner = planner.where((item) => item.date == today).toList();
     final completedToday = todayPlanner.where((item) => item.isCompleted).length;
@@ -37,37 +42,24 @@ class DashboardScreen extends ConsumerWidget {
         ),
         const SizedBox(height: NoraSpacing.xs),
         Text(
-          'Lo importante de tu dia, sin ruido.',
+          'Tu sistema. Tu vida. Una sola IA.',
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: NoraColors.muted),
         ),
-        const SizedBox(height: NoraSpacing.lg),
+        const SizedBox(height: NoraSpacing.xl),
         NoraCard(
-          padding: const EdgeInsets.all(14),
-          child: Row(
-            children: [
-              const Icon(Icons.search_rounded, color: NoraColors.muted, size: 20),
-              const SizedBox(width: NoraSpacing.sm),
-              Expanded(
-                child: Text(
-                  'Buscar tareas, notas o rutas...',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: NoraColors.muted),
-                ),
-              ),
-              IconButton(
-                tooltip: 'Filtros',
-                onPressed: () {},
-                icon: const Icon(Icons.tune_rounded, color: NoraColors.text),
-              ),
-            ],
+          padding: const EdgeInsets.all(16),
+          child: _PulsoNoraSummary(
+            points: pulso?.points ?? 0,
+            level: pulso?.level ?? 1,
+            percent: pulso?.progress.percent ?? 0,
+            xpRemaining: pulso?.progress.xpRemaining ?? 120,
           ),
         ),
         const SizedBox(height: NoraSpacing.xl),
-        Row(
-          children: [
-            Text('Acciones rapidas', style: Theme.of(context).textTheme.titleMedium),
-            const Spacer(),
-            TextButton(onPressed: () => context.go('/tasks'), child: const Text('Ver todo')),
-          ],
+        NoraSectionHeader(
+          title: 'Acciones rapidas',
+          actionLabel: 'Ver tareas',
+          onAction: () => context.go('/tasks'),
         ),
         const SizedBox(height: NoraSpacing.sm),
         SingleChildScrollView(
@@ -89,9 +81,19 @@ class DashboardScreen extends ConsumerWidget {
               Expanded(
                 child: Column(
                   children: [
-                    _MetricTile(value: '${todayPlanner.length}', label: 'Bloques hoy', color: NoraColors.info),
+                    NoraMetricTile(
+                      value: '${todayPlanner.length}',
+                      label: 'Bloques hoy',
+                      icon: Icons.calendar_today_outlined,
+                      color: NoraColors.info,
+                    ),
                     const SizedBox(height: NoraSpacing.sm),
-                    _MetricTile(value: '$pendingTasks', label: 'Tareas activas', color: NoraColors.warning),
+                    NoraMetricTile(
+                      value: '$pendingTasks',
+                      label: 'Tareas activas',
+                      icon: Icons.checklist_rounded,
+                      color: NoraColors.warning,
+                    ),
                   ],
                 ),
               ),
@@ -162,6 +164,58 @@ class DashboardScreen extends ConsumerWidget {
   }
 }
 
+class _PulsoNoraSummary extends StatelessWidget {
+  const _PulsoNoraSummary({
+    required this.points,
+    required this.level,
+    required this.percent,
+    required this.xpRemaining,
+  });
+
+  final int points;
+  final int level;
+  final double percent;
+  final int xpRemaining;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        NoriSprite(level: level, size: 70),
+        const SizedBox(width: NoraSpacing.md),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Pulso Nora', style: Theme.of(context).textTheme.titleMedium),
+              const SizedBox(height: 3),
+              Text(
+                'Nori nivel $level - $points XP',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: NoraColors.muted),
+              ),
+              const SizedBox(height: NoraSpacing.sm),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(99),
+                child: LinearProgressIndicator(
+                  value: percent,
+                  minHeight: 8,
+                  backgroundColor: NoraColors.surfaceLighter,
+                  color: NoraColors.accent,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                xpRemaining == 0 ? 'Nori sincronizado al maximo.' : '$xpRemaining XP para la proxima evolucion',
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(color: NoraColors.accentLight),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _QuickAction extends StatelessWidget {
   const _QuickAction({
     required this.icon,
@@ -195,38 +249,6 @@ class _QuickAction extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _MetricTile extends StatelessWidget {
-  const _MetricTile({
-    required this.value,
-    required this.label,
-    required this.color,
-  });
-
-  final String value;
-  final String label;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: NoraColors.surfaceLight.withValues(alpha: 0.62),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(value, style: Theme.of(context).textTheme.titleLarge?.copyWith(color: color)),
-          const SizedBox(height: 2),
-          Text(label, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: NoraColors.muted)),
-        ],
       ),
     );
   }

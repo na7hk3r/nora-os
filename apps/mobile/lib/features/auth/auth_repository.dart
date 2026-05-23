@@ -23,6 +23,11 @@ class AuthRepository {
     Random? random,
   }) : _random = random ?? Random.secure();
 
+  static const legacyPasswordVersion = 'legacy_sha256_v1';
+  static const currentPasswordVersion = 'pbkdf2_sha256_48k_v1';
+  static const _pbkdf2Iterations = 48000;
+  static const _pbkdf2Bytes = 32;
+
   final AuthLocalStore store;
   final SessionStore sessionStore;
   final Random _random;
@@ -114,6 +119,7 @@ class AuthRepository {
         displayName: _displayName(displayName, cleanUsername),
         passwordHash: _hashPassword(password, salt),
         salt: salt,
+        passwordVersion: currentPasswordVersion,
         recoveryQuestion: recoveryQuestion.trim(),
         recoveryAnswerHash: _hashPassword(_normalizeRecoveryAnswer(recoveryAnswer), recoverySalt),
         recoverySalt: recoverySalt,
@@ -204,8 +210,8 @@ class AuthRepository {
 
       final salt = row['salt'] as String;
       final expected = row['password_hash'] as String;
-      final actual = _hashPassword(password, salt);
-      if (!_constantTimeEquals(expected, actual)) {
+      final passwordVersion = row['password_version'] as String? ?? legacyPasswordVersion;
+      if (!_verifyPassword(password, salt, expected, passwordVersion)) {
         throw AuthException(
           'Usuario o contrasena incorrectos.',
           code: AuthErrorCode.invalidCredentials,
@@ -213,6 +219,15 @@ class AuthRepository {
       }
 
       final userId = row['id'] as String;
+      if (passwordVersion != currentPasswordVersion) {
+        final upgradedSalt = _newSalt();
+        await store.updatePassword(
+          userId: userId,
+          passwordHash: _hashPassword(password, upgradedSalt),
+          salt: upgradedSalt,
+          passwordVersion: currentPasswordVersion,
+        );
+      }
       await store.touchLogin(userId);
       await saveSessionForUser(userId);
       await store.seedUserDataIfEmpty(userId);
@@ -278,8 +293,11 @@ class AuthRepository {
         );
       }
 
-      final answerHash = _hashPassword(_normalizeRecoveryAnswer(recoveryAnswer), recoverySalt);
-      if (!_constantTimeEquals(recoveryHash, answerHash)) {
+      final normalizedAnswer = _normalizeRecoveryAnswer(recoveryAnswer);
+      final currentAnswerHash = _hashPassword(normalizedAnswer, recoverySalt);
+      final legacyAnswerHash = _hashLegacyPassword(normalizedAnswer, recoverySalt);
+      if (!_constantTimeEquals(recoveryHash, currentAnswerHash) &&
+          !_constantTimeEquals(recoveryHash, legacyAnswerHash)) {
         throw AuthException(
           'La respuesta de recuperacion es incorrecta. Intenta de nuevo.',
           code: AuthErrorCode.invalidRecoveryAnswer,
@@ -291,6 +309,7 @@ class AuthRepository {
         userId: row['id'] as String,
         passwordHash: _hashPassword(newPassword, newSalt),
         salt: newSalt,
+        passwordVersion: currentPasswordVersion,
       );
       await sessionStore.clear();
     } on AuthException {
@@ -400,12 +419,64 @@ class AuthRepository {
   }
 
   String _hashPassword(String password, String salt) {
+    final derived = _pbkdf2Sha256(
+      passwordBytes: utf8.encode(password),
+      saltBytes: utf8.encode(salt),
+      iterations: _pbkdf2Iterations,
+      length: _pbkdf2Bytes,
+    );
+    return base64Url.encode(derived);
+  }
+
+  String _hashLegacyPassword(String password, String salt) {
     List<int> bytes = utf8.encode('$salt:$password');
     final saltBytes = utf8.encode(salt);
     for (var i = 0; i < 12000; i++) {
       bytes = sha256.convert([...bytes, ...saltBytes]).bytes;
     }
     return base64Url.encode(bytes);
+  }
+
+  bool _verifyPassword(String password, String salt, String expected, String version) {
+    final actual = version == legacyPasswordVersion
+        ? _hashLegacyPassword(password, salt)
+        : _hashPassword(password, salt);
+    return _constantTimeEquals(expected, actual);
+  }
+
+  List<int> _pbkdf2Sha256({
+    required List<int> passwordBytes,
+    required List<int> saltBytes,
+    required int iterations,
+    required int length,
+  }) {
+    final hmac = Hmac(sha256, passwordBytes);
+    const hashLength = 32;
+    final blockCount = (length / hashLength).ceil();
+    final derived = <int>[];
+
+    for (var block = 1; block <= blockCount; block++) {
+      var u = hmac.convert([...saltBytes, ..._int32Bytes(block)]).bytes;
+      final output = List<int>.from(u);
+      for (var i = 1; i < iterations; i++) {
+        u = hmac.convert(u).bytes;
+        for (var j = 0; j < output.length; j++) {
+          output[j] ^= u[j];
+        }
+      }
+      derived.addAll(output);
+    }
+
+    return derived.take(length).toList();
+  }
+
+  List<int> _int32Bytes(int value) {
+    return [
+      (value >> 24) & 0xff,
+      (value >> 16) & 0xff,
+      (value >> 8) & 0xff,
+      value & 0xff,
+    ];
   }
 
   bool _constantTimeEquals(String a, String b) {
