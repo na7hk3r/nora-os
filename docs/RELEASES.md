@@ -91,17 +91,20 @@ commit de release antes de crear el tag anotado manualmente.
 
 ### 3. CI publica
 
-El job `build-windows` corre en `windows-latest`:
+Los jobs `build-windows` y `build-linux` corren en cada tag `vX.Y.Z`:
 
 1. `npm ci` (con rebuild de `better-sqlite3`).
-2. `npm run lint && npm run typecheck && npm test`.
-3. `npm run release` -> sube `Nora OS-<version>-win-x64.exe` (NSIS),
+2. Linux instala `libcrypt1`, requerida por `fpm` para generar `.deb`.
+3. `npm run lint && npm run typecheck && npm test`.
+4. Windows ejecuta `npm run release` y sube `Nora OS-<version>-win-x64.exe` (NSIS),
    `Nora OS-<version>-portable.exe` y `latest.yml` al GitHub Release.
-4. La app instalada en clientes detecta el nuevo `latest.yml` en el proximo
+5. Linux ejecuta `npm run release:linux` y sube `Nora OS-<version>-linux-x86_64.AppImage`,
+   `Nora OS-<version>-linux-amd64.deb` y `latest-linux.yml` al mismo GitHub Release.
+6. La app instalada en clientes detecta el nuevo feed de update en el proximo
    check (boot + cada 6h) y muestra el banner de update.
 
-Los jobs `build-linux` y `build-mac` estan apagados con `if: false`. Activarlos
-quitando ese flag cuando se quiera publicar esos targets.
+El job `build-mac` sigue apagado con `if: false`. Activarlo quitando ese flag
+cuando se quiera publicar ese target.
 
 El workflow de CI general corre tambien landing y mobile antes de mergear:
 

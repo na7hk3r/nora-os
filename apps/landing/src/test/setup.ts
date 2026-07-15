@@ -2,6 +2,25 @@ import '@testing-library/jest-dom/vitest'
 import { afterEach, vi } from 'vitest'
 import { cleanup } from '@testing-library/react'
 
+function createMemoryStorage(): Storage {
+  const values = new Map<string, string>()
+
+  return {
+    get length() {
+      return values.size
+    },
+    clear: () => values.clear(),
+    getItem: (key: string) => values.get(key) ?? null,
+    key: (index: number) => Array.from(values.keys())[index] ?? null,
+    removeItem: (key: string) => {
+      values.delete(key)
+    },
+    setItem: (key: string, value: string) => {
+      values.set(key, String(value))
+    },
+  }
+}
+
 // Polyfill IntersectionObserver para framer-motion (whileInView) en jsdom.
 class IntersectionObserverMock {
   readonly root: Element | null = null
@@ -36,7 +55,15 @@ if (typeof window !== 'undefined' && !window.matchMedia) {
   })
 }
 
+if (typeof window !== 'undefined' && !window.localStorage) {
+  Object.defineProperty(window, 'localStorage', {
+    configurable: true,
+    value: createMemoryStorage(),
+  })
+}
+
 afterEach(() => {
   cleanup()
+  window.localStorage.clear()
   sessionStorage.clear()
 })

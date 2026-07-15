@@ -189,7 +189,7 @@ auto-update integrado vía GitHub Releases.
 | ---------- | ---------------------------------- | ------------------------------------------- |
 | Windows    | `Nora OS-<ver>-win-x64.exe`    | Instalador NSIS, elige carpeta y atajos     |
 | Windows    | `Nora OS-<ver>-portable.exe`   | Portable, no instala (sin auto-update)      |
-| Linux      | `Nora OS-<ver>.AppImage` / `.deb` | Próximamente                              |
+| Linux      | `Nora OS-<ver>-linux-x86_64.AppImage` / `linux-amd64.deb` | AppImage y paquete Debian |
 | macOS      | `Nora OS-<ver>-arm64.dmg`      | Próximamente                                |
 
 > **Compatibilidad transitoria**: mientras `productName` siga apuntando al nombre histórico en `electron-builder.yml` (cambio de infraestructura fuera del alcance de la refresh actual de marca), los binarios reales del GitHub Release pueden seguir publicándose con el prefijo legacy. La recomendación es bajarlos siempre desde el botón de la web o desde la página `releases/latest`.

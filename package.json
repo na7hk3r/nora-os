@@ -44,7 +44,9 @@
     "pack": "npm run desktop:build && electron-builder --dir",
     "dist": "npm run desktop:build && electron-builder",
     "dist:win": "npm run desktop:build && electron-builder --win",
+    "dist:linux": "npm run desktop:build && electron-builder --linux",
     "release": "npm run desktop:build && electron-builder --publish always",
+    "release:linux": "npm run desktop:build && electron-builder --linux --publish always",
     "postinstall": "electron-rebuild -f -w better-sqlite3"
   },
   "engines": {

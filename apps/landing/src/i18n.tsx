@@ -545,7 +545,7 @@ export const copy = {
         },
         {
           q: '¿Está disponible para Mac y Linux?',
-          a: 'Windows está estable hoy (instalador y portable). Mac (.dmg) y Linux (AppImage / .deb) están en la página de releases, con soporte oficial completo en próximas versiones.',
+          a: 'Windows está estable hoy (instalador y portable). Linux se publica como AppImage y .deb en cada release. Mac (.dmg) está preparado para próximas versiones.',
         },
         {
           q: '¿Puedo crear mis propios plugins?',
@@ -942,7 +942,7 @@ export const copy = {
         },
         {
           q: 'Is it available for Mac and Linux?',
-          a: 'Windows is stable today (installer and portable). Mac (.dmg) and Linux (AppImage / .deb) are available on the releases page, with fuller official support in upcoming versions.',
+          a: 'Windows is stable today (installer and portable). Linux is published as AppImage and .deb on every release. Mac (.dmg) is prepared for upcoming versions.',
         },
         {
           q: 'Can I create my own plugins?',
@@ -1341,7 +1341,7 @@ export const copy = {
         },
         {
           q: 'Está disponível para Mac e Linux?',
-          a: 'Windows está estável hoje (instalador e portable). Mac (.dmg) e Linux (AppImage / .deb) estão na página de releases, com suporte oficial completo em próximas versões.',
+          a: 'Windows está estável hoje (instalador e portable). Linux é publicado como AppImage e .deb em cada release. Mac (.dmg) está preparado para próximas versões.',
         },
         {
           q: 'Posso criar meus próprios plugins?',

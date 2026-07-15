@@ -24,9 +24,9 @@ class NoraBottomBar extends StatelessWidget {
 
   static const items = [
     NoraBottomBarItem(icon: Icons.home_outlined, label: 'Inicio'),
-    NoraBottomBarItem(icon: Icons.calendar_month_outlined, label: 'Planner'),
+    NoraBottomBarItem(icon: Icons.calendar_month_outlined, label: 'Enfoque'),
     NoraBottomBarItem(icon: Icons.add_rounded, label: 'Crear'),
-    NoraBottomBarItem(icon: Icons.notifications_none_rounded, label: 'Alertas'),
+    NoraBottomBarItem(icon: Icons.notifications_none_rounded, label: 'Nora'),
     NoraBottomBarItem(icon: Icons.person_outline_rounded, label: 'Perfil'),
   ];
 

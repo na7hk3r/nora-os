@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+### Cambios
+
+- El workflow de release ahora construye y publica Linux en cada tag `vX.Y.Z`,
+  incluyendo AppImage, paquete `.deb`, manifests de update y artefactos de
+  debugging.
+- Se agregan scripts `dist:linux` y `release:linux`, y el paquete Debian declara
+  maintainer para cumplir el requisito de `electron-builder`.
+- Landing, README y documentación de releases reflejan Linux como target activo
+  y no como descarga futura.
+- Mobile ajusta el dashboard inicial, subtítulos del shell y labels de la barra
+  inferior para enfatizar foco/Nora, con cobertura widget del estado inicial.
+- Los setups de test desktop y landing aseguran `localStorage` en memoria para
+  que las suites jsdom no dependan del entorno local.
+
 ## [1.18.1] - 2026-05-18
 
 ### Correcciones

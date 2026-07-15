@@ -58,9 +58,10 @@ mac:
 dmg:
   artifactName: ${productName}-${version}-${arch}.${ext}
 
-# ─── Linux (preparado, no obligatorio) ───────────────────
+# ─── Linux ────────────────────────────────────────────────
 linux:
   category: Utility
+  maintainer: na7hk3r <na7hk3r@users.noreply.github.com>
   target:
     - target: AppImage
       arch:

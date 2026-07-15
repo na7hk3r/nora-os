@@ -61,7 +61,6 @@ jobs:
   build-linux:
     name: Build Linux packages
     runs-on: ubuntu-latest
-    if: ${{ false }}
     steps:
       - uses: actions/checkout@v4
 
@@ -74,6 +73,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Install Linux packaging dependencies
+        run: sudo apt-get update && sudo apt-get install -y libcrypt1
+
       - name: Lint
         run: npm run lint
 
@@ -84,9 +86,21 @@ jobs:
         run: npm test
 
       - name: Build and publish Linux assets
-        run: npm run release -- --linux
+        run: npm run release:linux
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload artifacts for debugging
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-packages
+          path: |
+            release/*.AppImage
+            release/*.deb
+            release/*.yml
+            release/*.blockmap
+          if-no-files-found: ignore
 
   build-mac:
     name: Build macOS dmg

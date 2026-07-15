@@ -16,11 +16,35 @@ class NoraShell extends ConsumerWidget {
   final String location;
   final Widget child;
 
+  static const List<_ShellPage> _pages = [
+    _ShellPage(
+      pathPrefix: '/planner',
+      title: 'Planner',
+      subtitle: 'Bloques de foco y ritmo diario',
+    ),
+    _ShellPage(
+      pathPrefix: '/tasks',
+      title: 'Tareas',
+      subtitle: 'Accionable, no abrumador',
+    ),
+    _ShellPage(
+      pathPrefix: '/notifications',
+      title: 'Notificaciones',
+      subtitle: 'Solo lo que importa ahora',
+    ),
+    _ShellPage(
+      pathPrefix: '/profile',
+      title: 'Perfil',
+      subtitle: 'Tu espacio de control',
+    ),
+  ];
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final page = _pageFor(location);
     return NoraScaffold(
-      title: _titleFor(location),
-      subtitle: _subtitleFor(location),
+      title: page.title,
+      subtitle: page.subtitle,
       bottomNavigationBar: NoraBottomBar(
         currentIndex: _indexFor(location),
         onSelected: (index) {
@@ -33,6 +57,17 @@ class NoraShell extends ConsumerWidget {
       ),
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 96),
       child: child,
+    );
+  }
+
+  _ShellPage _pageFor(String path) {
+    return _pages.firstWhere(
+      (page) => page.matches(path),
+      orElse: () => const _ShellPage(
+        pathPrefix: '/',
+        title: 'Nora OS',
+        subtitle: 'Tu sistema. Tu vida. Una sola IA.',
+      ),
     );
   }
 
@@ -55,20 +90,18 @@ class NoraShell extends ConsumerWidget {
         return '/';
     }
   }
+}
 
-  String _titleFor(String path) {
-    if (path.startsWith('/planner')) return 'Planner';
-    if (path.startsWith('/tasks')) return 'Tareas';
-    if (path.startsWith('/notifications')) return 'Notificaciones';
-    if (path.startsWith('/profile')) return 'Perfil';
-    return 'Nora OS';
-  }
+class _ShellPage {
+  const _ShellPage({
+    required this.pathPrefix,
+    required this.title,
+    required this.subtitle,
+  });
 
-  String? _subtitleFor(String path) {
-    if (path.startsWith('/planner')) return 'Tareas del dia y bloques de foco';
-    if (path.startsWith('/tasks')) return 'Accionable y sin ruido';
-    if (path.startsWith('/notifications')) return 'Solo alertas relevantes';
-    if (path.startsWith('/profile')) return 'Cuenta local y preferencias';
-    return 'Lo importante de tu dia';
-  }
+  final String pathPrefix;
+  final String title;
+  final String subtitle;
+
+  bool matches(String path) => path.startsWith(pathPrefix);
 }
