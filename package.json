@@ -96,5 +96,12 @@
     "typescript": "^5.7.0",
     "vite": "^7.3.2",
     "vitest": "^2.1.0"
+  },
+  "allowScripts": {
+    "electron@41.10.2": true,
+    "esbuild@0.25.12": true,
+    "esbuild@0.28.1": true,
+    "esbuild@0.21.5": true,
+    "better-sqlite3@12.11.1": true
   }
 }
