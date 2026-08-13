@@ -62,7 +62,7 @@ App.tsx
 ### 1. Proceso principal (Electron Main)
 
 - `main.ts` — Crea la BrowserWindow, inicia `DatabaseService`, registra todos los IPC.
-- `preload.ts` — Expone 10 bridges vía `contextBridge`: `storage`, `auth`, `backup`, `profile`, `ollama`, `notifications`, `diagnostic`, `appUpdate`, `scheduledBackup`, `dbEncryption`. No expone ninguna otra API de Node.
+- `preload.ts` — Expone 11 bridges vía `contextBridge`: `storage`, `auth`, `backup`, `profile`, `ollama`, `notifications`, `diagnostic`, `appUpdate`, `scheduledBackup`, `dbEncryption`, `workFocusWindow`. No expone ninguna otra API de Node.
 - `services/database.ts` — Singleton `DatabaseService`. Maneja `auth.db` global + `personal-os-user-{userId}.db` por usuario, activa WAL y foreign keys, crea el schema core. Soporta cifrado AES-256-GCM en reposo (opt-in): `setActiveUser(userId, passphrase)` descifra; `clearActiveUser()` y `close()` re-cifran. Si el archivo del usuario activo está cifrado y aún no se proveó passphrase, la sesión queda **lockeada** (`isLocked()`) sin abrir conexión.
 - `services/storage-ipc.ts` — Tres handlers IPC con validación estricta de SQL. Toda operación debe pasar el filtro de tipo (SELECT-only para query, INSERT/UPDATE/DELETE para execute).
 - `services/auth-ipc.ts` — 6 canales: `register`, `login`, `logout`, `me`, `get-recovery-question`, `reset-password-with-recovery`. Ver [AUTH.md](AUTH.md).

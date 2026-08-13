@@ -12,7 +12,7 @@ import { storageAPI } from '../storage/StorageAPI'
 import { CORE_EVENTS } from '../events/events'
 import { useCoreStore } from '../state/coreStore'
 import { useGamificationStore } from '../gamification/gamificationStore'
-import { publishMetric, getMetricValue, getMetric, listMetrics } from '../services/metricsRegistry'
+import { publishMetric, getMetric, listMetrics } from '../services/metricsRegistry'
 
 class PluginManager {
   private plugins = new Map<string, PluginEntry>()
@@ -219,5 +219,3 @@ class PluginManager {
 }
 
 export const pluginManager = new PluginManager()
-// Re-export para tests / consumidores no-plugin que necesiten leer métricas.
-export { publishMetric, getMetricValue }

@@ -37,9 +37,6 @@ npm-debug.log*
 tmp/
 temp/
 *.tmp
-# Playwright MCP session artifacts
-.playwright-mcp/
-hero-mockup*.png
 
 # Flutter / Dart
 **/.dart_tool/

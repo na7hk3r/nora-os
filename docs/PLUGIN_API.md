@@ -147,7 +147,6 @@ Eventos gamificados se distribuyen por reglas en `apps/desktop/src/core/gamifica
 | Servicio | Import | Para qué |
 | --- | --- | --- |
 | `tagsService` | `@core/services/tagsService` | Tags globales y links polimórficos a entidades de cualquier plugin |
-| `templatesService` | `@core/services/templatesService` | Plantillas reusables (notas, mails, briefs) por plugin + kind |
 | `automationsService` | `@core/services/automationsService` | If‑this‑then‑that sobre el EventBus (notify, add_xp, emit_event, log) |
 | `notificationsService` | `@core/services/notificationsService` | Notificaciones nativas + cola programable + horas de silencio + filtro por plugin inactivo |
 | `ollamaService` | `@core/services/ollamaService` | Llamadas a Ollama local con settings (modelo, prompt, temperatura) |

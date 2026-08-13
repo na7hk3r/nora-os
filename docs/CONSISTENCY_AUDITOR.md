@@ -10,7 +10,7 @@ inconsistencias entre el core de Nora OS y los plugins instalados.
 Se ejecuta automáticamente al iniciar la app y cada vez que se activa o
 desactiva un plugin desde el Control Center.
 
-> Fuente: [`src/core/audit/`](../src/core/audit/) — UI: [`src/core/ui/AuditPanel.tsx`](../src/core/ui/AuditPanel.tsx)
+> Fuente: [`src/core/audit/`](../apps/desktop/src/core/audit/) — UI: [`src/core/ui/AuditPanel.tsx`](../apps/desktop/src/core/ui/AuditPanel.tsx)
 
 ## ¿Para qué sirve?
 
@@ -68,9 +68,9 @@ para cualquier dominio. El dominio especial `utility` acepta cualquier
 
 ### Cómo agregar un nuevo dominio
 
-1. Editar [`src/core/types.ts`](../src/core/types.ts) y añadir el nuevo
+1. Editar [`src/core/types.ts`](../apps/desktop/src/core/types.ts) y añadir el nuevo
    valor a `PluginDomain`.
-2. Editar [`src/core/audit/domainIconCatalog.ts`](../src/core/audit/domainIconCatalog.ts)
+2. Editar [`src/core/audit/domainIconCatalog.ts`](../apps/desktop/src/core/audit/domainIconCatalog.ts)
    y agregar la entrada con `allowed`, `forbidden?` y `description`.
 3. Actualizar el test `catalog covers all 20 expected domains`.
 
@@ -79,18 +79,18 @@ para cualquier dominio. El dominio especial `utility` acepta cualquier
 1. Crear `src/core/audit/rules/RN_<nombre>.ts` exportando una función
    `(input: AuditInputs) => Finding[]`.
 2. Importarla y registrarla en el array `RULES` de
-   [`src/core/audit/index.ts`](../src/core/audit/index.ts).
+   [`src/core/audit/index.ts`](../apps/desktop/src/core/audit/index.ts).
 3. Añadir su `RuleId` al union en `types.ts` y a `RULE_LABELS` en
-   [`AuditPanel.tsx`](../src/core/ui/AuditPanel.tsx).
+   [`AuditPanel.tsx`](../apps/desktop/src/core/ui/AuditPanel.tsx).
 4. Cubrir la regla con tests en
    `src/core/audit/__tests__/audit.test.ts`.
 
 ## Disparadores
 
-- **Boot:** [`src/App.tsx`](../src/App.tsx) ejecuta `runAudit()` después de
+- **Boot:** [`src/App.tsx`](../apps/desktop/src/App.tsx) ejecuta `runAudit()` después de
   inicializar `notificationsService`.
 - **Toggle de plugin:** `setPluginEnabled` en
-  [`src/core/state/coreStore.ts`](../src/core/state/coreStore.ts) re-corre
+  [`src/core/state/coreStore.ts`](../apps/desktop/src/core/state/coreStore.ts) re-corre
   el auditor.
 - **Manual:** botón "Re-auditar" en el Audit Panel del Control Center.
 

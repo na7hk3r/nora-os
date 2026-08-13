@@ -70,7 +70,6 @@ export function ReviewPage() {
         </div>
       </header>
 
-      {/* Progreso global (movido del Dashboard como hogar canónico) */}
       <GlobalProgress />
 
       {snapshot && (

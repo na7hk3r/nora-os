@@ -1,4 +1,3 @@
-// Navbar nuevo: sticky transparente que vira a backdrop-blur al hacer scroll, mobile menu animado.
 import { useEffect, useState } from 'react'
 import type { MouseEvent } from 'react'
 import { ChevronDown, Github, Menu, X } from 'lucide-react'
@@ -92,7 +91,6 @@ export function Navbar() {
           className="flex items-center gap-2 group"
           aria-label={t.nav.homeAria}
         >
-          {/* <NoraLogo variant="mark-original" size={36} className="transition-transform group-hover:scale-105" /> */}
           <NoraLogo variant="wordmark" size={20} />
         </a>
 

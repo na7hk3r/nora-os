@@ -1,4 +1,3 @@
-// Reformado: usa nuevo Navbar y reordena secciones para flujo Hero → emocional → beneficios → modular → demo → screenshots → devs → conversión.
 import { useEffect, useState } from 'react'
 import { Navbar } from './components/Navbar'
 import { Hero } from './sections/Hero'

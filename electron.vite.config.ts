@@ -52,7 +52,6 @@ export default defineConfig({
         '@': resolve(desktopRoot, 'src'),
         '@core': resolve(desktopRoot, 'src/core'),
         '@plugins': resolve(desktopRoot, 'src/plugins'),
-        '@shared': resolve(desktopRoot, 'src/shared'),
       },
     },
     define: {

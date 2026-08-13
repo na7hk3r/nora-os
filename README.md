@@ -128,7 +128,6 @@ Cola persistente con processor cada 30 s, horas de silencio configurables (con w
 ### 🏷 Tags, plantillas y notificaciones
 
 - **Tags globales** con links polimórficos (notas, cards, links, fitness, etc.).
-- **Plantillas** reusables (`templatesService`) para que cualquier plugin guarde y reutilice contenido.
 - **Notificaciones** centralizadas con cola y horas de silencio.
 
 ### Navegación

@@ -1,5 +1,5 @@
 /**
- * Operaciones del plugin Journal (refactor sobre Repository layer).
+ * Operaciones del plugin Journal.
  */
 
 import { eventBus } from '@core/events/EventBus'

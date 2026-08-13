@@ -1,5 +1,5 @@
 /**
- * Operaciones del plugin Hábitos (refactor sobre Repository layer).
+ * Operaciones del plugin Hábitos.
  *  - Persisten en SQLite via repositorios tipados.
  *  - Actualizan el store Zustand.
  *  - Emiten eventos vía eventBus (con persist=true).

@@ -169,8 +169,6 @@ export const messages = {
     fitnessNoWeight7d: 'No registraste peso esta semana.',
     workNoFocus24h: 'Sin sesiones de foco en 24h.',
     streakAtRisk: (days: number) => `Tu racha de ${days} días está en riesgo. Cargá algo hoy.`,
-    dailyBriefHeading: 'Brief de hoy',
-    dailyBriefDismiss: 'Listo, no me lo muestres más hoy.',
     focusNudgeHeading: 'Tenés tarjetas listas para arrancar',
     focusNudgeStart: 'Empezar foco',
     focusNudgeDismiss: 'Más tarde',

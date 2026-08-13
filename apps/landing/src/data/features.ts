@@ -1,4 +1,3 @@
-// Reformado: copy orientado a beneficio (no a feature técnica), íconos lucide curados.
 import type { LucideIcon } from 'lucide-react'
 import { HardDrive, Boxes, RefreshCw, ShieldCheck, Users, Sparkles, Bot } from 'lucide-react'
 

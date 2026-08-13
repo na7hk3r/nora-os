@@ -68,6 +68,3 @@ export function PluginIcon({ name, size = 18, className }: Props) {
   return <Icon size={size} className={className} />
 }
 
-export function getPluginIcon(name: string): LucideIcon {
-  return iconMap[name] ?? LayoutDashboard
-}

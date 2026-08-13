@@ -370,8 +370,6 @@ const enMessages: Messages = {
     fitnessNoWeight7d: 'You have not recorded weight this week.',
     workNoFocus24h: 'No focus sessions in 24h.',
     streakAtRisk: (days) => `Your ${days}-day streak is at risk. Add something today.`,
-    dailyBriefHeading: 'Today brief',
-    dailyBriefDismiss: 'Done, do not show this again today.',
     focusNudgeHeading: 'You have cards ready to start',
     focusNudgeStart: 'Start focus',
     focusNudgeDismiss: 'Later',
