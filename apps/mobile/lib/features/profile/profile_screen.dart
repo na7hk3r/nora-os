@@ -28,11 +28,14 @@ class ProfileScreen extends ConsumerWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: NoraColors.accent.withValues(alpha: 0.2),
-                  border: Border.all(color: NoraColors.accentLight.withValues(alpha: 0.42)),
+                  border: Border.all(
+                      color: NoraColors.accentLight.withValues(alpha: 0.42)),
                 ),
                 child: Center(
                   child: Text(
-                    (user?.displayName.isNotEmpty ?? false) ? user!.displayName[0].toUpperCase() : 'N',
+                    (user?.displayName.isNotEmpty ?? false)
+                        ? user!.displayName[0].toUpperCase()
+                        : 'N',
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                 ),
@@ -42,15 +45,20 @@ class ProfileScreen extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(user?.displayName ?? 'Nora', style: Theme.of(context).textTheme.titleMedium),
+                    Text(user?.displayName ?? 'Nora',
+                        style: Theme.of(context).textTheme.titleMedium),
                     const SizedBox(height: 4),
                     Text(
                       user?.username ?? 'local',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: NoraColors.muted),
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyMedium
+                          ?.copyWith(color: NoraColors.muted),
                     ),
                     const SizedBox(height: 8),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 5),
                       decoration: BoxDecoration(
                         color: NoraColors.accent.withValues(alpha: 0.22),
                         borderRadius: BorderRadius.circular(99),
@@ -73,8 +81,15 @@ class ProfileScreen extends ConsumerWidget {
               onTap: () => _showInfoDialog(
                 context,
                 title: 'Mi perfil',
-                body: 'Usuario local: ${user?.username ?? 'local'}\nNombre: ${user?.displayName ?? 'Nora'}',
+                body:
+                    'Usuario local: ${user?.username ?? 'local'}\nNombre: ${user?.displayName ?? 'Nora'}',
               ),
+            ),
+            _SettingsRow(
+              icon: Icons.grid_view_rounded,
+              label: 'Módulos',
+              trailing: 'Gestionar',
+              onTap: () => context.go('/modules'),
             ),
             _SettingsRow(
               icon: Icons.storage_outlined,
@@ -82,7 +97,8 @@ class ProfileScreen extends ConsumerWidget {
               onTap: () => _showInfoDialog(
                 context,
                 title: 'Datos locales',
-                body: 'Nora Mobile guarda tu cuenta, planner, tareas, alertas y Pulso Nora en SQLite del dispositivo. No hay cloud ni tracking.',
+                body:
+                    'Nora Mobile guarda tu cuenta, planner, tareas, alertas y Pulso Nora en SQLite del dispositivo. No hay cloud ni tracking.',
               ),
             ),
           ],
@@ -91,8 +107,14 @@ class ProfileScreen extends ConsumerWidget {
         _Section(
           title: 'Preferencias',
           children: const [
-            _SettingsRow(icon: Icons.dark_mode_outlined, label: 'Tema', trailing: 'Oscuro'),
-            _SettingsRow(icon: Icons.sync_disabled_rounded, label: 'Modo de datos', trailing: 'Local'),
+            _SettingsRow(
+                icon: Icons.dark_mode_outlined,
+                label: 'Tema',
+                trailing: 'Oscuro'),
+            _SettingsRow(
+                icon: Icons.sync_disabled_rounded,
+                label: 'Modo de datos',
+                trailing: 'Local'),
           ],
         ),
         const SizedBox(height: NoraSpacing.lg),
@@ -104,10 +126,12 @@ class ProfileScreen extends ConsumerWidget {
               label: 'Documentacion',
               trailing: 'Copiar link',
               onTap: () async {
-                await Clipboard.setData(const ClipboardData(text: 'https://na7hk3r.github.io/nora-os/'));
+                await Clipboard.setData(const ClipboardData(
+                    text: 'https://na7hk3r.github.io/nora-os/'));
                 if (!context.mounted) return;
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Link de documentacion copiado.')),
+                  const SnackBar(
+                      content: Text('Link de documentacion copiado.')),
                 );
               },
             ),
@@ -130,7 +154,8 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  void _showInfoDialog(BuildContext context, {required String title, required String body}) {
+  void _showInfoDialog(BuildContext context,
+      {required String title, required String body}) {
     showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
@@ -172,7 +197,9 @@ class _Section extends StatelessWidget {
               for (var i = 0; i < children.length; i++) ...[
                 children[i],
                 if (i != children.length - 1)
-                  Divider(height: 1, color: NoraColors.border.withValues(alpha: 0.44)),
+                  Divider(
+                      height: 1,
+                      color: NoraColors.border.withValues(alpha: 0.44)),
               ],
             ],
           ),
@@ -209,10 +236,14 @@ class _SettingsRow extends StatelessWidget {
             if (trailing != null)
               Text(
                 trailing!,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: NoraColors.muted),
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.copyWith(color: NoraColors.muted),
               ),
             const SizedBox(width: NoraSpacing.sm),
-            if (onTap != null) const Icon(Icons.chevron_right_rounded, color: NoraColors.muted),
+            if (onTap != null)
+              const Icon(Icons.chevron_right_rounded, color: NoraColors.muted),
           ],
         ),
       ),

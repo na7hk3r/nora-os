@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/design/widgets/nora_bottom_bar.dart';
 import '../../core/design/widgets/nora_scaffold.dart';
+import '../../core/plugins/plugin_manager.dart';
+import '../../core/plugins/plugin_manifest.dart' show PluginPagePath;
 import '../../features/create/create_sheet.dart';
 
 class NoraShell extends ConsumerWidget {
@@ -37,6 +39,11 @@ class NoraShell extends ConsumerWidget {
       title: 'Perfil',
       subtitle: 'Tu espacio de control',
     ),
+    _ShellPage(
+      pathPrefix: '/modules',
+      title: 'Módulos',
+      subtitle: 'Activá plugins y extendé Nora',
+    ),
   ];
 
   @override
@@ -61,13 +68,28 @@ class NoraShell extends ConsumerWidget {
   }
 
   _ShellPage _pageFor(String path) {
-    return _pages.firstWhere(
-      (page) => page.matches(path),
-      orElse: () => const _ShellPage(
-        pathPrefix: '/',
-        title: 'Nora OS',
-        subtitle: 'Tu sistema. Tu vida. Una sola IA.',
-      ),
+    for (final page in _pages) {
+      if (page.matches(path)) return page;
+    }
+    // Páginas de plugins activos: título y subtítulo salen del page def.
+    final pluginPage = PluginManager.instance.getActivePages().where((p) {
+      return path == p.fullPath ||
+          (p.path.isNotEmpty && path.startsWith('${p.fullPath}/'));
+    }).toList();
+    if (pluginPage.isNotEmpty) {
+      final match = pluginPage.reduce(
+        (a, b) => a.fullPath.length >= b.fullPath.length ? a : b,
+      );
+      return _ShellPage(
+        pathPrefix: match.fullPath,
+        title: match.title,
+        subtitle: 'Plugin · ${match.pluginId}',
+      );
+    }
+    return const _ShellPage(
+      pathPrefix: '/',
+      title: 'Nora OS',
+      subtitle: 'Tu sistema. Tu vida. Una sola IA.',
     );
   }
 

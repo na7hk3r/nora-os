@@ -49,7 +49,7 @@ class NoraLocalStore implements AuthLocalStore, PulsoLocalStore {
     final path = p.join(root, 'nora_mobile.db');
     final db = await openDatabase(
       path,
-      version: 3,
+      version: 4,
       onCreate: _createSchema,
       onUpgrade: _upgradeSchema,
       onConfigure: (db) async {
@@ -148,20 +148,36 @@ class NoraLocalStore implements AuthLocalStore, PulsoLocalStore {
       )
     ''');
 
-    await db.execute('CREATE INDEX idx_planner_owner_date ON planner_items(owner_id, date)');
-    await db.execute('CREATE INDEX idx_tasks_owner_status ON task_items(owner_id, status)');
-    await db.execute('CREATE INDEX idx_notifications_owner_created ON notifications(owner_id, created_at)');
-    await db.execute('CREATE INDEX idx_events_owner_created ON events_log(owner_id, created_at)');
+    await db.execute('''
+      CREATE TABLE plugin_migrations (
+        plugin_id TEXT NOT NULL,
+        version INTEGER NOT NULL,
+        applied_at TEXT NOT NULL,
+        PRIMARY KEY(plugin_id, version)
+      )
+    ''');
+
+    await db.execute(
+        'CREATE INDEX idx_planner_owner_date ON planner_items(owner_id, date)');
+    await db.execute(
+        'CREATE INDEX idx_tasks_owner_status ON task_items(owner_id, status)');
+    await db.execute(
+        'CREATE INDEX idx_notifications_owner_created ON notifications(owner_id, created_at)');
+    await db.execute(
+        'CREATE INDEX idx_events_owner_created ON events_log(owner_id, created_at)');
   }
 
-  Future<void> _upgradeSchema(Database db, int oldVersion, int newVersion) async {
+  Future<void> _upgradeSchema(
+      Database db, int oldVersion, int newVersion) async {
     if (oldVersion < 2) {
       await db.execute('ALTER TABLE users ADD COLUMN recovery_question TEXT');
-      await db.execute('ALTER TABLE users ADD COLUMN recovery_answer_hash TEXT');
+      await db
+          .execute('ALTER TABLE users ADD COLUMN recovery_answer_hash TEXT');
       await db.execute('ALTER TABLE users ADD COLUMN recovery_salt TEXT');
     }
     if (oldVersion < 3) {
-      await db.execute("ALTER TABLE users ADD COLUMN password_version TEXT NOT NULL DEFAULT 'legacy_sha256_v1'");
+      await db.execute(
+          "ALTER TABLE users ADD COLUMN password_version TEXT NOT NULL DEFAULT 'legacy_sha256_v1'");
       await db.execute('''
         CREATE TABLE IF NOT EXISTS events_log (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -173,7 +189,18 @@ class NoraLocalStore implements AuthLocalStore, PulsoLocalStore {
           FOREIGN KEY(owner_id) REFERENCES users(id) ON DELETE CASCADE
         )
       ''');
-      await db.execute('CREATE INDEX IF NOT EXISTS idx_events_owner_created ON events_log(owner_id, created_at)');
+      await db.execute(
+          'CREATE INDEX IF NOT EXISTS idx_events_owner_created ON events_log(owner_id, created_at)');
+    }
+    if (oldVersion < 4) {
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS plugin_migrations (
+          plugin_id TEXT NOT NULL,
+          version INTEGER NOT NULL,
+          applied_at TEXT NOT NULL,
+          PRIMARY KEY(plugin_id, version)
+        )
+      ''');
     }
   }
 
@@ -221,7 +248,9 @@ class NoraLocalStore implements AuthLocalStore, PulsoLocalStore {
   @override
   Future<bool> hasAnyUser() async {
     final db = await database;
-    final count = Sqflite.firstIntValue(await db.rawQuery('SELECT COUNT(*) FROM users')) ?? 0;
+    final count = Sqflite.firstIntValue(
+            await db.rawQuery('SELECT COUNT(*) FROM users')) ??
+        0;
     return count > 0;
   }
 
@@ -249,7 +278,8 @@ class NoraLocalStore implements AuthLocalStore, PulsoLocalStore {
   @override
   Future<NoraUser?> findUserById(String id) async {
     final db = await database;
-    final rows = await db.query('users', where: 'id = ?', whereArgs: [id], limit: 1);
+    final rows =
+        await db.query('users', where: 'id = ?', whereArgs: [id], limit: 1);
     return rows.isEmpty ? null : NoraUser.fromMap(rows.first);
   }
 
@@ -406,7 +436,8 @@ class NoraLocalStore implements AuthLocalStore, PulsoLocalStore {
   }
 
   @override
-  Future<List<NoraEventLogEntry>> listRecentEvents(String ownerId, {int limit = 30}) async {
+  Future<List<NoraEventLogEntry>> listRecentEvents(String ownerId,
+      {int limit = 30}) async {
     final db = await database;
     final rows = await db.query(
       'events_log',

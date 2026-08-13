@@ -11,6 +11,12 @@ import '../../core/design/widgets/nora_panel.dart';
 import '../../core/design/widgets/nora_section_header.dart';
 import '../../core/design/widgets/nori_sprite.dart';
 import '../../core/models/nora_models.dart';
+import '../../core/plugins/plugin_controller.dart';
+import '../../core/plugins/plugin_icon_mapper.dart';
+import '../../core/plugins/plugin_manager.dart';
+import '../../core/plugins/plugin_manifest.dart'
+    show PluginManifest, PluginPagePath;
+import '../../core/plugins/plugin_registry.dart';
 import '../../core/pulso/pulso_controller.dart';
 import '../auth/auth_controller.dart';
 import '../notifications/notifications_controller.dart';
@@ -25,12 +31,15 @@ class DashboardScreen extends ConsumerWidget {
     final user = ref.watch(authControllerProvider).user;
     final planner = ref.watch(plannerControllerProvider).valueOrNull ?? [];
     final tasks = ref.watch(tasksControllerProvider).valueOrNull ?? [];
-    final notifications = ref.watch(notificationsControllerProvider).valueOrNull ?? [];
+    final notifications =
+        ref.watch(notificationsControllerProvider).valueOrNull ?? [];
     final pulso = ref.watch(pulsoControllerProvider).valueOrNull;
     final today = noraDateKey(DateTime.now());
     final todayPlanner = planner.where((item) => item.date == today).toList();
-    final completedToday = todayPlanner.where((item) => item.isCompleted).length;
-    final progress = todayPlanner.isEmpty ? 0.0 : completedToday / todayPlanner.length;
+    final completedToday =
+        todayPlanner.where((item) => item.isCompleted).length;
+    final progress =
+        todayPlanner.isEmpty ? 0.0 : completedToday / todayPlanner.length;
     final pendingTasks = tasks.where((task) => !task.isCompleted).length;
     final unread = notifications.where((notice) => !notice.isRead).length;
 
@@ -49,18 +58,25 @@ class DashboardScreen extends ConsumerWidget {
         const SizedBox(height: NoraSpacing.sm),
         Text(
           'Tu consola diaria de enfoque y pulso.',
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: NoraColors.muted),
+          style: Theme.of(context)
+              .textTheme
+              .bodyMedium
+              ?.copyWith(color: NoraColors.muted),
         ),
         const SizedBox(height: NoraSpacing.xl),
         NoraCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Esto importa ahora', style: Theme.of(context).textTheme.titleMedium),
+              Text('Esto importa ahora',
+                  style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: NoraSpacing.sm),
               Text(
                 companionMessage,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: NoraColors.muted),
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.copyWith(color: NoraColors.muted),
               ),
               const SizedBox(height: NoraSpacing.lg),
               Wrap(
@@ -108,13 +124,27 @@ class DashboardScreen extends ConsumerWidget {
           scrollDirection: Axis.horizontal,
           child: Row(
             children: [
-              _QuickAction(icon: Icons.calendar_month_outlined, label: 'Planner', onTap: () => context.go('/planner')),
-              _QuickAction(icon: Icons.check_circle_outline_rounded, label: 'Tareas', onTap: () => context.go('/tasks')),
-              _QuickAction(icon: Icons.notifications_none_rounded, label: 'Alertas', onTap: () => context.go('/notifications')),
-              _QuickAction(icon: Icons.person_outline_rounded, label: 'Perfil', onTap: () => context.go('/profile')),
+              _QuickAction(
+                  icon: Icons.calendar_month_outlined,
+                  label: 'Planner',
+                  onTap: () => context.go('/planner')),
+              _QuickAction(
+                  icon: Icons.check_circle_outline_rounded,
+                  label: 'Tareas',
+                  onTap: () => context.go('/tasks')),
+              _QuickAction(
+                  icon: Icons.notifications_none_rounded,
+                  label: 'Alertas',
+                  onTap: () => context.go('/notifications')),
+              _QuickAction(
+                  icon: Icons.person_outline_rounded,
+                  label: 'Perfil',
+                  onTap: () => context.go('/profile')),
             ],
           ),
         ),
+        const SizedBox(height: NoraSpacing.xl),
+        const _ModulesSection(),
         const SizedBox(height: NoraSpacing.xl),
         NoraPanel(
           title: 'Hoy',
@@ -156,7 +186,8 @@ class DashboardScreen extends ConsumerWidget {
                         color: NoraColors.accent,
                       ),
                     ),
-                    Text('${(progress * 100).round()}%', style: Theme.of(context).textTheme.titleLarge),
+                    Text('${(progress * 100).round()}%',
+                        style: Theme.of(context).textTheme.titleLarge),
                   ],
                 ),
               ),
@@ -170,11 +201,13 @@ class DashboardScreen extends ConsumerWidget {
             children: [
               Row(
                 children: [
-                  Text('Revisión rápida', style: Theme.of(context).textTheme.titleMedium),
+                  Text('Revisión rápida',
+                      style: Theme.of(context).textTheme.titleMedium),
                   const Spacer(),
                   if (unread > 0)
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 9, vertical: 5),
                       decoration: BoxDecoration(
                         color: NoraColors.accent.withValues(alpha: 0.18),
                         borderRadius: BorderRadius.circular(99),
@@ -188,7 +221,10 @@ class DashboardScreen extends ConsumerWidget {
               if (tasks.isEmpty)
                 Text(
                   'Nora no detecta actividad reciente. Usa el botón de crear para capturar tu próxima intención.',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: NoraColors.muted),
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyMedium
+                      ?.copyWith(color: NoraColors.muted),
                 ),
               const SizedBox(height: NoraSpacing.md),
               NoraButton(
@@ -229,11 +265,15 @@ class _PulsoNoraSummary extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Pulso Nora', style: Theme.of(context).textTheme.titleMedium),
+              Text('Pulso Nora',
+                  style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: 3),
               Text(
                 'Nori nivel $level - $points XP',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: NoraColors.muted),
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.copyWith(color: NoraColors.muted),
               ),
               const SizedBox(height: NoraSpacing.sm),
               ClipRRect(
@@ -247,8 +287,13 @@ class _PulsoNoraSummary extends StatelessWidget {
               ),
               const SizedBox(height: 6),
               Text(
-                xpRemaining == 0 ? 'Nori sincronizado al maximo.' : '$xpRemaining XP para la proxima evolucion',
-                style: Theme.of(context).textTheme.labelMedium?.copyWith(color: NoraColors.accentLight),
+                xpRemaining == 0
+                    ? 'Nori sincronizado al maximo.'
+                    : '$xpRemaining XP para la proxima evolucion',
+                style: Theme.of(context)
+                    .textTheme
+                    .labelMedium
+                    ?.copyWith(color: NoraColors.accentLight),
               ),
             ],
           ),
@@ -296,6 +341,99 @@ class _QuickAction extends StatelessWidget {
   }
 }
 
+class _ModulesSection extends ConsumerWidget {
+  const _ModulesSection();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(pluginControllerProvider);
+    final plugins = <PluginManifest>[];
+    for (final id in state.activePluginIds) {
+      final manifest = PluginRegistry.instance.byId(id);
+      if (manifest != null) plugins.add(manifest);
+    }
+    if (plugins.isEmpty) return const SizedBox.shrink();
+
+    return NoraCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text('Tus módulos',
+                    style: Theme.of(context).textTheme.titleMedium),
+              ),
+              TextButton(
+                onPressed: () => context.go('/modules'),
+                child: const Text('Gestionar'),
+              ),
+            ],
+          ),
+          const SizedBox(height: NoraSpacing.sm),
+          for (final plugin in plugins) _ModuleTile(plugin: plugin),
+        ],
+      ),
+    );
+  }
+}
+
+class _ModuleTile extends StatelessWidget {
+  const _ModuleTile({required this.plugin});
+
+  final PluginManifest plugin;
+
+  @override
+  Widget build(BuildContext context) {
+    final firstPage = PluginManager.instance.getActivePages().where((page) {
+      return page.pluginId == plugin.id;
+    }).toList();
+    final onTap =
+        firstPage.isEmpty ? null : () => context.go(firstPage.first.fullPath);
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(14),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+            child: Row(
+              children: [
+                Icon(PluginIconMapper.resolve(plugin.icon),
+                    size: 20, color: NoraColors.accentLight),
+                const SizedBox(width: NoraSpacing.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(plugin.name,
+                          style: Theme.of(context).textTheme.titleSmall),
+                      Text(
+                        plugin.description,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodySmall
+                            ?.copyWith(color: NoraColors.muted),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.chevron_right,
+                    size: 18, color: NoraColors.muted),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _DashboardChip extends StatelessWidget {
   const _DashboardChip({
     required this.icon,
@@ -328,7 +466,10 @@ class _DashboardChip extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 label,
-                style: Theme.of(context).textTheme.labelMedium?.copyWith(color: NoraColors.text),
+                style: Theme.of(context)
+                    .textTheme
+                    .labelMedium
+                    ?.copyWith(color: NoraColors.text),
               ),
             ],
           ),
@@ -350,8 +491,11 @@ class _ActivityRow extends StatelessWidget {
       child: Row(
         children: [
           Icon(
-            task.isCompleted ? Icons.check_circle_rounded : Icons.circle_outlined,
-            color: task.isCompleted ? NoraColors.success : NoraColors.accentLight,
+            task.isCompleted
+                ? Icons.check_circle_rounded
+                : Icons.circle_outlined,
+            color:
+                task.isCompleted ? NoraColors.success : NoraColors.accentLight,
           ),
           const SizedBox(width: NoraSpacing.md),
           Expanded(
@@ -364,7 +508,10 @@ class _ActivityRow extends StatelessWidget {
                     task.note!,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: NoraColors.muted),
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyMedium
+                        ?.copyWith(color: NoraColors.muted),
                   ),
               ],
             ),
