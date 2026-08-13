@@ -40,8 +40,12 @@ export function ScheduledBackupSection() {
   }
 
   useEffect(() => {
-    void refresh()
-  }, [])
+    if (!bridge) return
+    void bridge.getStatus().then((result) => {
+      setStatus(result)
+      setDraftConfig(result.config)
+    })
+  }, [bridge])
 
   if (!bridge) {
     return (

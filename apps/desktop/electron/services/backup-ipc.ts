@@ -1,7 +1,7 @@
 import { ipcMain, dialog, BrowserWindow } from 'electron'
 import { writeFileSync, readFileSync, existsSync } from 'fs'
 import { createCipheriv, createDecipheriv, randomBytes, scryptSync } from 'crypto'
-import { DatabaseService } from './database'
+import { type DatabaseService } from './database'
 
 const CHANNELS = {
   exportPlain: 'backup:export-plain',

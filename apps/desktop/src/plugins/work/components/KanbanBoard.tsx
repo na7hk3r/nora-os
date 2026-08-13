@@ -250,17 +250,17 @@ export function KanbanBoard() {
     return lastOverId.current != null ? [{ id: lastOverId.current }] : []
   }, [activeCard, columnIdSet, visibleCardIdsByColumn])
 
-  const isBelowOverItem = (event: DragOverEvent | DragEndEvent) => {
-    if (!event.over || isColumnId(columnIds, event.over.id)) return false
-    const activeRect = event.active.rect.current.translated
-    if (!activeRect) return false
-    const activeCenterY = activeRect.top + activeRect.height / 2
-    const overCenterY = event.over.rect.top + event.over.rect.height / 2
-    return activeCenterY > overCenterY
-  }
-
   const getMoveResult = useCallback((event: DragOverEvent | DragEndEvent, sourceCards: Card[]) => {
     if (!event.over) return null
+
+    const isBelowOverItem = (e: DragOverEvent | DragEndEvent) => {
+      if (!e.over || isColumnId(columnIds, e.over.id)) return false
+      const activeRect = e.active.rect.current.translated
+      if (!activeRect) return false
+      const activeCenterY = activeRect.top + activeRect.height / 2
+      const overCenterY = e.over.rect.top + e.over.rect.height / 2
+      return activeCenterY > overCenterY
+    }
 
     const activeId = String(event.active.id)
     const targetColumnId = getColumnIdForTarget(sourceCards, columnIds, event.over.id)

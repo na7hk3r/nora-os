@@ -174,7 +174,7 @@ function compareFocusTasks(a: FocusTask, b: FocusTask): number {
  * Se puede colapsar a un resumen denso para reducir altura del Dashboard.
  */
 export function TodayFocus() {
-  const { t, language } = useI18n()
+  const { t } = useI18n()
   const navigate = useNavigate()
   const { toast } = useToast()
   const [collapsed, setCollapsed] = useState(getInitialCollapsed)

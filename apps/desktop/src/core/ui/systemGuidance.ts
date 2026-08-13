@@ -1,10 +1,6 @@
 import { CORE_EVENTS } from '@core/events/events'
 import { eventBus } from '@core/events/EventBus'
-import {
-  findMostRecentEvent,
-  hasEventType,
-  COMMON_EVENT_SETS,
-} from '@core/utils/dateUtils'
+import { findMostRecentEvent, COMMON_EVENT_SETS } from '@core/utils/dateUtils'
 import type { EventLogEntry } from '@core/types'
 
 export interface GuidanceSuggestion {

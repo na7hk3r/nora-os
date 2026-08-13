@@ -28,7 +28,7 @@ export function AppUpdateBanner() {
       cancelled = true
       off()
     }
-  }, [])
+  }, [bridge])
 
   if (!bridge || !status || dismissed) return null
   if (status.state !== 'available' && status.state !== 'downloaded') return null

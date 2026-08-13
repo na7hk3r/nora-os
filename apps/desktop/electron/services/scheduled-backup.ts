@@ -2,7 +2,7 @@ import { ipcMain, dialog, BrowserWindow, app } from 'electron'
 import { writeFileSync, readFileSync, existsSync, mkdirSync, readdirSync, unlinkSync, statSync } from 'fs'
 import { join } from 'path'
 import { createCipheriv, randomBytes, scryptSync } from 'crypto'
-import { DatabaseService } from './database'
+import { type DatabaseService } from './database'
 import type { ScheduledBackupConfig, ScheduledBackupStatus } from '../../src/core/types'
 
 /**

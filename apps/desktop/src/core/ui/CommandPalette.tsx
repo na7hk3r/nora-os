@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Search, X, Notebook, Link2, ListTodo, LayoutDashboard, SlidersHorizontal, CalendarDays, Sparkles, BarChart3, Hash } from 'lucide-react'
 import { storageAPI } from '@core/storage/StorageAPI'
 import { pluginManager } from '@core/plugins/PluginManager'
@@ -276,21 +276,24 @@ export function CommandPalette({ onShortcutHandled }: CommandPaletteProps) {
 
   const visibleResults = useMemo(() => results.slice(0, 25), [results])
 
-  const runAction = (actionId: NonNullable<CommandResult['actionId']>) => {
+  const runAction = useCallback((actionId: NonNullable<CommandResult['actionId']>) => {
     if (actionId === 'workspace:open-dual') workspace.openDual()
     if (actionId === 'workspace:close-dual') workspace.closeDual()
     if (actionId === 'workspace:activate-primary') workspace.setActivePane('primary')
     if (actionId === 'workspace:activate-secondary') workspace.setActivePane('secondary')
-  }
+  }, [workspace])
 
-  const handleSelect = (result: CommandResult, pane?: WorkspacePaneId) => {
-    setOpen(false)
-    if (result.actionId) {
-      runAction(result.actionId)
-      return
-    }
-    workspace.navigateWorkspace(result.ctaPath, pane ? { pane, openDual: pane === 'secondary' } : undefined)
-  }
+  const handleSelect = useCallback(
+    (result: CommandResult, pane?: WorkspacePaneId) => {
+      setOpen(false)
+      if (result.actionId) {
+        runAction(result.actionId)
+        return
+      }
+      workspace.navigateWorkspace(result.ctaPath, pane ? { pane, openDual: pane === 'secondary' } : undefined)
+    },
+    [runAction, workspace],
+  )
 
   useEffect(() => {
     if (!open) return

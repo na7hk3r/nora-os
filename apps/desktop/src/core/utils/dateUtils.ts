@@ -6,7 +6,6 @@
 import type { EventLogEntry } from '@core/types'
 
 const ONE_DAY_MS = 86_400_000
-const THREE_DAYS_MS = ONE_DAY_MS * 3
 
 /**
  * Calculate milliseconds elapsed since an event was created

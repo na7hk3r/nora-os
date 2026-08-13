@@ -118,11 +118,3 @@ export const SPACING = {
    */
   major: 'gap-6',
 }
-
-/**
- * Fade in animation CSS
- * Used as: <div className={fadeInAnimation()} />
- */
-export function fadeInAnimation(duration = 300): string {
-  return `animate-fadeIn` // Relies on Tailwind definitions
-}

@@ -1,5 +1,5 @@
 import { randomBytes, scryptSync, timingSafeEqual, randomUUID } from 'crypto'
-import { DatabaseService } from './database'
+import { type DatabaseService } from './database'
 
 export interface AuthUser {
   id: string

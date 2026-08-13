@@ -1,5 +1,5 @@
 import { ipcMain } from 'electron'
-import { DatabaseService } from './database'
+import { type DatabaseService } from './database'
 
 const CHANNELS = {
   query: 'storage:query',

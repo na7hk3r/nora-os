@@ -1,5 +1,5 @@
 import { ipcMain } from 'electron'
-import { AuthService } from './auth'
+import { type AuthService } from './auth'
 
 const CHANNELS = {
   register: 'auth:register',

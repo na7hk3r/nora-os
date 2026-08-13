@@ -86,11 +86,6 @@ interface WorkFocusRow {
 
 interface SettingsRow { key: string; value: string }
 
-function startOfTodayIso(): string {
-  const d = new Date(); d.setHours(0, 0, 0, 0)
-  return d.toISOString()
-}
-
 function isoDaysAgo(days: number): string {
   const d = new Date(Date.now() - days * 86_400_000)
   return d.toISOString().slice(0, 10)

@@ -1,4 +1,4 @@
-import { ReactNode } from 'react'
+import { type ReactNode } from 'react'
 import { AlertTriangle, Info, Zap } from 'lucide-react'
 
 export type StateType = 'loading' | 'error' | 'empty' | 'idle'

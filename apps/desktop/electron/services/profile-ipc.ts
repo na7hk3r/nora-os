@@ -17,7 +17,7 @@
 import { ipcMain, dialog, BrowserWindow } from 'electron'
 import { writeFileSync, readFileSync } from 'fs'
 import { createCipheriv, createDecipheriv, randomBytes, scryptSync } from 'crypto'
-import { DatabaseService } from './database'
+import { type DatabaseService } from './database'
 
 const CHANNELS = {
   exportPlain: 'profile:export-plain',
