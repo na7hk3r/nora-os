@@ -83,6 +83,15 @@ describe('Navbar', () => {
     ).toHaveAttribute('aria-expanded', 'false')
   })
 
+  it('expone el acceso a la versión web además de la descarga', () => {
+    renderNavbar()
+    const webLinks = screen.getAllByRole('link')
+    const webLink = webLinks.find((link) =>
+      link.getAttribute('href') === 'https://na7hk3r.github.io/nora-os/web/',
+    )
+    expect(webLink).toBeDefined()
+  })
+
   it('usa controles compactos en mobile', () => {
     renderNavbar()
 

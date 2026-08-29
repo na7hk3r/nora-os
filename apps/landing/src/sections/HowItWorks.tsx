@@ -1,9 +1,9 @@
 import { motion } from 'framer-motion'
-import { Download as DownloadIcon, ToggleRight, Sparkles } from 'lucide-react'
+import { Globe, ToggleRight, Sparkles } from 'lucide-react'
 import { Section } from '../components/Section'
 import { useI18n } from '../i18n'
 
-const stepIcons = [DownloadIcon, ToggleRight, Sparkles] as const
+const stepIcons = [Globe, ToggleRight, Sparkles] as const
 
 export function HowItWorks() {
   const { t } = useI18n()

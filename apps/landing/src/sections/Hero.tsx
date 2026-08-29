@@ -2,13 +2,13 @@ import { Github, ExternalLink, Cloud, ShieldCheck, Cpu } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { Button } from '../components/Button'
 import { DownloadButton } from '../components/DownloadButton'
+import { WebButton } from '../components/WebButton'
 import { BrandIcon } from '../components/BrandIcon'
 import { NoraLogo } from '../components/NoraLogo'
 import { useTypewriter } from '../hooks/useTypewriter'
 import { useLatestRelease } from '../hooks/useLatestRelease'
 import { useI18n } from '../i18n'
-
-const REPO_URL = 'https://github.com/na7hk3r/nora-os'
+import { REPO_URL } from '../constants'
 
 const FLOATING_ICONS = [
   { name: 'LaptopShell', x: '-78%', y: '8%', delay: 0.1 },
@@ -108,11 +108,12 @@ export function Hero() {
           transition={{ duration: 0.6, delay: 0.25 }}
           className="mt-9 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-center sm:gap-4"
         >
-          <DownloadButton size="lg" className="w-full sm:w-auto" />
+          <WebButton size="lg" source="hero" className="w-full sm:w-auto" />
+          <DownloadButton size="lg" variant="secondary" className="w-full sm:w-auto" />
           <Button
             as="a"
             href={REPO_URL}
-            variant="secondary"
+            variant="ghost"
             size="lg"
             target="_blank"
             rel="noopener noreferrer"

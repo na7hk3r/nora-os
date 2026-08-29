@@ -8,6 +8,7 @@ import { trackDownload } from '../utils/telemetry'
 
 interface DownloadButtonProps {
   size?: 'sm' | 'md' | 'lg'
+  variant?: 'primary' | 'secondary' | 'ghost'
   /** Forzar OS (útil para tests). */
   forceOS?: DetectedOS
   className?: string
@@ -35,7 +36,13 @@ function pickAsset(os: DetectedOS, release: LatestRelease): { url: string; name:
   }
 }
 
-export function DownloadButton({ size = 'lg', forceOS, className, compact = false }: DownloadButtonProps) {
+export function DownloadButton({
+  size = 'lg',
+  variant = 'primary',
+  forceOS,
+  className,
+  compact = false,
+}: DownloadButtonProps) {
   const { release, loading } = useLatestRelease()
   const [os, setOS] = useState<DetectedOS>(forceOS ?? 'unknown')
   const { t } = useI18n()
@@ -59,7 +66,7 @@ export function DownloadButton({ size = 'lg', forceOS, className, compact = fals
     <Button
       as="a"
       href={assetUrl ?? '#'}
-      variant="primary"
+      variant={variant}
       size={size}
       className={className}
       leftIcon={<Download className={compact ? 'h-3.5 w-3.5 shrink-0' : 'h-5 w-5 shrink-0'} aria-hidden="true" />}

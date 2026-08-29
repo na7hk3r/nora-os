@@ -5,10 +5,11 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { ThemeToggle } from './ThemeToggle'
 import { NoraLogo } from './NoraLogo'
 import { DownloadButton } from './DownloadButton'
+import { WebButton } from './WebButton'
 import { useLatestRelease } from '../hooks/useLatestRelease'
 import { languageOptions, useI18n } from '../i18n'
+import { REPO_URL } from '../constants'
 
-const REPO_URL = 'https://github.com/na7hk3r/nora-os'
 const NAVBAR_SCROLL_OFFSET = 72
 const MOBILE_MENU_EXIT_MS = 240
 
@@ -149,6 +150,15 @@ export function Navbar() {
             <Github className="h-3.5 w-3.5" aria-hidden="true" />
           </a>
           <div className="hidden sm:inline-flex">
+            <WebButton
+              size="sm"
+              variant="secondary"
+              compact
+              source="navbar"
+              className="h-8 rounded-md px-2.5 py-0 text-xs shadow-none shadow-transparent hover:shadow-none"
+            />
+          </div>
+          <div className="hidden sm:inline-flex">
             <DownloadButton size="sm" compact className="h-8 rounded-md px-2.5 py-0 text-xs shadow-none shadow-transparent hover:shadow-none" />
           </div>
           <button
@@ -187,21 +197,24 @@ export function Navbar() {
                   </a>
                 </li>
               ))}
-              <li className="mt-2 grid grid-cols-2 gap-2">
-                <a
-                  href={REPO_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-border bg-surface-light px-3 text-sm text-foreground"
-                >
-                  <Github className="w-4 h-4" aria-hidden="true" /> {t.common.github}
-                </a>
-                <div className="flex-1" onClick={() => setOpen(false)}>
-                  <DownloadButton
-                    size="sm"
-                    compact
-                    className="h-9 w-full rounded-md px-3 py-0 text-sm shadow-none shadow-transparent hover:shadow-none"
-                  />
+              <li className="mt-2 flex flex-col gap-2">
+                <WebButton source="mobile-menu" className="h-9 w-full rounded-md px-3 py-0 text-sm" />
+                <div className="grid grid-cols-2 gap-2">
+                  <a
+                    href={REPO_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex h-9 items-center justify-center gap-2 rounded-md border border-border bg-surface-light px-3 text-sm text-foreground"
+                  >
+                    <Github className="w-4 h-4" aria-hidden="true" /> {t.common.github}
+                  </a>
+                  <div className="flex-1" onClick={() => setOpen(false)}>
+                    <DownloadButton
+                      size="sm"
+                      compact
+                      className="h-9 w-full rounded-md px-3 py-0 text-sm shadow-none shadow-transparent hover:shadow-none"
+                    />
+                  </div>
                 </div>
               </li>
             </ul>

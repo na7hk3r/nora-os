@@ -1,12 +1,13 @@
 import { motion } from 'framer-motion'
 import { Section } from '../components/Section'
 import { DownloadButton } from '../components/DownloadButton'
+import { WebButton } from '../components/WebButton'
 import {
   FALLBACK_RELEASES_URL,
   useLatestRelease,
   type ReleaseAsset,
 } from '../hooks/useLatestRelease'
-import { Download, Apple, Monitor, HardDrive } from 'lucide-react'
+import { Download, Apple, Monitor, HardDrive, Globe } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { useI18n } from '../i18n'
 
@@ -68,6 +69,28 @@ export function Download_() {
               )}
             </p>
           )}
+        </div>
+
+        <div className="mt-8 flex flex-col items-stretch gap-4 rounded-2xl border border-accent/30 bg-accent/5 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+          <div className="flex items-start gap-3 text-left">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-accent/40 bg-surface-light text-accent">
+              <Globe className="h-5 w-5" aria-hidden="true" />
+            </span>
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-widest text-accent">
+                {t.download.webBadge}
+              </p>
+              <h3 className="mt-1 font-display text-lg font-bold leading-snug text-foreground">
+                {t.download.webTitle}
+              </h3>
+              <p className="mt-1 max-w-md text-sm leading-relaxed text-muted text-pretty">
+                {t.download.webIntro}
+              </p>
+            </div>
+          </div>
+          <div className="flex justify-start sm:flex-none sm:justify-center">
+            <WebButton source="download" className="w-full sm:w-auto" />
+          </div>
         </div>
 
         <div className="mt-10 flex justify-start sm:justify-center">

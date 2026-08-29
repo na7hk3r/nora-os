@@ -1,6 +1,6 @@
 const GOATCOUNTER_ENDPOINT = import.meta.env.VITE_GOATCOUNTER_ENDPOINT ?? ''
 
-export type TelemetryEventName = 'download'
+export type TelemetryEventName = 'download' | 'open-web'
 
 export interface PageViewPayload {
   path?: string
@@ -13,6 +13,10 @@ export interface DownloadPayload {
   version?: string
   assetName?: string
   assetUrl?: string
+}
+
+export interface WebOpenPayload {
+  source?: string
 }
 
 function getEndpoint(): string {
@@ -67,6 +71,16 @@ export function trackDownload(payload: DownloadPayload): boolean {
     e: 'true',
     r: getTelemetryPath(),
     q: payload.assetUrl ? new URLSearchParams({ assetUrl: payload.assetUrl }).toString() : undefined,
+  })
+}
+
+export function trackWebOpen(payload: WebOpenPayload = {}): boolean {
+  return sendGoatCounterHit({
+    p: 'open-web',
+    t: 'Open Nora Web',
+    e: 'true',
+    r: getTelemetryPath(),
+    q: payload.source ? new URLSearchParams({ source: payload.source }).toString() : undefined,
   })
 }
 

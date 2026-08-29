@@ -20,12 +20,17 @@ describe('Hero', () => {
     ).toBeInTheDocument()
   })
 
-  it('muestra el CTA de descarga y el enlace a GitHub', () => {
+  it('muestra el CTA de descarga, el acceso web y el enlace a GitHub', () => {
     render(<Hero />)
     // Botón de descarga (puede decir "Cargando…" hasta resolver fetch)
     expect(
       screen.getByRole('link', { name: /descargar|cargando/i }),
     ).toBeInTheDocument()
+    // CTA primario de la versión web
+    expect(screen.getByRole('link', { name: /abrir nora web/i })).toHaveAttribute(
+      'href',
+      'https://na7hk3r.github.io/nora-os/web/',
+    )
     expect(screen.getByRole('link', { name: /ver en github/i })).toHaveAttribute(
       'href',
       'https://github.com/na7hk3r/nora-os',

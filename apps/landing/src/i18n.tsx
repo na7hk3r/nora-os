@@ -23,6 +23,8 @@ interface LandingCopy {
   common: {
     skipContent: string
     github: string
+    web: string
+    openWeb: string
     downloadFor: string
     loadingLatest: string
     yourSystem: string
@@ -145,6 +147,9 @@ interface LandingCopy {
     footerMeta: string
     previousQuestion: string
     history: string
+    webBadge: string
+    webTitle: string
+    webIntro: string
   }
   faq: {
     eyebrow: string
@@ -167,11 +172,13 @@ export const copy = {
     meta: {
       title: 'Nora OS - Copiloto local para organizar tu vida',
       description:
-        'Nora OS conecta trabajo, salud, hábitos, finanzas y Pulso Nora en una app local-first, privada y extensible.',
+        'Nora OS conecta trabajo, salud, hábitos, finanzas y Pulso Nora en una app local-first, privada y extensible. Probala al instante en el navegador o como app de escritorio.',
     },
     common: {
       skipContent: 'Saltar al contenido',
       github: 'GitHub',
+      web: 'Web',
+      openWeb: 'Abrir Nora Web',
       downloadFor: 'Descargar para {os}',
       loadingLatest: 'Cargando última versión',
       yourSystem: 'tu sistema',
@@ -285,8 +292,9 @@ export const copy = {
       steps: [
         {
           number: '01',
-          title: 'Descargá e instalá',
-          description: 'Sin cuentas. Sin servidores. Bajás el instalador y abrís la app. Listo.',
+          title: 'Elegí tu superficie',
+          description:
+            'Abrí Nora Web en el navegador o descargá la app de escritorio. Sin cuentas, sin servidores.',
         },
         {
           number: '02',
@@ -521,6 +529,10 @@ export const copy = {
       footerMeta: 'Open source · Licencia ISC · Auto-update incluido · GitHub Releases',
       previousQuestion: '¿Buscás versiones anteriores?',
       history: 'Ver historial de releases',
+      webBadge: 'Sin instalación',
+      webTitle: 'Nora Web — probalo al instante',
+      webIntro:
+        'Abrí Nora OS directo en tu navegador. Mismo producto, mismos plugins: tus datos quedan guardados en este dispositivo.',
     },
     faq: {
       eyebrow: 'Preguntas frecuentes',
@@ -548,6 +560,10 @@ export const copy = {
           a: 'Windows está estable hoy (instalador y portable). Linux se publica como AppImage y .deb en cada release. Mac (.dmg) está preparado para próximas versiones.',
         },
         {
+          q: '¿Nora Web o la versión de escritorio?',
+          a: 'Son el mismo producto, con la misma base de datos y los mismos plugins. Nora Web se abre al instante en el navegador, y tus datos quedan en ese dispositivo. La versión de escritorio suma IA local (Ollama), auto-update y backup programado. Podés empezar en la web y pasar a escritorio cuando quieras.',
+        },
+        {
           q: '¿Puedo crear mis propios plugins?',
           a: 'Sí. Hay un CLI de scaffolding (npm run create-plugin -- mi-plugin) y documentación completa de la CoreAPI. Cada plugin es un módulo TypeScript con manifest, eventos, repo y UI.',
         },
@@ -566,11 +582,13 @@ export const copy = {
     meta: {
       title: 'Nora OS - Local copilot for organizing your life',
       description:
-        'Nora OS connects work, health, habits, finance, and Pulso Nora in a private, extensible, local-first app.',
+        'Nora OS connects work, health, habits, finance, and Pulso Nora in a private, extensible, local-first app. Try it instantly in your browser or as a desktop app.',
     },
     common: {
       skipContent: 'Skip to content',
       github: 'GitHub',
+      web: 'Web',
+      openWeb: 'Open Nora Web',
       downloadFor: 'Download for {os}',
       loadingLatest: 'Loading latest version',
       yourSystem: 'your system',
@@ -683,8 +701,9 @@ export const copy = {
       steps: [
         {
           number: '01',
-          title: 'Download and install',
-          description: 'No accounts. No servers. Get the installer and open the app. Done.',
+          title: 'Pick your surface',
+          description:
+            'Open Nora Web in your browser or install the desktop app. No accounts, no servers.',
         },
         {
           number: '02',
@@ -918,6 +937,10 @@ export const copy = {
       footerMeta: 'Open source · ISC License · Auto-update included · GitHub Releases',
       previousQuestion: 'Looking for older versions?',
       history: 'View release history',
+      webBadge: 'No installation',
+      webTitle: 'Nora Web — try it instantly',
+      webIntro:
+        'Open Nora OS right in your browser. Same product, same plugins: your data stays on that device.',
     },
     faq: {
       eyebrow: 'FAQ',
@@ -945,6 +968,10 @@ export const copy = {
           a: 'Windows is stable today (installer and portable). Linux is published as AppImage and .deb on every release. Mac (.dmg) is prepared for upcoming versions.',
         },
         {
+          q: 'Nora Web or the desktop version?',
+          a: 'They are the same product, with the same database and the same plugins. Nora Web opens instantly in your browser, and your data stays on that device. The desktop version adds local AI (Ollama), auto-update, and scheduled backups. Start on the web and move to desktop whenever you want.',
+        },
+        {
           q: 'Can I create my own plugins?',
           a: 'Yes. There is a scaffolding CLI (npm run create-plugin -- my-plugin) and complete CoreAPI documentation. Each plugin is a TypeScript module with a manifest, events, repository, and UI.',
         },
@@ -963,11 +990,13 @@ export const copy = {
     meta: {
       title: 'Nora OS - Copiloto local para organizar sua vida',
       description:
-        'Nora OS conecta trabalho, saude, habitos, financas e Pulso Nora em um app local-first, privado e extensivel.',
+        'Nora OS conecta trabalho, saude, habitos, financas e Pulso Nora em um app local-first, privado e extensivel. Teste na hora no navegador ou como app de desktop.',
     },
     common: {
       skipContent: 'Ir para o conteúdo',
       github: 'GitHub',
+      web: 'Web',
+      openWeb: 'Abrir Nora Web',
       downloadFor: 'Baixar para {os}',
       loadingLatest: 'Carregando última versão',
       yourSystem: 'seu sistema',
@@ -1081,8 +1110,9 @@ export const copy = {
       steps: [
         {
           number: '01',
-          title: 'Baixe e instale',
-          description: 'Sem contas. Sem servidores. Baixe o instalador e abra o app. Pronto.',
+          title: 'Escolha sua superfície',
+          description:
+            'Abra o Nora Web no navegador ou baixe o app para desktop. Sem contas, sem servidores.',
         },
         {
           number: '02',
@@ -1317,6 +1347,10 @@ export const copy = {
       footerMeta: 'Open source · Licença ISC · Auto-update incluído · GitHub Releases',
       previousQuestion: 'Procurando versões anteriores?',
       history: 'Ver histórico de releases',
+      webBadge: 'Sem instalação',
+      webTitle: 'Nora Web — teste na hora',
+      webIntro:
+        'Abra o Nora OS direto no navegador. Mesmo produto, mesmos plugins: seus dados ficam guardados neste dispositivo.',
     },
     faq: {
       eyebrow: 'Perguntas frequentes',
@@ -1342,6 +1376,10 @@ export const copy = {
         {
           q: 'Está disponível para Mac e Linux?',
           a: 'Windows está estável hoje (instalador e portable). Linux é publicado como AppImage e .deb em cada release. Mac (.dmg) está preparado para próximas versões.',
+        },
+        {
+          q: 'Nora Web ou a versão desktop?',
+          a: 'É o mesmo produto, com o mesmo banco de dados e os mesmos plugins. O Nora Web abre na hora no navegador, e seus dados ficam naquele dispositivo. A versão desktop soma IA local (Ollama), auto-update e backup programado. Dá para começar na web e migrar para o desktop quando quiser.',
         },
         {
           q: 'Posso criar meus próprios plugins?',
