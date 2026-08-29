@@ -1,0 +1,19 @@
+{
+  "root": true,
+  "extends": ["../../.eslintrc.json"],
+  "ignorePatterns": ["node_modules", "dist", "public"],
+  "overrides": [
+    {
+      "files": ["scripts/**/*.{js,mjs}"],
+      "rules": {
+        "no-console": "off"
+      }
+    },
+    {
+      "files": ["src/**/*.test.ts"],
+      "rules": {
+        "no-dynamic-require": "off"
+      }
+    }
+  ]
+}
