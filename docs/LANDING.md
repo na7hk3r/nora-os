@@ -6,6 +6,10 @@ Sitio web público de Nora OS, deployado en GitHub Pages:
 
 Stack: **Vite + React 19 + TypeScript + TailwindCSS**, sin backend.
 
+En el mismo Pages se publica también la **versión web de la app** (PWA)
+bajo `https://na7hk3r.github.io/nora-os/web/` — el deploy de `apps/web` corre
+en el mismo workflow (ver [WEB_PORT.md](WEB_PORT.md)).
+
 ---
 
 ## Estructura
@@ -27,11 +31,11 @@ apps/landing/
   src/
     main.tsx
     App.tsx
-    components/          # Button, Section, DownloadButton, ThemeToggle
+    components/          # Button, WebButton, Section, DownloadButton, ThemeToggle
     sections/            # Hero, Features, Plugins, Screenshots, Download, FAQ, Footer, FeedbackPage
     data/                # features, plugins, faq (datos estáticos)
     hooks/               # useLatestRelease, useDetectOS, usePageTelemetry
-    utils/               # telemetry
+    utils/               # telemetry (incluye trackWebOpen)
     styles/index.css     # tokens y reset
     test/                # vitest specs
 ```
@@ -91,18 +95,30 @@ producto:
 
 ## Deploy
 
-El deploy es **automático** vía GitHub Actions. Cualquier push a `main` que toque `apps/landing/**` (o el propio workflow) dispara `.github/workflows/landing.yml`, que:
+El deploy es **automático** vía GitHub Actions. Cualquier push a `main` que
+toque `apps/landing/**`, `apps/web/**`, `apps/desktop/src/**` (renderer
+compartido por la web) o el propio workflow dispara
+`.github/workflows/landing.yml`, que:
 
-1. Instala dependencias en `apps/landing/`.
-2. Corre `typecheck` + `test`.
-3. Construye con `npm run build`, inyectando `VITE_FEEDBACK_ENDPOINT` y `VITE_GOATCOUNTER_ENDPOINT`.
-4. Sube `apps/landing/dist/` como artifact de Pages.
-5. Despliega en `github-pages`.
+1. **build-landing** — instala deps en `apps/landing/`, corre `typecheck` +
+   `test`, construye con `npm run build` inyectando `VITE_FEEDBACK_ENDPOINT` y
+   `VITE_GOATCOUNTER_ENDPOINT`, y sube `apps/landing/dist/` como artifact.
+2. **build-web** — instala deps en `apps/web/` (su propio lockfile), corre
+   `typecheck` + `test`, construye la PWA (incluye `sql-wasm.wasm`) y sube
+   `apps/web/dist/` como artifact.
+3. **assemble** — descarga ambos artifacts en un solo árbol: la landing en la
+   raíz y la web en `./web` (así queda servida en `/web/`). Sube el árbol
+   completo como Pages artifact.
+4. **deploy** — publica en GitHub Pages.
+
+Resultado: un único sitio Pages donde la landing vive en la raíz
+(`https://na7hk3r.github.io/nora-os/`) y la app web en
+`https://na7hk3r.github.io/nora-os/web/`.
 
 El primer deploy requiere habilitar Pages manualmente:
 
 1. **Settings → Pages → Build and deployment → Source: GitHub Actions.**
-2. Mergear cualquier cambio a `main` que toque `apps/landing/`.
+2. Mergear cualquier cambio a `main` que toque `apps/landing/` o `apps/web/`.
 3. La URL final aparece en la pestaña **Actions** del repo.
 
 También se puede disparar manualmente con **Run workflow** desde la pestaña Actions.
@@ -141,6 +157,7 @@ La landing usa GoatCounter de forma liviana y sin SDK externo:
 
 - `usePageTelemetry()` registra visitas de página al cargar y al cambiar hash.
 - `DownloadButton` registra eventos de descarga al clickear el CTA.
+- `WebButton` registra la apertura de la versión web (`trackWebOpen`).
 - Si `VITE_GOATCOUNTER_ENDPOINT` no está configurado, la telemetría queda desactivada sin romper la UI.
 
 Los paths esperados en GoatCounter son:
@@ -149,6 +166,7 @@ Los paths esperados en GoatCounter son:
 | --- | --- |
 | Visita a landing | `/` |
 | Visita a feedback | `/feedback` |
+| Abrir Nora Web | `open-web` |
 | Descarga Windows | `download-windows-{version}` |
 | Descarga Linux | `download-linux-{version}` |
 | Descarga macOS | `download-mac-{version}` |
@@ -201,10 +219,10 @@ Editá `apps/landing/src/data/features.ts` y agregá un objeto con `title`, `des
 
 ## SEO
 
-- `<title>`, `<meta description>`, OpenGraph y Twitter Card configurados en `index.html`.
+- `<title>`, `<meta description>`, OpenGraph y Twitter Card configurados en `index.html` (mencionan la versión web).
 - `favicon.svg` (128 px) y `og-image.svg` (1200×630).
 - `robots.txt` permite todo + apunta al sitemap.
-- `sitemap.xml` mínimo (URL raíz).
+- `sitemap.xml` con la URL raíz y la de la app web (`/web/`).
 
 Para mejorar el OG image en redes que no parsean SVG, generá un `og-image.png` y reemplazá las referencias en `index.html`.
 
@@ -231,11 +249,12 @@ npm test
 
 Cobertura:
 
-- `Hero.test.tsx` — render del título, subtítulo y CTAs.
+- `Hero.test.tsx` — render del título, subtítulo y CTAs (incluye el CTA a Nora Web).
+- `Navbar.test.tsx` — navegación desktop y mobile (incluye el acceso a la versión web).
 - `DownloadButton.test.tsx` — selección de asset por SO, fallback, detección de userAgent.
 - `useLatestRelease.test.ts` — fetch, cache en sessionStorage, manejo de errores, clasificación de assets.
 - `FeedbackPage.test.tsx` — formulario beta, contexto oculto y estados de envío.
-- `telemetry.test.ts` — pageviews, eventos de descarga y no-op sin endpoint.
+- `telemetry.test.ts` — pageviews, eventos de descarga, apertura de la web y no-op sin endpoint.
 
 ---
 

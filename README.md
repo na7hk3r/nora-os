@@ -14,7 +14,7 @@ Electron 41 · React 19 · TypeScript 5.7 · SQLite
 [![Releases](https://img.shields.io/github/v/release/na7hk3r/nora-os?style=flat-square&color=6A39F6)](https://github.com/na7hk3r/nora-os/releases)
 [![License](https://img.shields.io/badge/license-ISC-6A39F6?style=flat-square)](LICENSE)
 
-[Sitio web](https://na7hk3r.github.io/nora-os/) · [Características](#características) · [Instalación](#instalación) · [Stack](#stack-técnico) · [Documentación](#documentación) · [Identidad visual](#identidad-visual) · [Roadmap](#roadmap)
+[Sitio web](https://na7hk3r.github.io/nora-os/) · [Nora Web](https://na7hk3r.github.io/nora-os/web/) · [Características](#características) · [Instalación](#instalación) · [Stack](#stack-técnico) · [Documentación](#documentación) · [Identidad visual](#identidad-visual) · [Roadmap](#roadmap)
 
 <br />
 
@@ -40,6 +40,8 @@ Nora OS es una aplicación de escritorio modular que centraliza **lo que importa
 A diferencia de un dashboard de SaaS o una app cloud, **toda tu información vive en tu máquina**: una base de datos SQLite cifrable, sin servidores, sin telemetría, sin tracking. Si querés inteligencia sobre tus datos, conectás un modelo local con [Ollama](https://ollama.com) y listo — el LLM nunca sale de tu equipo.
 
 > Pensado para una sola persona que quiere ordenar su vida con herramientas serias, sin alquilar diez SaaS distintos.
+
+Nora OS también se puede usar **directamente desde el navegador**: la [versión web](https://na7hk3r.github.io/nora-os/web/) es una PWA **local-first** sin servidor, con el mismo renderer y los 8 plugins corriendo sobre SQLite vía sql.js (WebAssembly) con datos en IndexedDB. Lee y escribe los mismos formatos que el desktop (backups, perfil, cifrado en reposo). La versión de escritorio suma lo que un navegador no puede: IA local con Ollama, backup programado a carpeta y notificaciones nativas. Detalle en [docs/WEB_PORT.md](docs/WEB_PORT.md).
 
 ---
 
@@ -162,6 +164,7 @@ helpers y gating de IA.
 | Capa | Tecnología |
 | --- | --- |
 | Desktop | **Electron 41** (context isolation + sandbox) |
+| Web (PWA) | **Vite 7** + React 19 + TypeScript + `sql.js` (SQLite en WebAssembly) + IndexedDB |
 | Frontend | **React 19** + TypeScript 5.7 |
 | Routing | React Router DOM v7 (HashRouter) |
 | Estado | Zustand v5 |
@@ -181,6 +184,9 @@ helpers y gating de IA.
 
 Nora OS se distribuye como app nativa (sin servidor, sin cloud) con
 auto-update integrado vía GitHub Releases.
+
+**Sin instalar nada:** abrí [Nora Web](https://na7hk3r.github.io/nora-os/web/),
+la PWA local-first con el mismo núcleo, instalable desde el navegador.
 
 ➡️ **[Última versión — github.com/na7hk3r/nora-os/releases/latest](https://github.com/na7hk3r/nora-os/releases/latest)**
 
@@ -213,7 +219,7 @@ Para distribuir tu propio fork, ver [docs/RELEASES.md](docs/RELEASES.md).
 
 ### Descargar (usuarios)
 
-¿Solo querés usar la app? Bajala desde la **[página oficial](https://na7hk3r.github.io/nora-os/#download)** o directamente desde [GitHub Releases](https://github.com/na7hk3r/nora-os/releases). Disponible para Windows (NSIS y portable), Linux (AppImage / .deb) y macOS (.dmg).
+¿Solo querés usar la app? Bajala desde la **[página oficial](https://na7hk3r.github.io/nora-os/#download)** o directamente desde [GitHub Releases](https://github.com/na7hk3r/nora-os/releases). Disponible para Windows (NSIS y portable), Linux (AppImage / .deb) y macOS (.dmg). O usala **sin instalar** desde [Nora Web](https://na7hk3r.github.io/nora-os/web/).
 
 ### Requisitos (build desde source)
 
@@ -251,6 +257,7 @@ NPM es el gestor estable del repo para desarrollo, CI y releases. No uses
 | `npm run format` / `format:check` | Prettier |
 | `npm run create-plugin -- <id>` | Scaffolding de plugin nuevo |
 | `npm run landing:typecheck` / `landing:test` / `landing:build` | Validación y build de `apps/landing` |
+| `npm run web:typecheck` / `web:test` / `web:build` | Validación y build de `apps/web` (PWA) |
 | `npm run mobile:analyze` | Análisis Flutter de `apps/mobile` |
 | `npm run mobile:test` | Tests Flutter de `apps/mobile` |
 
@@ -260,12 +267,12 @@ Los workflows de GitHub Actions validan cada superficie por separado:
 
 | Workflow | Qué valida |
 | --- | --- |
-| `.github/workflows/ci.yml` | Desktop (`typecheck`, `lint`, `test`), landing (`typecheck`, `test`, `build`), mobile (`flutter analyze`, `flutter test`) y smoke de empaquetado Windows (`npm run pack`) |
-| `.github/workflows/landing.yml` | Deploy de `apps/landing/dist` a GitHub Pages cuando cambia la landing |
+| `.github/workflows/ci.yml` | Desktop (`typecheck`, `lint`, `test`), landing (`typecheck`, `test`, `build`), web (`typecheck`, `lint`, `test`, `build`), mobile (`flutter analyze`, `flutter test`) y smoke de empaquetado Windows (`npm run pack`) |
+| `.github/workflows/landing.yml` | Deploy de la **landing + web** (esta última en `/web/`) a GitHub Pages cuando cambian `apps/landing`, `apps/web`, `apps/desktop/src` o el workflow |
 | `.github/workflows/release.yml` | Publicación de assets Windows al GitHub Release del tag `vX.Y.Z` |
 
 Los artefactos generados (`out/`, `release/`, `dist/`, `apps/landing/dist/`,
-builds Flutter, caches y cobertura) quedan fuera de git por `.gitignore`.
+`apps/web/dist/`, builds Flutter, caches y cobertura) quedan fuera de git por `.gitignore`.
 
 ### Activar IA (opcional)
 
@@ -297,6 +304,7 @@ nora-os/
 ├── apps/
 │   ├── desktop/          # Electron app actual
 │   ├── landing/          # Landing publica y marketing web
+│   ├── web/              # PWA local-first (mismo renderer que desktop)
 │   ├── mobile/           # App Flutter mobile-first
 │   └── docs/             # Workspace reservado para docs futuras
 ├── packages/
@@ -394,6 +402,7 @@ Para detalle: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/PLUGIN_API.md]
 | [CONSISTENCY_AUDITOR](docs/CONSISTENCY_AUDITOR.md) | Reglas y dominios del auditor |
 | [SHORTCUTS](docs/SHORTCUTS.md) | Atajos de teclado |
 | [LANDING](docs/LANDING.md) | Sitio público en GitHub Pages |
+| [WEB_PORT](docs/WEB_PORT.md) | Port de la app a web (PWA local-first) |
 | [RELEASES](docs/RELEASES.md) | Cómo cortar un release y publicar binarios |
 | [KNOWLEDGE_BASE_PLAN](docs/KNOWLEDGE_BASE_PLAN.md) | Plan para llevar la doc a un sitio web |
 | [CHANGELOG](CHANGELOG.md) | Historial de versiones |

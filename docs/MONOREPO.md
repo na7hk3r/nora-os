@@ -6,6 +6,7 @@ Nora OS queda organizado como un ecosistema multiplataforma:
 
 - `apps/desktop`: Electron app actual. Sus comandos historicos siguen expuestos desde la raiz.
 - `apps/landing`: sitio publico y marketing.
+- `apps/web`: PWA local-first con el mismo renderer que desktop (ver `docs/WEB_PORT.md`).
 - `apps/mobile`: app Flutter.
 - `apps/docs`: workspace reservado para documentacion futura.
 - `packages/*`: paquetes compartidos sin logica de negocio de app.
@@ -22,6 +23,7 @@ interfaz canonica para CI/CD y release:
 - `npm run dev`, `npm run build`, `npm run typecheck`, `npm run lint`,
   `npm test`.
 - `npm run landing:typecheck`, `npm run landing:test`, `npm run landing:build`.
+- `npm run web:typecheck`, `npm run web:test`, `npm run web:build`.
 - `npm run mobile:analyze`, `npm run mobile:test`.
 - `npm run pack`, `npm run dist:win`, `npm run release`.
 
@@ -45,11 +47,14 @@ La matriz de produccion vive en `.github/workflows/ci.yml`:
 
 - Desktop: `npm ci`, `npm run typecheck`, `npm run lint`, `npm test`.
 - Landing: `npm ci`, `npm run typecheck`, `npm test`, `npm run build`.
+- Web: `npm ci` en `apps/web`, `npm run typecheck`, `npm run lint`, `npm test`,
+  `npm run build` (sirve `sql-wasm.wasm` en `dist/`).
 - Mobile: Flutter `3.44.0`, `flutter pub get`, `flutter analyze`,
   `flutter test`.
 - Pack smoke: Windows, `npm ci`, `npm run pack`.
 
-Deploy de landing: `.github/workflows/landing.yml`.
+Deploy de landing + web: `.github/workflows/landing.yml` (arma un solo sitio
+Pages con la landing y la web en `/web/`, ver `docs/LANDING.md`).
 Release de binarios Windows: `.github/workflows/release.yml`.
 
 ## Migracion Segura

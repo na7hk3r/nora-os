@@ -273,3 +273,18 @@ Todos los datos que fluyen entre el renderer y el main process pasan por validac
 5. **Versiones de migración**: enteros positivos.
 
 El renderer nunca puede ejecutar SQL arbitrario ni acceder al filesystem directamente.
+
+## Versión web (PWA)
+
+`apps/web` compila el **mismo renderer** de `apps/desktop/src` (React + los 8
+plugins) reemplazando la capa Electron por bridges web:
+
+- Los alias de Vite apuntan a `../desktop/src` (renderer sin cambios) y los
+  bridges `window.*` se implementan en el navegador: `sql.js` + IndexedDB para
+  `storage`, WebCrypto + scrypt en JS puro para auth y cifrado en reposo.
+- El flujo central (EventBus → PluginManager → CoreAPI → StorageAPI) es
+  idéntico; solo cambia el backend. La marca `window.__NORA_WEB__` permite a los
+  componentes compartidos degradar con honestidad (Ollama, backup programado).
+- Se publica en GitHub Pages bajo `/nora-os/web/` como PWA instalable/offline.
+
+Detalle completo del port en [WEB_PORT.md](WEB_PORT.md).

@@ -9,6 +9,7 @@ en GitHub Releases con auto-update via `electron-updater`.
 # 1. Validar local
 npm run lint && npm run typecheck && npm test
 npm run landing:typecheck && npm run landing:test && npm run landing:build
+npm run web:typecheck && npm run web:test && npm run web:build
 npm run mobile:analyze && npm run mobile:test
 npm run pack
 
@@ -61,6 +62,9 @@ git push origin main vX.Y.Z
    npm run landing:typecheck
    npm run landing:test
    npm run landing:build
+   npm run web:typecheck
+   npm run web:test
+   npm run web:build
    npm run mobile:analyze
    npm run mobile:test
    npm run pack   # smoke test del empaquetado
@@ -109,8 +113,15 @@ cuando se quiera publicar ese target.
 El workflow de CI general corre tambien landing y mobile antes de mergear:
 
 - Landing: `npm ci`, `npm run typecheck`, `npm test`, `npm run build`.
+- Web: `npm ci` en `apps/web`, `npm run typecheck`, `npm run lint`, `npm test`,
+  `npm run build`.
 - Mobile: Flutter `3.44.0`, `flutter pub get`, `flutter analyze`,
   `flutter test`.
+
+> La **versión web** no depende de los tags: se publica en GitHub Pages en cada
+> push a `main` que toque `apps/landing`, `apps/web`, `apps/desktop/src` o
+> `.github/workflows/landing.yml` (ver `docs/LANDING.md`). Un release corta
+> binarios desktop; la web se actualiza sola.
 
 ## Code signing
 
