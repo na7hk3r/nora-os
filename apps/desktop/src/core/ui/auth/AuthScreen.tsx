@@ -82,6 +82,7 @@ function forgetAllRememberedUsernames(): void {
 
 export function AuthScreen() {
   const { t } = useI18n()
+  const isWeb = typeof window !== 'undefined' && Boolean(window.__NORA_WEB__)
   const login = useAuthStore((s) => s.login)
   const register = useAuthStore((s) => s.register)
   const getRecoveryQuestion = useAuthStore((s) => s.getRecoveryQuestion)
@@ -441,6 +442,22 @@ export function AuthScreen() {
                 <p className="text-emerald-200">{recoveryMessage}</p>
               </>
             )}
+          </div>
+        )}
+
+        {isWeb && (
+          <div className="mt-4 rounded-lg border border-border bg-surface/70 px-3 py-2.5 text-xs leading-relaxed text-muted">
+            <p>
+              {t.auth.webNotice}{' '}
+              <a
+                href="https://na7hk3r.github.io/nora-os/#download"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-accent hover:underline"
+              >
+                {t.auth.webNoticeCta}
+              </a>
+            </p>
           </div>
         )}
       </div>

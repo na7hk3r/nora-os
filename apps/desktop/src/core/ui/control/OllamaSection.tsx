@@ -24,6 +24,7 @@ export function OllamaSection() {
   const [busy, setBusy] = useState(false)
   const [pullingModel, setPullingModel] = useState('')
   const [status, setStatus] = useState<string>('')
+  const isWeb = typeof window !== 'undefined' && Boolean(window.__NORA_WEB__)
 
   useEffect(() => {
     void ollamaService.getSettings().then((loaded) => {
@@ -134,6 +135,28 @@ export function OllamaSection() {
           : 'Conecta Nora OS a tu instancia local de Ollama (http://127.0.0.1:11434) para analisis con IA basados en tus datos. Todo se procesa offline.'}
       </p>
 
+      {isWeb && (
+        <div className="mt-3 rounded-lg border border-warning/40 bg-warning/10 px-4 py-3 text-sm">
+          <p className="font-medium text-warning">
+            {language === 'en' ? 'Local AI is not available in the web version.' : 'La IA local no esta disponible en la version web.'}
+          </p>
+          <p className="mt-0.5 text-xs text-muted">
+            {language === 'en'
+              ? 'This section is kept for interface parity. To use Ollama, open the '
+              : 'Esta seccion se mantiene por paridad de interfaz. Para usar Ollama, abre la '}
+            <a
+              href="https://na7hk3r.github.io/nora-os/#download"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-accent hover:underline"
+            >
+              {language === 'en' ? 'desktop app' : 'aplicacion de escritorio'}
+            </a>
+            {language === 'en' ? '.' : '.'}
+          </p>
+        </div>
+      )}
+
       <div className="mt-4 space-y-3">
         <label className="flex items-center justify-between rounded-lg border border-border bg-surface px-4 py-3">
           <div>
@@ -144,7 +167,8 @@ export function OllamaSection() {
           </div>
           <input
             type="checkbox"
-            checked={settings.enabled}
+            checked={isWeb ? false : settings.enabled}
+            disabled={isWeb}
             onChange={(e) => setSettings({ ...settings, enabled: e.target.checked })}
             className="h-4 w-4"
           />

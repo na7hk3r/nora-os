@@ -87,26 +87,29 @@ export function OnboardingWizard() {
 
     // Persist fitness preferences in plugin_state
     if (window.storage) {
-      await window.storage.execute(
-        `INSERT OR REPLACE INTO plugin_state (plugin_id, key, value) VALUES ('fitness', 'goal', ?)`,
-        [cfg.goal],
-      )
-      await window.storage.execute(
-        `INSERT OR REPLACE INTO plugin_state (plugin_id, key, value) VALUES ('fitness', 'smokingTracker', ?)`,
-        [cfg.smokingTracker ? 'true' : 'false'],
-      )
-      await saveFitnessSettings({
-        ...DEFAULT_FITNESS_SETTINGS,
-        smokingCessationEnabled: cfg.smokingTracker,
-      })
-      if (currentWeight) {
-        // Insert initial weight entry
+      try {
         await window.storage.execute(
-          `INSERT INTO fitness_daily_entries (date, weight, created_at)
-           VALUES (date('now'), ?, datetime('now'))
-           ON CONFLICT(date) DO UPDATE SET weight = excluded.weight`,
-          [currentWeight],
+          `INSERT OR REPLACE INTO plugin_state (plugin_id, key, value) VALUES ('fitness', 'goal', ?)`,
+          [cfg.goal],
         )
+        await window.storage.execute(
+          `INSERT OR REPLACE INTO plugin_state (plugin_id, key, value) VALUES ('fitness', 'smokingTracker', ?)`,
+          [cfg.smokingTracker ? 'true' : 'false'],
+        )
+        await saveFitnessSettings({
+          ...DEFAULT_FITNESS_SETTINGS,
+          smokingCessationEnabled: cfg.smokingTracker,
+        })
+        if (currentWeight) {
+          await window.storage.execute(
+            `INSERT INTO fitness_daily_entries (date, weight, created_at)
+             VALUES (date('now'), ?, datetime('now'))
+             ON CONFLICT(date) DO UPDATE SET weight = excluded.weight`,
+            [currentWeight],
+          )
+        }
+      } catch (err) {
+        console.warn('[Onboarding] fitness config persist failed', err)
       }
     }
 

@@ -340,9 +340,11 @@ export function WorkDashboard() {
   const openFocusMiniWindow = async () => {
     if (openingFocusWindow) return
     setOpeningFocusWindow(true)
+    const isWeb = typeof window !== 'undefined' && Boolean(window.__NORA_WEB__)
     try {
       const bridge = (window as typeof window & { workFocusWindow?: Window['workFocusWindow'] }).workFocusWindow
-      if (bridge?.open) {
+      // En la web no existe ventana OS dedicada: se usa el popup del navegador.
+      if (bridge?.open && !isWeb) {
         await bridge.open()
         return
       }

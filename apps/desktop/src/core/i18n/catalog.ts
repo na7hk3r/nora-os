@@ -153,6 +153,8 @@ export interface AppCopy {
     passwordUpdated: string
     showPassword: string
     hidePassword: string
+    webNotice: string
+    webNoticeCta: string
   }
   control: {
     eyebrow: string
@@ -568,6 +570,9 @@ export const copy: Record<AppLanguage, AppCopy> = {
       passwordUpdated: 'Contraseña actualizada. Iniciá sesión con tu nueva contraseña.',
       showPassword: 'Mostrar contraseña',
       hidePassword: 'Ocultar contraseña',
+      webNotice:
+        'Versión web: tus datos y tu cuenta viven en este navegador. La versión de escritorio suma IA local (Ollama) y backups automáticos.',
+      webNoticeCta: 'Ver Nora OS de escritorio',
     },
     control: {
       eyebrow: 'Configuración',
@@ -821,9 +826,12 @@ export const copy: Record<AppLanguage, AppCopy> = {
       updating: 'Updating...',
       updatePassword: 'Update password',
       userNotFound: 'User not found.',
-      passwordUpdated: 'Password updated. Sign in with your new password.',
+      passwordUpdated: 'Password updated. Log in with your new password.',
       showPassword: 'Show password',
       hidePassword: 'Hide password',
+      webNotice:
+        'Web version: your data and account live in this browser. The desktop version adds local AI (Ollama) and scheduled backups.',
+      webNoticeCta: 'See Nora OS desktop',
     },
     control: {
       eyebrow: 'Settings',

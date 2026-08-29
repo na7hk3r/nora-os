@@ -29,6 +29,7 @@ const passphraseDialogCopy: Record<
 
 export function BackupSection() {
   const { language, t } = useI18n()
+  const backup = window.backup
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState<string>('')
   const [passphraseAction, setPassphraseAction] = useState<PassphraseAction | null>(null)
@@ -52,16 +53,16 @@ export function BackupSection() {
   }
 
   const run = async (kind: BackupAction, pass?: string) => {
-    if (busy) return
+    if (busy || !backup) return
     setBusy(true)
     setMessage('')
 
     try {
       let result: { ok: boolean; path?: string; error?: string; canceled?: boolean }
-      if (kind === 'export-plain') result = await window.backup.exportPlain()
-      else if (kind === 'export-encrypted') result = await window.backup.exportEncrypted(pass ?? '')
-      else if (kind === 'import-plain') result = await window.backup.importPlain()
-      else result = await window.backup.importEncrypted(pass ?? '')
+      if (kind === 'export-plain') result = await backup.exportPlain()
+      else if (kind === 'export-encrypted') result = await backup.exportEncrypted(pass ?? '')
+      else if (kind === 'import-plain') result = await backup.importPlain()
+      else result = await backup.importEncrypted(pass ?? '')
 
       if (result?.ok) {
         setMessage(
@@ -93,6 +94,24 @@ export function BackupSection() {
     }
 
     void run(passphraseAction, passphrase)
+  }
+
+  if (!backup) {
+    return (
+      <article className="rounded-2xl border border-border bg-surface-light/85 p-6">
+        <div className="flex items-center gap-2">
+          <ShieldCheck size={18} className="text-accent-light" />
+          <h2 className="text-lg font-semibold">
+            {language === 'en' ? 'Backup and restore' : 'Backup y restauración'}
+          </h2>
+        </div>
+        <p className="mt-2 text-sm text-muted">
+          {language === 'en'
+            ? 'Backup is not available in this environment.'
+            : 'Backup no disponible en este entorno.'}
+        </p>
+      </article>
+    )
   }
 
   const localizedPassphraseDialogCopy: typeof passphraseDialogCopy = language === 'en' ? {

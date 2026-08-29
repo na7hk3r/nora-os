@@ -122,7 +122,7 @@ export function Shell({ onGlobalShortcut }: ShellProps) {
         )}
         <WorkspaceSplitView />
       </main>
-      <CopilotPanel collapsed={copilotCollapsed} onToggle={toggleCopilot} />
+      {!window.__NORA_WEB__ && <CopilotPanel collapsed={copilotCollapsed} onToggle={toggleCopilot} />}
     </div>
   )
 }

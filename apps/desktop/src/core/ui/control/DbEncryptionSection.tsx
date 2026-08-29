@@ -24,6 +24,7 @@ function strengthHint(p: string, language: 'es' | 'en'): { ok: boolean; reason: 
 
 export function DbEncryptionSection() {
   const { language, t } = useI18n()
+  const dbEncryption = window.dbEncryption
   const [status, setStatus] = useState<DbEncryptionStatus | null>(null)
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState('')
@@ -32,8 +33,9 @@ export function DbEncryptionSection() {
   const [confirm, setConfirm] = useState('')
 
   const refresh = async () => {
+    if (!dbEncryption) return
     try {
-      const next = await window.dbEncryption.status()
+      const next = await dbEncryption.status()
       setStatus(next)
     } catch (err) {
       setMessage((err as Error).message)
@@ -45,7 +47,7 @@ export function DbEncryptionSection() {
   }, [])
 
   const onEnable = async () => {
-    if (busy) return
+    if (busy || !dbEncryption) return
     setMessage('')
     if (pass !== confirm) {
       setMessage(language === 'en' ? 'Passphrases do not match' : 'Las passphrases no coinciden')
@@ -67,7 +69,7 @@ export function DbEncryptionSection() {
     }
     setBusy(true)
     try {
-      const result = await window.dbEncryption.enable(pass)
+      const result = await dbEncryption.enable(pass)
       if (result.ok) {
         setMessage(t.messages.success.dbEncryptionEnabled)
         setPass('')
@@ -85,7 +87,7 @@ export function DbEncryptionSection() {
   }
 
   const onDisable = async () => {
-    if (busy) return
+    if (busy || !dbEncryption) return
     if (
       !window.confirm(
         t.messages.confirm.disableDbEncryption ?? (language === 'en'
@@ -98,7 +100,7 @@ export function DbEncryptionSection() {
     setBusy(true)
     setMessage('')
     try {
-      const result = await window.dbEncryption.disable()
+      const result = await dbEncryption.disable()
       if (result.ok) {
         setMessage(t.messages.success.dbEncryptionDisabled)
         await refresh()
@@ -112,6 +114,24 @@ export function DbEncryptionSection() {
 
   const enabled = status?.enabled ?? false
   const hint = pass ? strengthHint(pass, language) : null
+
+  if (!dbEncryption) {
+    return (
+      <article className="rounded-2xl border border-border bg-surface-light/85 p-6">
+        <div className="flex items-center gap-2">
+          <LockOpen size={18} className="text-muted" aria-hidden />
+          <h2 className="text-lg font-semibold">
+            {language === 'en' ? 'Database encryption at rest' : 'Cifrado de base en reposo'}
+          </h2>
+        </div>
+        <p className="mt-2 text-sm text-muted">
+          {language === 'en'
+            ? 'Encryption is not available in this environment.'
+            : 'El cifrado no está disponible en este entorno.'}
+        </p>
+      </article>
+    )
+  }
 
   return (
     <article className="rounded-2xl border border-border bg-surface-light/85 p-6">

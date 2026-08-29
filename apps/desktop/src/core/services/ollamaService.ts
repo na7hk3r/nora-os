@@ -59,7 +59,10 @@ export const ollamaService = {
 
   async pullModel(model: string): Promise<void> {
     if (!window.ollama) throw new Error('Ollama bridge no disponible')
-    await window.ollama.pullModel(model)
+    const result = await window.ollama.pullModel(model)
+    if (!result.ok || result.status === 'unsupported') {
+      throw new Error(`No se pudo descargar el modelo "${model}"`)
+    }
   },
 
   async generate(prompt: string, opts?: { systemOverride?: string; modelOverride?: string }): Promise<string> {

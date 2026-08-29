@@ -14,6 +14,10 @@ import type {
 
 declare global {
   interface Window {
+    /** Marca de plataforma web (solo se define en el build de apps/web). Permite
+     *  a componentes compartidos degradar con honestidad cuando corren en el
+     *  navegador. */
+    __NORA_WEB__?: boolean
     storage: StorageBridge
     auth: AuthBridge
     backup: BackupBridge

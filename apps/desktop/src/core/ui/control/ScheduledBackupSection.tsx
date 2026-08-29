@@ -31,6 +31,7 @@ export function ScheduledBackupSection() {
   const [passphrase, setPassphrase] = useState('')
   const [busy, setBusy] = useState(false)
   const [feedback, setFeedback] = useState<{ kind: 'ok' | 'err'; text: string } | null>(null)
+  const isWeb = typeof window !== 'undefined' && Boolean(window.__NORA_WEB__)
 
   const refresh = async () => {
     if (!bridge) return
@@ -46,6 +47,33 @@ export function ScheduledBackupSection() {
       setDraftConfig(result.config)
     })
   }, [bridge])
+
+  if (isWeb) {
+    return (
+      <section className="rounded-2xl border border-border bg-surface-light/85 p-6">
+        <h2 className="text-lg font-semibold">
+          {language === 'en' ? 'Automatic backup' : 'Backup automático'}
+        </h2>
+        <p className="mt-2 text-sm text-muted">
+          {language === 'en'
+            ? 'Automatic scheduled backups to a local folder are not available in the web version. You can still export your data manually from Controls → Backup.'
+            : 'Los backups automáticos programados a una carpeta local no están disponibles en la versión web. Igual podés exportar tus datos manualmente desde Controles → Backup.'}
+        </p>
+        <p className="mt-2 text-sm">
+          <a
+            href="https://na7hk3r.github.io/nora-os/#download"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-accent hover:underline"
+          >
+            {language === 'en'
+              ? 'Available in the desktop app.'
+              : 'Disponible en la aplicacion de escritorio.'}
+          </a>
+        </p>
+      </section>
+    )
+  }
 
   if (!bridge) {
     return (
