@@ -73,7 +73,7 @@ export function BackupSection() {
               : 'OK',
         )
       } else {
-        setMessage(result?.error ?? (language === 'en' ? 'Operation canceled' : 'Operacion cancelada'))
+        setMessage(result?.error ?? (language === 'en' ? 'Operation canceled' : 'Operación cancelada'))
       }
     } catch (err) {
       setMessage((err as Error).message)

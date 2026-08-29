@@ -44,7 +44,7 @@ export function TagsSection() {
   const totalUsage = Object.values(usage).reduce((sum, item) => sum + item.usage_count, 0)
 
   return (
-    <article className="overflow-hidden rounded-xl border border-border bg-surface-light/70">
+    <article className="overflow-hidden rounded-2xl border border-border bg-surface-light/85">
       <button
         type="button"
         onClick={() => setOpen((current) => !current)}

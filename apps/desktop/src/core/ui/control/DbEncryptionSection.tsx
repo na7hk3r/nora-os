@@ -92,7 +92,7 @@ export function DbEncryptionSection() {
       !window.confirm(
         t.messages.confirm.disableDbEncryption ?? (language === 'en'
           ? 'Disable encryption? Your data will stay on disk without additional protection.'
-          : 'Desactivar cifrado? Tus datos quedan en disco sin proteccion adicional.'),
+          : 'Desactivar cifrado? Tus datos quedan en disco sin protección adicional.'),
       )
     ) {
       return

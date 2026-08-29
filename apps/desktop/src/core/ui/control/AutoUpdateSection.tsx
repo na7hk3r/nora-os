@@ -54,8 +54,8 @@ export function AutoUpdateSection() {
 
   if (!bridge) {
     return (
-      <section className="rounded-2xl border border-border bg-surface-light/40 p-5">
-        <h2 className="text-lg font-semibold text-white">{language === 'en' ? 'Updates' : 'Actualizaciones'}</h2>
+      <section className="rounded-2xl border border-border bg-surface-light/85 p-6">
+        <h2 className="text-lg font-semibold">{language === 'en' ? 'Updates' : 'Actualizaciones'}</h2>
         <p className="mt-2 text-sm text-muted">
           {language === 'en' ? 'Not available in this environment.' : 'No disponible en este entorno.'}
         </p>
@@ -87,9 +87,9 @@ export function AutoUpdateSection() {
   const disabledReason = status && status.state === 'disabled' ? status.reason : null
 
   return (
-    <section className="rounded-2xl border border-border bg-surface-light/40 p-5 space-y-4">
+    <section className="rounded-2xl border border-border bg-surface-light/85 p-6 space-y-4">
       <header>
-        <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+        <h2 className="text-lg font-semibold flex items-center gap-2">
           <RotateCw size={18} className="text-accent-light" />
           {language === 'en' ? 'Updates' : 'Actualizaciones'}
         </h2>
