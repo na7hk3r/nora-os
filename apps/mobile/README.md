@@ -59,9 +59,16 @@ apps/mobile/build/app/outputs/bundle/release/app-release.aab
 ```
 
 Equivalent direct Flutter commands from `apps/mobile` are `flutter build apk --release`
-and `flutter build appbundle --release`. Android release builds currently use the
-debug signing config so local release runs work; replace it with a real keystore
-before publishing outside internal/beta testing.
+and `flutter build appbundle --release`.
+
+Release signing: el job `build-mobile` de CI (tag `vX.Y.Z`) compila el APK/AAB
+y los sube al GitHub Release. Si los secrets `ANDROID_KEYSTORE_BASE64` (+
+`ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`) están
+presentes, firma con el keystore real; si no, cae a las claves debug (válido
+para pruebas internas, no para la Play Store). Para un keystore local, creá
+`android/key.properties` con `storeFile`, `storePassword`, `keyAlias` y
+`keyPassword` (gitignored). Flujo completo en `docs/RELEASES.md` → "Release
+mobile (Android APK/AAB)".
 
 The MVP stores local data on-device through SQLite and keeps the session token in secure storage.
 

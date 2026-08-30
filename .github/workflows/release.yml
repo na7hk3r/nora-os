@@ -140,3 +140,67 @@ jobs:
           # CSC_KEY_PASSWORD: ${{ secrets.MAC_CSC_KEY_PASSWORD }}
           # APPLE_ID: ${{ secrets.APPLE_ID }}
           # APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+
+  build-mobile:
+    name: Build Android APK/AAB
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: apps/mobile
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Flutter 3.44.0
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.0'
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Test
+        run: flutter test
+
+      # Inyecta el keystore real solo si el secret está presente. Sin secrets,
+      # el release firma con las claves debug (build funciona, no publicable a
+      # la Play Store). Ver el anexo "Release mobile" de docs/RELEASES.md.
+      - name: Configure release keystore
+        shell: bash
+        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          echo "$KEYSTORE_BASE64" | base64 --decode > android/release-keystore.jks
+          cat > android/key.properties <<EOF
+          storeFile=../release-keystore.jks
+          storePassword=$KEYSTORE_PASSWORD
+          keyAlias=$KEY_ALIAS
+          keyPassword=$KEY_PASSWORD
+          EOF
+
+      - name: Build APK (release)
+        run: flutter build apk --release
+
+      - name: Build App Bundle (release)
+        run: flutter build appbundle --release
+
+      - name: Upload to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          files: |
+            apps/mobile/build/app/outputs/flutter-apk/app-release.apk
+            apps/mobile/build/app/outputs/bundle/release/app-release.aab
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+

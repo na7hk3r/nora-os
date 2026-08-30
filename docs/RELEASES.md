@@ -22,6 +22,7 @@ git push origin main vX.Y.Z
 
 # 3. CI hace el resto:
 #    - Empaqueta NSIS + portable
+#    - Compila el APK/AAB Android (firmado con el keystore real via secrets)
 #    - Sube .exe + latest.yml al GitHub Release
 #    - Las apps instaladas detectan el update via latest.yml
 ```
@@ -104,7 +105,11 @@ Los jobs `build-windows` y `build-linux` corren en cada tag `vX.Y.Z`:
    `Nora OS-<version>-portable.exe` y `latest.yml` al GitHub Release.
 5. Linux ejecuta `npm run release:linux` y sube `Nora OS-<version>-linux-x86_64.AppImage`,
    `Nora OS-<version>-linux-amd64.deb` y `latest-linux.yml` al mismo GitHub Release.
-6. La app instalada en clientes detecta el nuevo feed de update en el proximo
+6. `build-mobile` compila el `app-release.apk` y `app-release.aab` (Android),
+   y los sube al mismo GitHub Release (ver "Release mobile (Android)"). Sin
+   `ANDROID_KEYSTORE_BASE64` el APK/AAB se firma con claves debug (válido para
+   pruebas internas; no publicable a la Play Store).
+7. La app instalada en clientes detecta el nuevo feed de update en el proximo
    check (boot + cada 6h) y muestra el banner de update.
 
 El job `build-mac` sigue apagado con `if: false`. Activarlo quitando ese flag
@@ -152,7 +157,60 @@ Sin firma, Windows SmartScreen muestra "Editor desconocido" la primera vez.
 3. Descomentar el bloque correspondiente en `release.yml` y quitar `if: false`
    del job `build-mac`.
 
-## Auto-update en runtime
+## Release mobile (Android APK/AAB)
+
+En cada tag `vX.Y.Z` el job `build-mobile` de `release.yml` compila y sube al
+mismo GitHub Release los artefactos Android:
+
+- `app-release.apk` — instalable directo (sideload, testing, distribución).
+- `app-release.aab` — App Bundle para Google Play Console.
+
+Así se genera / actualiza la **huella SHA-1** que Play Console pide for
+Google Sign-In y Firebase, y se mantiene la versión sincronizada con el release.
+
+### Keystore real (paso a paso)
+
+La app se firma con un keystore Android. **Nunca se versiona el keystore ni sus
+passwords** (`android/key.properties`, `**/*.keystore`, `**/*.jks` están en
+`apps/mobile/android/.gitignore`).
+
+1. Generá el keystore localmente (una sola vez; guardá copias de seguridad):
+
+   ```bash
+   keytool -genkey -v -keystore <ruta>/release-keystore.jks \
+     -alias nora_release -keyalg RSA -keysize 2048 -validity 10000
+   ```
+
+   Anotá las passwords y el alias (`nora_release` o el que uses).
+
+2. Agregá los secrets en GitHub → Settings → Secrets and variables → Actions:
+
+   - `ANDROID_KEYSTORE_BASE64` → `base64 -w0 <ruta>/release-keystore.jks`
+   - `ANDROID_KEYSTORE_PASSWORD` → password del keystore.
+   - `ANDROID_KEY_ALIAS` → alias (`nora_release`).
+   - `ANDROID_KEY_PASSWORD` → password de la key.
+
+3. El job `build-mobile` decodifica `ANDROID_KEYSTORE_BASE64` a
+   `android/release-keystore.jks` y escribe `android/key.properties` desde esos
+   secrets; `build.gradle.kts` firma `release` con ese keystore.
+
+4. Subí un tag `vX.Y.Z` y verificá el artefacto en el GitHub Release
+   (`app-release.apk` firmado → `jarsigner -verify -certs app-release.apk`
+   muestra `CN=...` con tu cert, no `CN=Android Debug`).
+
+> Sin los secrets, el release Android igual se compila pero **firmado con las
+> claves debug**: sirve para bakeos internos, no para subir a la Play Store
+> (Play rechaza la firma debug). Generá y guardá el keystore antes de publicar
+> oficialmente; Google exige conservar la misma firma entre actualizaciones.
+
+### Versión de la app Android
+
+`apps/mobile/pubspec.yaml` lleva su propia `version: X.Y.Z+code` (hoy `0.1.0+1`).
+Al cortar un release, sincronizá el `X.Y.Z` con la raíz (p.ej. `1.18.1+11801`).
+La web PWA y el desktop no dependen de esto: cada superficie versiona por
+separado, pero conviene alinearlas para trazabilidad.
+
+
 
 - Configurado por `electron-updater` (ver `apps/desktop/electron/services/app-update-ipc.ts`
   y `apps/desktop/electron/updater.ts`).
