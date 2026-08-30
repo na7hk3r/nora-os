@@ -125,6 +125,13 @@ El workflow de CI general corre tambien landing y mobile antes de mergear:
 
 ## Code signing
 
+> **Estado actual**: sin firma. Los binarios se publican sin certificar, por lo
+> que Windows SmartScreen muestra "Editor desconocido" (y macOS Gatekeeper lo
+> bloquearía, aunque macOS no se publica hoy). La infraestructura de firma ya
+> esta preparada: `electron-builder` firma automaticamente cuando detecta las
+> variables `CSC_LINK`/`CSC_KEY_PASSWORD` en el entorno. Ver el anexo al final
+> (Activacion de firma) para el checklist exacto.
+
 ### Windows (Authenticode)
 
 1. Conseguir un cert `.pfx` (DigiCert, Sectigo, etc.) o uno EV en HSM.
@@ -138,7 +145,7 @@ Sin firma, Windows SmartScreen muestra "Editor desconocido" la primera vez.
 
 ### macOS (Developer ID + notarizacion)
 
-1. Cert Developer ID Application desde Apple Developer.
+1. Cert Developer ID Application desde Apple Developer ($99/año).
 2. Secrets:
    - `MAC_CSC_LINK`, `MAC_CSC_KEY_PASSWORD`
    - `APPLE_ID`, `APPLE_APP_SPECIFIC_PASSWORD`
@@ -194,3 +201,61 @@ version mala:
 
 **Nunca** borres el tag git de un release publicado: rompe los apps que ya lo
 descargaron y queres reproducir el bug.
+
+---
+
+## Anexo: activacion de firma (checklist)
+
+La infraestructura quedo **lista para activar** sin cambios de codigo. Este
+checklist documenta exactamente que tocar cuando tengas los certificados. Todo
+se hace por secrets de GitHub + descomentar dos bloques; no se paga nada ni se
+modifica codigo de la app.
+
+### 1. Windows (cert `.pfx`, tipo OV ~$100-300/año, o EV con HSM)
+
+1. Agrega en GitHub → Settings → Secrets and variables → Actions:
+   - `WIN_CSC_LINK`: contenido **base64** del `.pfx`
+     (`base64 -w0 cert.pfx`), o una URL HTTPS de descarga de Microsoft.
+   - `WIN_CSC_KEY_PASSWORD`: password del cert.
+2. En `.github/workflows/release.yml`, job `build-windows`, descomenta las dos
+   lineas:
+   ```yaml
+   CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
+   CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
+   ```
+3. Sube un tag `vX.Y.Z` nuevo y verifica en los artifact del job que el
+   instalador quede firmado (electron-builder lo reporta al empaquetar) y que
+   `SmartScreen` ya no marque "Editor desconocido".
+
+> Mantener el cert fuera del repo: los secrets nunca se versionan.
+
+### 2. macOS (Developer ID + notarizacion, $99/año)
+
+1. Agrega los secrets: `MAC_CSC_LINK` (`.p12` en base64),
+   `MAC_CSC_KEY_PASSWORD`, `APPLE_ID`, `APPLE_APP_SPECIFIC_PASSWORD`.
+2. En `release.yml`, job `build-mac`:
+   - Descomenta las cuatro lineas de secrets (bloque `env`).
+   - Quita la linea `if: ${{ false }}` para habilitar el job.
+3. Notarizacion: electron-builder la ejecuta automaticamente cuando detecta
+   `APPLE_ID` + `APPLE_APP_SPECIFIC_PASSWORD` (requiere `hardenedRuntime: true`,
+   ya seteado en `electron-builder.yml`).
+4. Verifica que el `.dmg` firmado pase Gatekeeper y que la landing ya muestre
+   el link de descarga macOS (el clasificador `useLatestRelease` ya reconoce el
+   asset `macDmg`).
+
+### 3. Verificacion de que el build quedo firmado
+
+- Windows: `signtool verify /pa "release/Nora OS-<version>-win-x64.exe"` o revisa
+  el log del job: electron-builder muestra "signing" de cada artefacto.
+- macOS: `codesign -dv --verbose=4 "app"` muestra `Signature=adhoc` solo si NO
+  firmo (fallo); con firma real aparece el Developer ID. `spctl -a` para gatekeeper.
+- La presencia de `update.exe` firmado elimina el aviso "update.exe is not
+  signed" del troubleshooting.
+
+### Recordatorio de costo/privacidad
+
+- La firma **no es gratis**: certificado OV/EV anualmente + (si se publica
+  macOS) la cuenta de desarrollador Apple. El resto del pipeline se mantiene en
+  el free tier de GitHub.
+- Los secrets solo existen en el entorno de Actions; localmente se puede firmar
+  exportando estas variables en el shell.

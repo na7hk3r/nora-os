@@ -9,7 +9,6 @@ Nora OS queda organizado como un ecosistema multiplataforma:
 - `apps/web`: PWA local-first con el mismo renderer que desktop (ver `docs/WEB_PORT.md`).
 - `apps/mobile`: app Flutter.
 - `apps/docs`: workspace reservado para documentacion futura.
-- `packages/*`: paquetes compartidos sin logica de negocio de app.
 - `infrastructure/*`: scripts y carpetas de infraestructura.
 - `tooling/*`: generadores, automatizacion y herramientas internas.
 - `docs/architecture`, `docs/branding`, `docs/roadmap`, `docs/technical`:
@@ -33,10 +32,11 @@ venir con lockfile, scripts y workflows propios en el mismo cambio.
 ## Reglas
 
 - Las apps deben ser independientes entre si.
-- La logica compartida vive en `packages/` solo cuando ya tiene mas de un consumidor claro.
-- `packages/ui` contiene tokens y fundamentos visuales, no negocio.
-- `packages/shared-types` contiene contratos serializados, no estado de UI.
-- `packages/api-client` sera la frontera HTTP/auth/error handling para sync o APIs futuras.
+- No hay paquete npm compartido: cada superficie es autocontenida y duplica
+  los helpers/tokens que necesite (coherente con la regla "sin workspaces").
+- Los recursos de identidad (brand-kit) viven en `buildResources/brand-kit/`,
+  junto al empaquetado, y los consumen el build de electron-builder y
+  `infrastructure/scripts/build-icon.ps1`.
 - `buildResources/`, `electron-builder.yml` y los scripts root de release se mantienen en raiz para no romper el pipeline desktop.
 - Los artefactos generados (`out/`, `release/`, `dist/`, builds Flutter,
   caches y coverage) no se versionan.
@@ -60,6 +60,9 @@ Release de binarios Windows: `.github/workflows/release.yml`.
 ## Migracion Segura
 
 1. Mantener comandos root compatibles: `npm run dev`, `npm run build`, `npm run pack`, `npm run release`.
-2. Migrar imports compartibles desde `apps/desktop/src` hacia `packages/*` de forma incremental.
-3. Conectar Flutter a contratos equivalentes en `packages/shared-types` mediante generacion o documentacion de schemas.
+2. Si surge logica compartida con dos o mas consumidores reales, evaluar extraerla
+   a un paquete npm dedicado (con lockfile, scripts y workflows propios) en un cambio aparte.
+3. Los contratos expresados formalmente en Modelo y tipos del sistema se mantienen
+   duplicados de forma intencional por superficie (TS/JS en desktop-web-landing,
+   Dart en mobile), documentados como contrato logico compartido.
 4. Solo despues de validar CI/CD, evaluar mover `buildResources` a infraestructura o a `apps/desktop`.

@@ -14,12 +14,9 @@
     "paths": {
       "@/*": ["./apps/desktop/src/*"],
       "@core/*": ["./apps/desktop/src/core/*"],
-      "@plugins/*": ["./apps/desktop/src/plugins/*"],
-      "@nora/shared-types": ["./packages/shared-types/src/index.ts"],
-      "@nora/utils": ["./packages/utils/src/index.ts"],
-      "@nora/api-client": ["./packages/api-client/src/index.ts"]
+      "@plugins/*": ["./apps/desktop/src/plugins/*"]
     }
   },
-  "include": ["apps/desktop/src/**/*", "apps/desktop/electron/**/*", "packages/*/src/**/*"],
+  "include": ["apps/desktop/src/**/*", "apps/desktop/electron/**/*"],
   "exclude": ["node_modules", "dist", "out"]
 }

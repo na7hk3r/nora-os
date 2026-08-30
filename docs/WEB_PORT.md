@@ -118,8 +118,7 @@ la que se sustituye por implementaciones web:
 
 ### Fuera de alcance v1
 - IA/Ollama (se deja la interfaz en el renderer, desconectada).
-- Multi-dispositivo/sync (requeriría backend; `packages/api-client` queda como
-  frontera futura).
+- Multi-dispositivo/sync (requeriría backend; queda como frontera futura).
 
 ---
 

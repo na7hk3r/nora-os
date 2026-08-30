@@ -4,7 +4,7 @@
 # Diseno:
 #   - Fondo gradiente diagonal cosmic-purple (paleta oficial Nora OS)
 #   - Borde redondeado con halo color acento violeta
-#   - Isotipo Nora oficial (packages/assets/brand-kit/nora-isotipo-original.png)
+#   - Isotipo Nora oficial (buildResources/brand-kit/nora-isotipo-original.png)
 #     centrado, con sombra sutil para tamaños grandes.
 #
 # Uso: pwsh ./infrastructure/scripts/build-icon.ps1
@@ -27,9 +27,9 @@ if (-not $OutDir -or $OutDir.Trim() -eq '') {
 if (-not (Test-Path $OutDir)) { New-Item -ItemType Directory -Force -Path $OutDir | Out-Null }
 $OutDir = (Resolve-Path $OutDir).Path
 
-# Fuente del isotipo: kit de identidad oficial.
+# Fuente del isotipo: kit de identidad oficial (relocalizado junto al empaquetado).
 if (-not $IsotipoPath -or $IsotipoPath.Trim() -eq '') {
-    $IsotipoPath = Join-Path $repoRoot 'packages\assets\brand-kit\nora-isotipo-original.png'
+    $IsotipoPath = Join-Path $repoRoot 'buildResources\brand-kit\nora-isotipo-original.png'
 }
 if (-not (Test-Path $IsotipoPath)) {
     throw "No se encontró el isotipo Nora en: $IsotipoPath"

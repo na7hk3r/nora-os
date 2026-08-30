@@ -12,21 +12,16 @@ import {
  * Auto-update wiring (electron-updater).
  *
  * Estado actual:
- *  - El paquete electron-updater es OPCIONAL en runtime: si no está instalado
- *    o no hay feed configurado, el bridge devuelve `{ state: 'disabled' }`.
- *  - La distribución comercial requiere code signing (certs Win + Mac), que se
- *    configura en electron-builder fuera de este archivo. Sin signing, Windows
- *    SmartScreen y macOS Gatekeeper bloquearán el instalador.
- *
- * Para activar auto-update en producción:
- *   1. npm install electron-updater electron-builder --save-dev
- *   2. Agregar a package.json:
- *        "build": {
- *          "appId": "com.nora-os.app",
- *          "publish": [{ "provider": "generic", "url": "https://updates.tu-dominio/" }]
- *        }
- *   3. Configurar certificados de signing en CI.
- *   4. Esta capa pasa a estado 'idle' automáticamente al detectar el módulo.
+ *  - `electron-updater` esta instalado y el feed de GitHub Releases esta
+ *    configurado (electron-builder.yml -> publish.provider github). En builds
+ *    empaquetadas (app.isPackaged) el bridge queda en 'idle' y checa updates
+ *    en boot + cada 6h (ver ../updater.ts).
+ *  - En dev (!app.isPackaged) o si el paquete no se puede cargar, el bridge
+ *    devuelve { state: 'disabled' }.
+ *  - La distribucion comercial idealmente requiere code signing (certs Win +
+ *    Mac), que se configura en electron-builder fuera de este archivo y en
+ *    `.github/workflows/release.yml`. Sin signing, Windows SmartScreen y macOS
+ *    Gatekeeper bloquearan el instalador. Ver docs/RELEASES.md.
  */
 
 const CHANNELS = {
