@@ -39,6 +39,9 @@ export function JournalEditor({ date = todayISO(), onAfterSave }: Props) {
     setTagsInput(existing ? tagsToString(existing.tags) : '')
     setPromptId(existing?.promptId ?? null)
     setError(null)
+    // Dep intencional en existing?.id: solo re-sincroniza al cambiar de entrada,
+    // nunca en cada edición (el dirty-check maneja los cambios del usuario).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [existing?.id])
 
   const wordCount = useMemo(() => countWords(content), [content])

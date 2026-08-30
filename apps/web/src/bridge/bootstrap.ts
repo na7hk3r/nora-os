@@ -43,7 +43,7 @@ export async function initBridges(): Promise<WebBridges> {
     await storageBridge.setActiveUser(currentUser.id)
   }
 
-  const win = window as any
+  const win = window as unknown as Record<string, unknown>
   win.__NORA_WEB__ = true
   win.storage = storageBridge
   win.auth = authBridge

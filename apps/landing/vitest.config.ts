@@ -13,5 +13,22 @@ export default defineConfig({
     globals: true,
     setupFiles: [resolve(here, 'src/test/setup.ts')],
     css: false,
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'lcov'],
+      exclude: [
+        '**/node_modules/**',
+        '**/dist/**',
+        '**/*.config.ts',
+        '**/*.config.js',
+        '**/src/test/**',
+      ],
+      thresholds: {
+        statements: 50,
+        branches: 50,
+        functions: 45,
+        lines: 50,
+      },
+    },
   },
 })

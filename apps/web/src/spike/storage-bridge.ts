@@ -16,7 +16,7 @@
  *  5. Tipo de SQL: query solo SELECT, execute solo INSERT/UPDATE/DELETE
  *     (replicando la validación del storage-ipc.ts de Electron).
  */
-import type { Database } from 'sql.js'
+import type { Database, Statement, BindParams } from 'sql.js'
 import type { Migration } from './types'
 import { openDatabase, persistDb, toBytes, safeClose } from './sqlite-web'
 import { CORE_SCHEMA } from './schema'
@@ -44,14 +44,14 @@ function assertSingleStatement(sql: string): void {
   }
 }
 
-function bindParams(stmt: any, params: unknown[]): void {
+function bindParams(stmt: Statement, params: unknown[]): void {
   if (!Array.isArray(params)) {
     throw new Error('params must be an array')
   }
   // sql.js: el bind por array (0-indexed) es el que respeta los placeholders
   // posicionales `?`. El bind por objeto `{1: value}` NO funciona en sql.js.
   if (params.length > 0) {
-    stmt.bind(params as any[])
+    stmt.bind(params as BindParams)
   }
 }
 
@@ -142,7 +142,7 @@ export class WebStorageBridge {
     // exec, rehidratación, etc.). Re-afirmar antes de cada escritura es barato
     // y garantiza que ON DELETE CASCADE se respete siempre.
     this.db.run('PRAGMA foreign_keys = ON')
-    this.db.run(sql, params as any[])
+    this.db.run(sql, params as BindParams)
     const lastInsertRowid = toLastInsertRowid(this.db)
     // changes vía sqlite3_changes es aproximado en sql.js; usamos 1 para
     // operaciones de escritura (acurado para UPDATE/DELETE habilitando

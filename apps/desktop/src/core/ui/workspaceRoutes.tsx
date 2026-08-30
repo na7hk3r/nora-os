@@ -104,6 +104,9 @@ export function useWorkspaceRoutes(): WorkspaceRouteDefinition[] {
   const pluginUiVersion = useCoreStore((s) => s.pluginUiVersion)
   const { language } = useI18n()
 
+  // activePlugins/pluginUiVersion intencionales: fuerzan re-generación de rutas
+  // cuando cambia la UI de plugins. Quitarlos cambiaría comportamiento.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   return useMemo(() => getWorkspaceRoutes(undefined, language), [activePlugins, pluginUiVersion, language])
 }
 

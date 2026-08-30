@@ -88,7 +88,7 @@ async function runAction(automation: Automation, payload: unknown): Promise<void
       break
     }
     case 'log': {
-      console.log(`[automations:${automation.name}]`, parsed.message ?? payload)
+      console.info(`[automations:${automation.name}]`, parsed.message ?? payload)
       break
     }
   }

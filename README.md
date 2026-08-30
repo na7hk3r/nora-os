@@ -256,8 +256,8 @@ NPM es el gestor estable del repo para desarrollo, CI y releases. No uses
 | `npm run lint` / `lint:fix` | ESLint sobre `apps/desktop/src` y `apps/desktop/electron` |
 | `npm run format` / `format:check` | Prettier |
 | `npm run create-plugin -- <id>` | Scaffolding de plugin nuevo |
-| `npm run landing:typecheck` / `landing:test` / `landing:build` | Validación y build de `apps/landing` |
-| `npm run web:typecheck` / `web:test` / `web:build` | Validación y build de `apps/web` (PWA) |
+| `npm run landing:typecheck` / `landing:test` / `landing:lint` / `landing:build` | Validación y build de `apps/landing` |
+| `npm run web:typecheck` / `web:test` / `web:build` / `web:lint` | Validación y build de `apps/web` (PWA) |
 | `npm run mobile:analyze` | Análisis Flutter de `apps/mobile` |
 | `npm run mobile:test` | Tests Flutter de `apps/mobile` |
 
@@ -267,12 +267,28 @@ Los workflows de GitHub Actions validan cada superficie por separado:
 
 | Workflow | Qué valida |
 | --- | --- |
-| `.github/workflows/ci.yml` | Desktop (`typecheck`, `lint`, `test`), landing (`typecheck`, `test`, `build`), web (`typecheck`, `lint`, `test`, `build`), mobile (`flutter analyze`, `flutter test`) y smoke de empaquetado Windows (`npm run pack`) |
+| `.github/workflows/ci.yml` | Desktop (`typecheck`, `lint`, `test`, `coverage`), landing (`typecheck`, `lint`, `test`, `coverage`, `build`), web (`typecheck`, `lint`, `test`, `coverage`, `build`), mobile (`flutter analyze`, `flutter test`) y smoke de empaquetado Windows (`npm run pack`) |
 | `.github/workflows/landing.yml` | Deploy de la **landing + web** (esta última en `/web/`) a GitHub Pages cuando cambian `apps/landing`, `apps/web`, `apps/desktop/src` o el workflow |
 | `.github/workflows/release.yml` | Publicación de assets Windows al GitHub Release del tag `vX.Y.Z` |
 
 Los artefactos generados (`out/`, `release/`, `dist/`, `apps/landing/dist/`,
 `apps/web/dist/`, builds Flutter, caches y cobertura) quedan fuera de git por `.gitignore`.
+
+### Calidad y cobertura
+
+Cada superficie corre su propia suite de tests (Vitest) y exige un nivel mínimo
+de cobertura en CI. Podés medirla localmente:
+
+| Superficie | Lint | Cobertura |
+| --- | --- | --- |
+| Desktop | `npm run lint` | `npm run desktop:test:coverage` |
+| Web | `npm run web:lint` | `npm run web:test:coverage` |
+| Landing | `npm run landing:lint` | `npm run landing:test:coverage` |
+
+Los umbrales mínimos viven en cada `vitest.config.ts` (bloque `coverage.thresholds`).
+Las configs de ESLint son autocontenidas por superficie (`.eslintrc.json` en
+`apps/web` y `apps/landing`; raíz para desktop) — no se extienden entre sí para
+que el lint aislado de CI resuelva parser/plugins desde el `node_modules` propio.
 
 ### Activar IA (opcional)
 
@@ -307,18 +323,10 @@ nora-os/
 │   ├── web/              # PWA local-first (mismo renderer que desktop)
 │   ├── mobile/           # App Flutter mobile-first
 │   └── docs/             # Workspace reservado para docs futuras
-├── packages/
-│   ├── ui/               # Design tokens y fundamentos UI compartidos
-│   ├── config/           # Configuracion compartida
-│   ├── shared-types/     # Contratos y modelos serializados
-│   ├── api-client/       # Cliente API compartido futuro
-│   ├── utils/            # Helpers reutilizables
-│   ├── assets/           # Branding/assets canonicos
-│   └── eslint-config/    # Reglas ESLint compartidas
 ├── infrastructure/
 ├── tooling/
 ├── docs/
-├── buildResources/
+├── buildResources/       # Iconos, licencia y brand-kit (fuente canónica)
 ├── electron-builder.yml
 ├── electron.vite.config.ts
 └── package.json
@@ -411,7 +419,7 @@ Para detalle: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/PLUGIN_API.md]
 
 ## Identidad visual
 
-La fuente de verdad del sistema visual vive en **`packages/assets/brand-kit/`** (logos, paleta, tipografías y PDF de especificación).
+La fuente de verdad del sistema visual vive en **`buildResources/brand-kit/`** (logos, paleta, tipografías y PDF de especificación).
 
 **Paleta oficial**
 
@@ -431,9 +439,9 @@ La fuente de verdad del sistema visual vive en **`packages/assets/brand-kit/`** 
 
 **Tagline oficial**: _Tu sistema. Tu vida. Una sola IA._
 
-Los tokens están reflejados en `packages/ui`, en el tema `default` del app ([apps/desktop/src/index.css](apps/desktop/src/index.css)) y en la landing ([apps/landing/src/styles/index.css](apps/landing/src/styles/index.css)). El logo vectorial reutilizable está en [apps/desktop/public/icons/NoraLogo.svg](apps/desktop/public/icons/NoraLogo.svg) y como componente React en [apps/desktop/src/core/ui/components/NoraLogo.tsx](apps/desktop/src/core/ui/components/NoraLogo.tsx) y [apps/landing/src/components/NoraLogo.tsx](apps/landing/src/components/NoraLogo.tsx).
+Los tokens están reflejados en el tema `default` del app ([apps/desktop/src/index.css](apps/desktop/src/index.css)) y en la landing ([apps/landing/src/styles/index.css](apps/landing/src/styles/index.css)). El logo vectorial reutilizable está en [apps/desktop/public/icons/NoraLogo.svg](apps/desktop/public/icons/NoraLogo.svg) y como componente React en [apps/desktop/src/core/ui/components/NoraLogo.tsx](apps/desktop/src/core/ui/components/NoraLogo.tsx) y [apps/landing/src/components/NoraLogo.tsx](apps/landing/src/components/NoraLogo.tsx).
 
-> **Criterio de uso**: la identidad no es decorativa. Si hay conflicto entre estilo y claridad/legibilidad/conversión, gana siempre la legibilidad. Ver el PDF de especificación en `packages/assets/brand-kit/` para guía completa de tono y aplicación.
+> **Criterio de uso**: la identidad no es decorativa. Si hay conflicto entre estilo y claridad/legibilidad/conversión, gana siempre la legibilidad. Ver el PDF de especificación en `buildResources/brand-kit/` para guía completa de tono y aplicación.
 
 ---
 

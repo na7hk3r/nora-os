@@ -290,6 +290,9 @@ export function Sidebar() {
           ...item,
           label: resolveI18nString(language, item.label, item.labelKey ?? `plugins.nav.${item.id}`),
         })),
+    // activePlugins/pluginUiVersion intencionales: fuerzan re-derivación cuando
+    // cambia la UI de plugins. Quitarlos cambiaría comportamiento (issue esl ex-deps).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [activePlugins, pluginUiVersion, language],
   )
   const defaultNavGroups = useMemo(() => groupPluginNavItems(navItems), [navItems])

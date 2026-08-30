@@ -77,9 +77,9 @@ function getUserByUsername(db: Database, username: string): UserRow | null {
   const cols = res[0].columns
   const vals = res[0].values[0]
   if (!vals) return null
-  const row: any = {}
+  const row: Record<string, unknown> = {}
   cols.forEach((c, i) => (row[c] = vals[i]))
-  return row as UserRow
+  return row as unknown as UserRow
 }
 
 const memoryStorage = new Map<string, string>()
@@ -237,18 +237,18 @@ export class WebAuthBridge {
     if (!res[0] || !res[0].values[0]) return null
     const scols = res[0].columns
     const svals = res[0].values[0]
-    const session: any = {}
+    const session: Record<string, unknown> = {}
     scols.forEach((c, i) => (session[c] = svals[i]))
     // El user_id de la sesión es un id (uuid), no un username.
     const userRow = this.db.exec('SELECT * FROM users WHERE id = ?', [
-      (session as SessionRow).user_id,
+      (session as unknown as SessionRow).user_id,
     ])[0]
     if (!userRow || !userRow.values[0]) return null
     const ucols = userRow.columns
     const uvals = userRow.values[0]
-    const row: UserRow = {} as UserRow
-    ucols.forEach((c, i) => ((row as any)[c] = uvals[i]))
-    return mapAuthUser(this.db, row)
+    const row = {} as Record<string, unknown>
+    ucols.forEach((c, i) => (row[c] = uvals[i]))
+    return mapAuthUser(this.db, row as unknown as UserRow)
   }
 
   async getRecoveryQuestion(username: string): Promise<string | null> {

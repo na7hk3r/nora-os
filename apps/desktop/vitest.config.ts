@@ -17,5 +17,25 @@ export default defineConfig({
     globals: true,
     include: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
     setupFiles: [path.resolve(__dirname, 'src/test/setup.ts')],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'lcov'],
+      exclude: [
+        '**/node_modules/**',
+        '**/dist/**',
+        '**/out/**',
+        '**/*.config.ts',
+        '**/*.config.js',
+        '**/src/test/**',
+        '**/types.ts',
+        '**/index.ts',
+      ],
+      thresholds: {
+        statements: 20,
+        branches: 50,
+        functions: 30,
+        lines: 20,
+      },
+    },
   },
 })

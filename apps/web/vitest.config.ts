@@ -15,5 +15,25 @@ export default defineConfig({
   test: {
     environment: 'node',
     globals: true,
+    testTimeout: 20000,
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'lcov'],
+      exclude: [
+        '**/node_modules/**',
+        '**/dist/**',
+        '**/*.config.ts',
+        '**/*.config.js',
+        '**/src/test/**',
+        '**/src/spike/**/*.test.ts',
+        '**/types.ts',
+      ],
+      thresholds: {
+        statements: 45,
+        branches: 55,
+        functions: 60,
+        lines: 45,
+      },
+    },
   },
 })

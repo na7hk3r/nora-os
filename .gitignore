@@ -46,3 +46,6 @@ temp/
 apps/mobile/build/
 apps/mobile/coverage/
 
+# Test coverage (Vitest v8)
+coverage/
+

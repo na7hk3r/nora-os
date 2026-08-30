@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Download, RotateCw, X } from 'lucide-react'
+import { useI18n } from '@core/i18n'
 import type { AppUpdateStatus } from '../../types'
 
 /**
@@ -7,6 +8,7 @@ import type { AppUpdateStatus } from '../../types'
  * Solo se muestra en estados 'available' y 'downloaded'.
  */
 export function AppUpdateBanner() {
+  const { language } = useI18n()
   const bridge = window.appUpdate
   const [status, setStatus] = useState<AppUpdateStatus | null>(null)
   const [dismissed, setDismissed] = useState(false)
@@ -33,6 +35,7 @@ export function AppUpdateBanner() {
   if (!bridge || !status || dismissed) return null
   if (status.state !== 'available' && status.state !== 'downloaded') return null
 
+  const en = language === 'en'
   const isDownloaded = status.state === 'downloaded'
   const version = 'version' in status ? status.version : null
 
@@ -53,10 +56,10 @@ export function AppUpdateBanner() {
       </span>
       <div className="flex flex-col leading-tight">
         <span className="text-white font-medium">
-          {isDownloaded ? 'Actualización lista' : 'Hay una actualización disponible'}
+          {isDownloaded ? (en ? 'Update ready' : 'Actualización lista') : (en ? 'An update is available' : 'Hay una actualización disponible')}
         </span>
         {version && (
-          <span className="text-caption text-muted">Versión {version}</span>
+          <span className="text-caption text-muted">{en ? 'Version' : 'Versión'} {version}</span>
         )}
       </div>
       <button
@@ -65,13 +68,14 @@ export function AppUpdateBanner() {
         disabled={busy}
         className="rounded-full bg-accent px-3 py-1 text-xs font-semibold text-white hover:bg-accent/80 disabled:opacity-40"
       >
-        {isDownloaded ? 'Reiniciar e instalar' : 'Descargar'}
+        {isDownloaded ? (en ? 'Restart and install' : 'Reiniciar e instalar') : (en ? 'Download' : 'Descargar')}
       </button>
       <button
         type="button"
         onClick={() => setDismissed(true)}
         className="rounded-full p-1 text-muted hover:bg-surface hover:text-white"
-        title="Cerrar"
+        title={en ? 'Close' : 'Cerrar'}
+        aria-label={en ? 'Close' : 'Cerrar'}
       >
         <X size={14} />
       </button>

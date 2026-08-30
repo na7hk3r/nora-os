@@ -29,7 +29,11 @@ export function createError(
 
 /**
  * Safe error logger
- * Can be extended to send to logging service
+ * Logs to the console with progressively richer context by severity.
+ * NOTE: Nora OS is deliberately local-first and sends no telemetry. This logger
+ * only writes to the console; the GlobalErrorBoundary offers the user a manual
+ * diagnostic export (.json) they can choose to share. No third-party tracking
+ * service (Sentry, LogRocket) is wired in by design.
  */
 export function logError(error: unknown, context?: Record<string, unknown>): void {
   const appError = error instanceof Error
@@ -104,7 +108,10 @@ export const ERROR_CODES = {
 } as const
 
 /**
- * Error messages in Spanish
+ * Error messages in Spanish.
+ * Intentionally NOT localized: these are technical/fallback messages used in
+ * logs and as a last-resort `getUserMessage`. User-facing copy goes through the
+ * i18n catalog (ES default, see `apps/desktop/src/core/i18n/catalog.ts`).
  */
 export const ERROR_MESSAGES: Record<string, string> = {
   PLUGIN_NOT_FOUND: 'Plugin no encontrado',

@@ -34,8 +34,7 @@ class IntersectionObserverMock {
 
 if (typeof globalThis.IntersectionObserver === 'undefined') {
   // Asignación al global de jsdom (no hay tipo exacto disponible).
-  ;(globalThis as unknown as { IntersectionObserver: unknown }).IntersectionObserver =
-    IntersectionObserverMock
+  (globalThis as unknown as { IntersectionObserver: unknown }).IntersectionObserver = IntersectionObserverMock
 }
 
 // matchMedia polyfill (algunos componentes pueden consultarlo)

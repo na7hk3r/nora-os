@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Lock, LockOpen, ShieldAlert } from 'lucide-react'
 import { useI18n } from '@core/i18n'
 import type { DbEncryptionStatus } from '@core/types'
@@ -32,7 +32,7 @@ export function DbEncryptionSection() {
   const [pass, setPass] = useState('')
   const [confirm, setConfirm] = useState('')
 
-  const refresh = async () => {
+  const refresh = useCallback(async () => {
     if (!dbEncryption) return
     try {
       const next = await dbEncryption.status()
@@ -40,11 +40,11 @@ export function DbEncryptionSection() {
     } catch (err) {
       setMessage((err as Error).message)
     }
-  }
+  }, [dbEncryption])
 
   useEffect(() => {
     void refresh()
-  }, [])
+  }, [refresh])
 
   const onEnable = async () => {
     if (busy || !dbEncryption) return

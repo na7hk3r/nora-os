@@ -64,7 +64,7 @@ beforeAll(async () => {
 
   // La StorageAPI del desktop lee `window.storage`; lo montamos igual que hace
   // el bootstrap web en el navegador.
-  ;(globalThis as any).window = {
+  ;(globalThis as unknown as Record<string, unknown>).window = {
     storage: storageBridge,
     auth: authBridge,
   }
