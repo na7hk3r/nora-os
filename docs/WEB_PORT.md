@@ -357,6 +357,19 @@ toca en comportamiento cuando `__NORA_WEB__` está ausente.
   para usuarios existentes (queda como mejora; la web arranca con cuentas
   nuevas).
 
+### Rendimiento del bundle (Fase 3)
+
+El build de la web divide el código pesado en chunks cacheables por separado
+(`manualChunks` en `apps/web/vite.config.ts`): `react`, `charts` (recharts/d3),
+`markdown` (react-markdown/remark), `sql` (sql.js/dexie), `icons` (lucide) y
+`vendor`. Los chunks se cachean de forma independiente en el Service Worker
+(stale-while-revalidate), así una actualización de código de la app no obliga a
+re-descargar las librerías. Pendiente (Fase posterior, requiere tocar el
+renderer compartido con la desktop): convertir a `React.lazy` los dashboards/
+widgets de plugins que hoy importan recharts y react-markdown de forma estática,
+para reducir el primer load más allá del chunking.
+
+
 ### Publicación (deploy)
 
 La web se publica junto con la landing en GitHub Pages, como parte de

@@ -21,11 +21,14 @@
       property="og:description"
       content="Nora OS: productividad, hábitos, finanzas y salud en una app local-first. Probalo en el navegador (PWA) o como app de escritorio, sin cuentas y sin nube."
     />
-    <meta property="og:image" content="https://na7hk3r.github.io/nora-os/og-image.svg" />
-    <meta property="og:image:type" content="image/svg+xml" />
+    <meta property="og:image" content="https://na7hk3r.github.io/nora-os/og-image.png" />
+    <meta property="og:image:type" content="image/png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:locale" content="es_ES" />
+    <meta property="og:locale:alternate" content="en_US" />
+    <meta property="og:locale:alternate" content="pt_BR" />
+    <meta property="og:site_name" content="Nora OS" />
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
@@ -34,7 +37,7 @@
       name="twitter:description"
       content="Tu sistema operativo personal modular. Probalo en el navegador (PWA) o como app local-first, multiplataforma y open source."
     />
-    <meta name="twitter:image" content="https://na7hk3r.github.io/nora-os/og-image.svg" />
+    <meta name="twitter:image" content="https://na7hk3r.github.io/nora-os/og-image.png" />
 
     <link rel="canonical" href="https://na7hk3r.github.io/nora-os/" />
     <link
@@ -46,6 +49,80 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
       rel="stylesheet"
     />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Organization",
+            "@id": "https://na7hk3r.github.io/nora-os/#organization",
+            "name": "Nora OS",
+            "url": "https://na7hk3r.github.io/nora-os/",
+            "logo": "https://na7hk3r.github.io/nora-os/brand/nora-isotipo-original.png",
+            "sameAs": ["https://github.com/na7hk3r/nora-os"]
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://na7hk3r.github.io/nora-os/#website",
+            "url": "https://na7hk3r.github.io/nora-os/",
+            "name": "Nora OS",
+            "description": "Sistema operativo personal modular, local-first y privado: productividad, hábitos, finanzas y salud sin cuentas ni nube.",
+            "inLanguage": "es",
+            "publisher": { "@id": "https://na7hk3r.github.io/nora-os/#organization" }
+          },
+          {
+            "@type": "SoftwareApplication",
+            "@id": "https://na7hk3r.github.io/nora-os/#software",
+            "name": "Nora OS",
+            "operatingSystem": "Windows, Linux, macOS",
+            "applicationCategory": "ProductivityApplication",
+            "isAccessibleForFree": true,
+            "description": "App modular de escritorio y PWA local-first y privada para organizar productividad, hábitos, finanzas y salud.",
+            "url": "https://na7hk3r.github.io/nora-os/",
+            "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+            "author": { "@id": "https://na7hk3r.github.io/nora-os/#organization" }
+          },
+          {
+            "@type": "FAQPage",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "¿Mis datos van a la nube?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Nunca. Toda tu información vive en tu disco local en una base SQLite cifrable. No hay servidor, no hay telemetría, no hay cuenta requerida."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "¿Necesito una cuenta para usarla?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "No. Nora OS es 100% local y multiusuario por máquina. No hay registro online."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "¿En qué sistemas operativos corre?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Windows 10/11 (NSIS y portable), Linux (AppImage y .deb) y macOS (.dmg). Mismo código y mismos datos en todos, y una versión PWA en el navegador."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "¿Puedo usar IA sin enviar mis datos a OpenAI?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Sí. La integración con IA es opcional y usa Ollama corriendo en tu propia máquina. El modelo nunca sale de tu equipo."
+                }
+              }
+            ]
+          }
+        ]
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
