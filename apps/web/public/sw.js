@@ -1,4 +1,4 @@
-const CACHE = "nora-web-v1";
+const CACHE = "nora-web-v2";
 // El sitio se sirve en una subruta (base '/nora-os/web/'); el scope del SW
 // ya apunta a esa raíz, así que todas las URLs se resuelven contra él.
 const SCOPE = self.registration.scope;
