@@ -283,7 +283,11 @@ html, body, #root {
   margin: 0;
   padding: 0;
   background: #1e1e2e;
-  color: #e2e8f0;
+  /* Color base heredable. Usamos el token por tema (--color-text) en vez de un
+   * valor fijo para que los textos sin clase explícita (p.ej. el h2 de
+   * CollapsibleSection) hereden el color correcto en cada tema, claro en los
+   * oscuros y marrón profundo en light. */
+  color: rgb(var(--color-text));
 }
 
 /* ========== SCROLLBARS GLOBALES ========== */

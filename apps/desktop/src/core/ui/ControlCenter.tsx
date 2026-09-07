@@ -512,7 +512,7 @@ export function ControlCenter() {
       {/* KPIs */}
       <section className="workspace-auto-grid-sm gap-4">
         <article className="flex items-center gap-4 rounded-2xl border border-border bg-surface-light/80 p-5">
-          <BrandIcon name="Chip" size={40} tile={false} />
+          <BrandIcon name="Chip" size={40} />
           <div className="min-w-0">
             <p className="truncate text-xs uppercase tracking-wide text-muted">{t.control.kpis.activeModules}</p>
             <p className="mt-1 text-3xl font-semibold">{activePlugins}</p>
@@ -520,7 +520,7 @@ export function ControlCenter() {
           </div>
         </article>
         <article className="flex items-center gap-4 rounded-2xl border border-border bg-surface-light/80 p-5">
-          <BrandIcon name="Cards" size={40} tile={false} />
+          <BrandIcon name="Cards" size={40} />
           <div className="min-w-0">
             <p className="truncate text-xs uppercase tracking-wide text-muted">{t.control.kpis.dashboardWidgets}</p>
             <p className="mt-1 text-3xl font-semibold">{metrics.widgets}</p>
@@ -528,7 +528,7 @@ export function ControlCenter() {
           </div>
         </article>
         <article className="flex items-center gap-4 rounded-2xl border border-border bg-surface-light/80 p-5">
-          <BrandIcon name="TomeAtlas" size={40} tile={false} />
+          <BrandIcon name="TomeAtlas" size={40} />
           <div className="min-w-0">
             <p className="truncate text-xs uppercase tracking-wide text-muted">
               {language === 'en' ? 'Operation routes' : 'Rutas de operacion'}
