@@ -1,8 +1,8 @@
 import { ipcMain, dialog, BrowserWindow, app } from 'electron'
 import { writeFileSync, readFileSync, existsSync, mkdirSync, readdirSync, unlinkSync, statSync } from 'fs'
 import { join } from 'path'
-import { createCipheriv, randomBytes, scryptSync } from 'crypto'
 import { type DatabaseService } from './database'
+import { encryptBlob } from './passphrase'
 import type { ScheduledBackupConfig, ScheduledBackupStatus } from '../../src/core/types'
 
 /**
@@ -36,27 +36,9 @@ const DEFAULT_CONFIG: ScheduledBackupConfig = {
 
 // Cifrado: mismo formato que backup manual para compatibilidad.
 const MAGIC = Buffer.from('POS-BAK1')
-const ALGO = 'aes-256-gcm'
-const KEY_LEN = 32
-const SALT_LEN = 16
-const IV_LEN = 12
 
 let timer: ReturnType<typeof setInterval> | null = null
 let sessionPassphrase: string | null = null
-
-function deriveKey(passphrase: string, salt: Buffer): Buffer {
-  return scryptSync(passphrase, salt, KEY_LEN, { N: 16384, r: 8, p: 1 })
-}
-
-function encrypt(payload: Buffer, passphrase: string): Buffer {
-  const salt = randomBytes(SALT_LEN)
-  const iv = randomBytes(IV_LEN)
-  const key = deriveKey(passphrase, salt)
-  const cipher = createCipheriv(ALGO, key, iv)
-  const encrypted = Buffer.concat([cipher.update(payload), cipher.final()])
-  const tag = cipher.getAuthTag()
-  return Buffer.concat([MAGIC, salt, iv, tag, encrypted])
-}
 
 function loadConfig(db: DatabaseService): ScheduledBackupConfig {
   try {
@@ -172,7 +154,7 @@ async function performBackup(db: DatabaseService): Promise<{ ok: boolean; path?:
     db.exportActiveUserDb(tmp)
     if (config.encrypt && sessionPassphrase) {
       const data = readFileSync(tmp)
-      const blob = encrypt(data, sessionPassphrase)
+      const blob = encryptBlob(sessionPassphrase, data, MAGIC)
       writeFileSync(dest, blob)
       try { unlinkSync(tmp) } catch { /* noop */ }
     } else {
