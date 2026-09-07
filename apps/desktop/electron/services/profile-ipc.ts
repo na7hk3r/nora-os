@@ -16,8 +16,8 @@
 
 import { ipcMain, dialog, BrowserWindow } from 'electron'
 import { writeFileSync, readFileSync } from 'fs'
-import { createCipheriv, createDecipheriv, randomBytes, scryptSync } from 'crypto'
 import { type DatabaseService } from './database'
+import { encryptBlob, decryptBlob } from './passphrase'
 
 const CHANNELS = {
   exportPlain: 'profile:export-plain',
@@ -27,11 +27,6 @@ const CHANNELS = {
 } as const
 
 const MAGIC = Buffer.from('POS-PRF1')
-const ALGO = 'aes-256-gcm'
-const KEY_LEN = 32
-const SALT_LEN = 16
-const IV_LEN = 12
-const TAG_LEN = 16
 const PROFILE_SCHEMA_VERSION = 1
 const GAMIFICATION_SETTINGS_KEY = 'gamificationState'
 
@@ -84,38 +79,6 @@ function buildGamificationSetting(gamification: ProfileSnapshot['gamification'])
     history: [],
     unlockedIds: [],
   })
-}
-
-function deriveKey(passphrase: string, salt: Buffer): Buffer {
-  return scryptSync(passphrase, salt, KEY_LEN, { N: 16384, r: 8, p: 1 })
-}
-
-function encrypt(payload: Buffer, passphrase: string): Buffer {
-  const salt = randomBytes(SALT_LEN)
-  const iv = randomBytes(IV_LEN)
-  const key = deriveKey(passphrase, salt)
-  const cipher = createCipheriv(ALGO, key, iv)
-  const encrypted = Buffer.concat([cipher.update(payload), cipher.final()])
-  const tag = cipher.getAuthTag()
-  return Buffer.concat([MAGIC, salt, iv, tag, encrypted])
-}
-
-function decrypt(blob: Buffer, passphrase: string): Buffer {
-  if (blob.length < MAGIC.length + SALT_LEN + IV_LEN + TAG_LEN) {
-    throw new Error('Archivo de perfil corrupto o demasiado chico')
-  }
-  if (!blob.subarray(0, MAGIC.length).equals(MAGIC)) {
-    throw new Error('Formato inválido: el archivo no es un perfil cifrado de Nora OS')
-  }
-  let offset = MAGIC.length
-  const salt = blob.subarray(offset, offset + SALT_LEN); offset += SALT_LEN
-  const iv = blob.subarray(offset, offset + IV_LEN); offset += IV_LEN
-  const tag = blob.subarray(offset, offset + TAG_LEN); offset += TAG_LEN
-  const ciphertext = blob.subarray(offset)
-  const key = deriveKey(passphrase, salt)
-  const decipher = createDecipheriv(ALGO, key, iv)
-  decipher.setAuthTag(tag)
-  return Buffer.concat([decipher.update(ciphertext), decipher.final()])
 }
 
 async function pickSavePath(defaultName: string): Promise<string | null> {
@@ -272,7 +235,7 @@ export function registerProfileIpc(db: DatabaseService): void {
     const stamp = new Date().toISOString().replace(/[:.]/g, '-')
     const dest = await pickSavePath(`personal-os-profile-${stamp}.posprof`)
     if (!dest) return { ok: false, canceled: true }
-    const blob = encrypt(Buffer.from(JSON.stringify(snapshot), 'utf8'), passphrase)
+    const blob = encryptBlob(passphrase, Buffer.from(JSON.stringify(snapshot), 'utf8'), MAGIC)
     writeFileSync(dest, blob)
     return { ok: true, path: dest }
   })
@@ -293,7 +256,7 @@ export function registerProfileIpc(db: DatabaseService): void {
     const src = await pickOpenPath()
     if (!src) return { ok: false, canceled: true }
     const blob = readFileSync(src)
-    const plain = decrypt(blob, passphrase)
+    const plain = decryptBlob(passphrase, blob, MAGIC)
     const snapshot = parseSnapshot(plain.toString('utf8'))
     applySnapshot(db, snapshot)
     return { ok: true, summary: summarize(snapshot) }
