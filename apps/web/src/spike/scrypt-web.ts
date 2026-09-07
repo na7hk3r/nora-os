@@ -197,6 +197,9 @@ export interface ScryptParams {
   N: number
   r: number
   p: number
+  /** Si es `true` (default), normaliza el password con NFKC antes de derivar.
+   *  Poné `false` para derivar con el passphrase raw (legacy desktop). */
+  normalize?: boolean
 }
 
 /**
@@ -207,10 +210,12 @@ export async function scryptWeb(
   password: string | Uint8Array,
   salt: Uint8Array,
   keyLen: number,
-  { N, r, p }: ScryptParams,
+  { N, r, p, normalize = true }: ScryptParams,
 ): Promise<Uint8Array> {
   const pwBytes =
-    typeof password === 'string' ? new TextEncoder().encode(password.normalize('NFKC')) : password
+    typeof password === 'string'
+      ? new TextEncoder().encode(normalize ? password.normalize('NFKC') : password)
+      : password
   // 1) B = PBKDF2-HMAC-SHA256(password, salt, 1, p * 128 * r) in blocks de 128*r
   const blocks = 128 * r * p
   const B = await pbkdf2(pwBytes, salt, blocks, 1)
