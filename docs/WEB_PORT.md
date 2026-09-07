@@ -232,10 +232,23 @@ contra Node para los parámetros exactos que usa Electron:
 AES-256-GCM + scrypt, reproduciendo la disposición exacta de Electron:
 
 | Formato | Magic | N   | Layout |
-|---|---|---|---|
+|---|---|---|
 | `POS1` (.db.enc) | `POS1` | 32768 | MAGIC(4) VERSION(1) SALT IV TAG CT |
 | `POS-BAK1` (.posbak) | `POS-BAK1` | 16384 | MAGIC(8) SALT IV TAG CT |
 | `POS-PRF1` (.posprof) | `POS-PRF1` | 16384 | MAGIC(8) SALT IV TAG CT |
+
+**Paridad de normalización NFKC (POS-BAK1 / POS-PRF1):** el desktop y la web
+derivan la key AES-GCM del passphrase **canónico** (`normalize('NFKC')`) al
+cifrar, y al descifrar prueban **primero canónico y luego raw legacy** (doble
+intento solo para backup/perfil; si ambos fallan se reporta passphrase
+incorrecta, indistinguible del comportamiento single-attempt). Esto garantiza
+que un `.posbak`/`.posprof` exportado por un build desktop anterior (derivación
+raw) siga abriéndose en la web y viceversa. `POS1` queda **congelado**: derive
+siempre canónico (NFKC) y decrypt canonical-only, sin fallback raw (N=32768
+intacto). Solo las passphrases con caracteres descompuestos (p. ej. `cafe\u0301`,
+NFD) divergen entre raw y canónico y ejercitan el fallback; las compuestas
+(`contraseña ñoña`, `déjà vu`) son NFKC-estables y dan la misma key en ambos
+caminos.
 
 Tests de interop (`crypto-electron.test.ts`) confirman round-trip bidireccional
 con Node crypto: la web **descifra** archivos exportados por Electron (backup,
