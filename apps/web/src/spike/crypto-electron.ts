@@ -152,14 +152,26 @@ export async function decryptElectron(
   offset += TAG_LEN
   const ciphertext = readBytes(blob, offset, blob.length - offset)
 
-  const key = await scryptWeb(passphrase, salt, 32, { N: cfg.N, r: 8, p: 1 })
-  let plaintext: Uint8Array
-  try {
-    plaintext = await aesGcmDecrypt(key, iv, ciphertext, tag)
-  } catch {
-    throw new Error('La passphrase es incorrecta o el archivo fue alterado')
+  // Intento canónico (NFKC). POS1 es canonical-only (R5): sin fallback raw.
+  const attempts: Array<{ normalize: boolean }> = [{ normalize: true }]
+  if (format === 'backup' || format === 'profile') {
+    // Legacy desktop derivaba raw (pre-paridad NFKC): reintento raw si el
+    // intento canónico falla la autenticación GCM.
+    attempts.push({ normalize: false })
   }
-  return { format, plaintext }
+
+  for (const { normalize } of attempts) {
+    try {
+      const key = await scryptWeb(passphrase, salt, 32, { N: cfg.N, r: 8, p: 1, normalize })
+      const plaintext = await aesGcmDecrypt(key, iv, ciphertext, tag)
+      return { format, plaintext }
+    } catch {
+      // intento fallido (auth GCM o derive): probar el siguiente
+    }
+  }
+  // Ambos intentos fallaron: mismo error que el comportamiento single-attempt
+  // (R2) — indistinguible para el usuario.
+  throw new Error('La passphrase es incorrecta o el archivo fue alterado')
 }
 
 /** Detecta si un blob parece un export cifrado de Nora OS (por magic). */
