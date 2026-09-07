@@ -27,7 +27,6 @@ export default {
         ],
       },
       colors: {
-        base: 'rgb(var(--color-base) / <alpha-value>)',
         surface: {
           DEFAULT: 'rgb(var(--color-surface) / <alpha-value>)',
           light: 'rgb(var(--color-surface-light) / <alpha-value>)',
