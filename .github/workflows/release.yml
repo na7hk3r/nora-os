@@ -145,6 +145,10 @@ jobs:
     name: Build Android APK/AAB
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    env:
+      # Los secrets no se pueden referenciar en expresiones `if:`; se inyectan
+      # en el env del job y se consultan como env.X en el step.
+      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
     defaults:
       run:
         working-directory: apps/mobile
@@ -172,7 +176,7 @@ jobs:
       # la Play Store). Ver el anexo "Release mobile" de docs/RELEASES.md.
       - name: Configure release keystore
         shell: bash
-        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' }}
+        if: ${{ env.ANDROID_KEYSTORE_BASE64 != '' }}
         env:
           KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
           KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
