@@ -89,9 +89,19 @@ jobs:
         with:
           node-version: 20
           cache: npm
-          cache-dependency-path: apps/web/package-lock.json
+          cache-dependency-path: |
+            package-lock.json
+            apps/web/package-lock.json
 
-      - name: Install dependencies
+      # La web compila el renderer compartido de apps/desktop/src/** (paquete
+      # raíz): sus deps (react, react-router-dom, zustand, @types/*) se resuelven
+      # desde el node_modules raíz. Sin el install raíz, el typecheck no
+      # encuentra los módulos del renderer en CI.
+      - name: Install root dependencies (shared renderer)
+        working-directory: .
+        run: npm ci
+
+      - name: Install web dependencies
         run: npm ci
 
       - name: Typecheck
