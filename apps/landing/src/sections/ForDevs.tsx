@@ -1,8 +1,9 @@
 import { Puzzle, Code2, GitBranch, ChevronDown } from 'lucide-react'
-import { useState } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import { Section } from '../components/Section'
-import { Docs } from './Docs'
 import { useI18n } from '../i18n'
+
+const Docs = lazy(() => import('./Docs').then((m) => ({ default: m.Docs })))
 
 const REPO_URL = 'https://github.com/na7hk3r/nora-os'
 
@@ -78,7 +79,9 @@ export function ForDevs() {
 
       {docsOpen && (
         <div id="devs-docs-viewer" className="mt-8 animate-fade-in">
-          <Docs />
+          <Suspense fallback={<div className="animate-pulse text-muted">Loading...</div>}>
+            <Docs />
+          </Suspense>
         </div>
       )}
     </Section>
