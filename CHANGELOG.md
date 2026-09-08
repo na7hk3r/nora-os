@@ -1,18 +1,51 @@
 # Changelog - Nora OS
 
-## Unreleased
+## [1.19.0] - 2026-09-07
 
-### Cambios
+### Paridad crypto (POS-BAK1 / POS-PRF1)
 
-- El workflow de release ahora construye y publica Linux en cada tag `vX.Y.Z`,
-  incluyendo AppImage, paquete `.deb`, manifests de update y artefactos de
-  debugging.
-- Se agregan scripts `dist:linux` y `release:linux`, y el paquete Debian declara
-  maintainer para cumplir el requisito de `electron-builder`.
-- Landing, README y documentación de releases reflejan Linux como target activo
-  y no como descarga futura.
-- Mobile ajusta el dashboard inicial, subtítulos del shell y labels de la barra
+- Nuevo helper puro de passphrase con derivación NFKC canónica: `backup-ipc`,
+  `profile-ipc` y `scheduled-backup` cifran por defecto en canónico y descifran
+  con doble intento canónico → raw.
+- `scryptWeb` acepta un flag `normalize` para derivación raw legacy, y
+  `decryptElectron` usa doble intento para backup/perfil en la web.
+- Harness de interop con normalización por formato y vectores no-ASCII, en ambas
+  direcciones (Node → web y web → Node), con nota de paridad en `WEB_PORT.md`.
+- POS1 (`.db.enc`) permanece bloqueado: canonical-only, sin cambios de formato.
+
+### Web y PWA
+
+- PWA local-first que comparte el renderer desktop, con boot de bridges y
+  degradación honesta cuando `window.__NORA_WEB__` está presente.
+- SEO, Open Graph y code splitting del bundle web; la landing suma puntos de
+  entrada a la web.
+- Sincronización de brand icons del renderer compartido en `apps/web/public`
+  para paridad visual con el desktop (logos e icons SVG).
+- Corrección de contraste en tema oscuro: los KPIs del Control Center usan la
+  baldosa por defecto y el color base heredable se tokeniza por tema. Fix
+  aplicado en desktop y web.
+- Lint limpio y cobertura con umbrales en la web (fase de calidad).
+
+### Mobile (Android)
+
+- Pipeline de release Android: en cada tag `vX.Y.Z` se compilan y suben
+  `app-release.apk` y `app-release.aab` firmados con el keystore real vía
+  secrets de GitHub Actions.
+- Sistema de plugins para la app móvil.
+- Ajustes del dashboard inicial, subtítulos del shell y labels de la barra
   inferior para enfatizar foco/Nora, con cobertura widget del estado inicial.
+
+### Release y repo
+
+- Workspace monorepo finalizado para producción: surfaces autocontenidas,
+  limpieza de packages esqueleto y dependencias, y CI que valida desktop,
+  landing y mobile.
+- Workflow de release construye y publica Linux en cada tag `vX.Y.Z`: AppImage,
+  paquete `.deb`, manifests de update y artefactos de debugging, con scripts
+  `dist:linux` y `release:linux`.
+- La web PWA se despliega en cada push a `main` junto a la landing.
+- Fix que preserva el progreso de Pulso Nora en actualizaciones.
+- Documentación actualizada de web port, arquitectura y despliegue de landing.
 - Los setups de test desktop y landing aseguran `localStorage` en memoria para
   que las suites jsdom no dependan del entorno local.
 
