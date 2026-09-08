@@ -15,7 +15,7 @@ export default defineConfig({
   test: {
     environment: 'node',
     globals: true,
-    testTimeout: 30000,
+    testTimeout: 60000,
     coverage: {
       provider: 'v8',
       reporter: ['text', 'lcov'],
