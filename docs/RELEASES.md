@@ -29,7 +29,7 @@ git push origin main vX.Y.Z
 
 ## Requisitos
 
-- Node 20+, npm 9+ (ver `.nvmrc`).
+- Node 24+, npm 10+ (ver `.nvmrc`).
 - Flutter 3.44.0 si vas a validar o publicar cambios de `apps/mobile`.
 - En Windows: VS Build Tools si vas a empaquetar local (better-sqlite3).
 - Repo configurado con `publish.provider: github` apuntando a `na7hk3r/nora-os`

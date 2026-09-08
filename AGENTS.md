@@ -7,7 +7,7 @@ Nora OS — monorepo (Electron desktop + web PWA + landing + Flutter mobile). Do
 - The **desktop app is the root package**: Electron deps live in root `package.json` + root lockfile, installed in root `node_modules`. `apps/desktop/package.json` just proxies the root scripts.
 - `apps/web`, `apps/landing`, `apps/mobile` are **independent packages** with their own `package.json`, `package-lock.json`, and `node_modules`. Install with `npm ci` per-surface (same as CI does). Do not add a root `workspaces` field.
 - Each TS surface ships its **own self-contained eslint config** (`.eslintrc.json` in `apps/web` and `apps/landing`; root `.eslintrc.json` for desktop). They must NOT `extends` each other — eslint resolves parser/plugins relative to the config file, and CI installs only per-surface deps (so sharing would break isolated linting). Keep the `rules` block in sync across them. Lint scripts pass `--resolve-plugins-relative-to .`.
-- Desktop, web, and landing all run Node 20 (`.nvmrc`).
+- Desktop, web, and landing all run Node 24 (`.nvmrc`).
 - `npm ci` triggers `postinstall`: `electron-rebuild -f -w better-sqlite3` (needs native toolchain: VS Build Tools / Xcode CLT / build-essential).
 
 ## Verification matrix
