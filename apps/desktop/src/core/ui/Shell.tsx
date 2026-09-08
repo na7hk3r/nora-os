@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Menu } from 'lucide-react'
 import { Sidebar } from './Sidebar'
 import { useCoreStore } from '../state/coreStore'
 import { GamificationNotificationHub } from './GamificationNotificationHub'
@@ -27,10 +27,17 @@ export function Shell({ onGlobalShortcut }: ShellProps) {
     if (window.matchMedia('(max-width: 1024px)').matches) return true
     return window.localStorage?.getItem(COPILOT_COLLAPSED_KEY) === 'true'
   })
+  // Drawer mobile: estado transitorio, NUNCA se persiste (a diferencia de sidebarCollapsed).
+  const [drawerOpen, setDrawerOpen] = useState(false)
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme || 'default')
   }, [theme])
+
+  // Cierra el drawer al navegar: cada ruta nueva arranca con el menú cerrado en móvil.
+  useEffect(() => {
+    setDrawerOpen(false)
+  }, [location.pathname])
 
   // Auto-colapsar el copiloto cuando la pantalla es chica (≤1024px) para
   // evitar que el panel coma todo el ancho útil. Cuando el viewport vuelve a
@@ -85,7 +92,7 @@ export function Shell({ onGlobalShortcut }: ShellProps) {
 
   return (
     <div
-      className="flex h-screen overflow-hidden text-white"
+      className="flex h-dvh overflow-hidden text-white"
       style={{ background: 'var(--bg-gradient)' }}
     >
       <a
@@ -97,14 +104,27 @@ export function Shell({ onGlobalShortcut }: ShellProps) {
       <GamificationNotificationHub />
       <AppUpdateBanner />
       <GlobalShortcuts onShortcutHandled={onGlobalShortcut} />
-      <Sidebar />
+      <button
+        type="button"
+        onClick={() => setDrawerOpen(true)}
+        className="fixed left-4 top-4 z-50 rounded-lg border border-border bg-surface-light/90 p-2.5 text-muted backdrop-blur lg:hidden"
+        aria-label={t.shell.openSidebar}
+      >
+        <Menu size={20} />
+      </button>
+      {drawerOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden"
+          onClick={() => setDrawerOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+      <Sidebar drawerOpen={drawerOpen} />
       <main
         id="main-content"
         role="main"
         tabIndex={-1}
-        className={`min-w-0 flex-1 overflow-hidden transition-all duration-200 ${
-          sidebarCollapsed ? 'ml-16' : 'ml-56'
-        }`}
+        className={`min-w-0 flex-1 overflow-hidden transition-all duration-200 ${sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-56'}`}
       >
         {canGoBack && (
           <button

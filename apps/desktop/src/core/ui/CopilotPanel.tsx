@@ -185,7 +185,7 @@ export function CopilotPanel({ collapsed, onToggle }: CopilotPanelProps) {
 
   return (
     <aside
-      className="flex h-screen w-[88vw] max-w-[360px] shrink-0 flex-col border-l border-border bg-surface-light/95 text-white backdrop-blur md:w-[320px] xl:w-[360px]"
+      className="flex h-dvh w-[88vw] max-w-[360px] shrink-0 flex-col border-l border-border bg-surface-light/95 text-white backdrop-blur md:w-[320px] xl:w-[360px]"
       aria-label="Copiloto IA"
     >
       {/* Header */}

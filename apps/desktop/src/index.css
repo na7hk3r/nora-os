@@ -695,6 +695,7 @@ textarea {
 
 .work-kanban-column {
   height: min(560px, calc(100vh - 220px));
+  height: min(560px, calc(100dvh - 220px));
   min-height: 420px;
 }
 
@@ -723,12 +724,14 @@ textarea {
 @media (min-width: 1536px) {
   .work-kanban-column {
     height: min(640px, calc(100vh - 220px));
+    height: min(640px, calc(100dvh - 220px));
   }
 }
 
 @media (max-width: 767px) {
   .work-kanban-column {
     height: min(520px, calc(100vh - 180px));
+    height: min(520px, calc(100dvh - 180px));
     min-height: 360px;
   }
 }
