@@ -244,7 +244,7 @@ export const copy = {
           tag: 'Local-first',
           title: 'Tus datos nunca salen de tu máquina',
           description:
-            'SQLite en tu disco. Sin nube, sin sincronización, sin telemetría. Ni siquiera nosotros podemos verlos.',
+            'SQLite en tu disco. Sin nube, sin sincronización, sin telemetría invasiva. Ni siquiera nosotros podemos verlos.',
         },
         {
           tag: 'Modular',
@@ -545,7 +545,7 @@ export const copy = {
         },
         {
           q: '¿Mis datos están seguros?',
-          a: 'Viven en tu máquina, en una base SQLite local. Cifrado AES-256-GCM opcional sobre toda la base. Sin nube, sin servidor, sin telemetría.',
+          a: 'Viven en tu máquina, en una base SQLite local. Cifrado AES-256-GCM opcional sobre toda la base. Sin nube, sin servidor, sin telemetría invasiva.',
         },
         {
           q: '¿Funciona sin internet?',
@@ -572,7 +572,7 @@ export const copy = {
     footer: {
       line1: 'Hecho con convicción.',
       accent: 'Local-first.',
-      line2: 'Sin telemetría. Sin VC money.',
+      line2: 'Sin telemetría invasiva. Sin VC money.',
       body: 'Una herramienta que vive donde tienen que vivir las cosas tuyas: en tu máquina.',
       by: 'por',
     },
@@ -653,7 +653,7 @@ export const copy = {
           tag: 'Local-first',
           title: 'Your data never leaves your machine',
           description:
-            'SQLite on your disk. No cloud, no sync, no telemetry. Not even we can see it.',
+            'SQLite on your disk. No cloud, no sync, no invasive telemetry. Not even we can see it.',
         },
         {
           tag: 'Modular',
@@ -953,7 +953,7 @@ export const copy = {
         },
         {
           q: 'Is my data safe?',
-          a: 'It lives on your machine in a local SQLite database. Optional AES-256-GCM encryption over the full database. No cloud, no server, no telemetry.',
+          a: 'It lives on your machine in a local SQLite database. Optional AES-256-GCM encryption over the full database. No cloud, no server, no invasive telemetry.',
         },
         {
           q: 'Does it work offline?',
@@ -980,7 +980,7 @@ export const copy = {
     footer: {
       line1: 'Built with conviction.',
       accent: 'Local-first.',
-      line2: 'No telemetry. No VC money.',
+      line2: 'No invasive telemetry. No VC money.',
       body: 'A tool that lives where your things should live: on your machine.',
       by: 'by',
     },
@@ -1062,7 +1062,7 @@ export const copy = {
           tag: 'Local-first',
           title: 'Seus dados nunca saem da sua máquina',
           description:
-            'SQLite no seu disco. Sem nuvem, sem sincronização, sem telemetria. Nem nós conseguimos ver.',
+            'SQLite no seu disco. Sem nuvem, sem sincronização, sem telemetria invasiva. Nem nós conseguimos ver.',
         },
         {
           tag: 'Modular',
@@ -1363,7 +1363,7 @@ export const copy = {
         },
         {
           q: 'Meus dados estão seguros?',
-          a: 'Eles vivem na sua máquina, em uma base SQLite local. Criptografia AES-256-GCM opcional sobre toda a base. Sem nuvem, sem servidor, sem telemetria.',
+          a: 'Eles vivem na sua máquina, em uma base SQLite local. Criptografia AES-256-GCM opcional sobre toda a base. Sem nuvem, sem servidor, sem telemetria invasiva.',
         },
         {
           q: 'Funciona sem internet?',
@@ -1390,7 +1390,7 @@ export const copy = {
     footer: {
       line1: 'Feito com convicção.',
       accent: 'Local-first.',
-      line2: 'Sem telemetria. Sem VC money.',
+      line2: 'Sem telemetria invasiva. Sem VC money.',
       body: 'Uma ferramenta que vive onde suas coisas devem viver: na sua máquina.',
       by: 'por',
     },
