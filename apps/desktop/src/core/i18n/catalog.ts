@@ -59,6 +59,8 @@ export interface AppCopy {
     skipToContent: string
     goBack: string
     goBackAria: string
+    openSidebar: string
+    closeSidebar: string
   }
   workspace: {
     unavailableTitle: string
@@ -468,6 +470,8 @@ export const copy: Record<AppLanguage, AppCopy> = {
       skipToContent: 'Saltar al contenido principal',
       goBack: 'Volver',
       goBackAria: 'Volver atrás',
+      openSidebar: 'Abrir menú',
+      closeSidebar: 'Cerrar menú',
     },
     workspace: {
       unavailableTitle: 'Vista no disponible',
@@ -727,6 +731,8 @@ export const copy: Record<AppLanguage, AppCopy> = {
       skipToContent: 'Skip to main content',
       goBack: 'Back',
       goBackAria: 'Go back',
+      openSidebar: 'Open menu',
+      closeSidebar: 'Close menu',
     },
     workspace: {
       unavailableTitle: 'View unavailable',

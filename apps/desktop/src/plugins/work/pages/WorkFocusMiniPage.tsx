@@ -66,7 +66,7 @@ export function WorkFocusMiniPage() {
   }
 
   return (
-    <main className="flex h-screen select-none overflow-hidden bg-[radial-gradient(circle_at_top_left,_rgba(106,57,246,0.22),_rgba(17,17,17,0.98)_54%,_#08080b_100%)] p-2 text-white">
+    <main className="flex h-dvh select-none overflow-hidden bg-[radial-gradient(circle_at_top_left,_rgba(106,57,246,0.22),_rgba(17,17,17,0.98)_54%,_#08080b_100%)] p-2 text-white">
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-xl border border-white/10 bg-surface/95 shadow-2xl shadow-black/40">
         <header className="[-webkit-app-region:drag] flex items-center justify-between gap-3 border-b border-border/70 bg-surface-light/75 px-3 py-2.5">
           <div className="flex min-w-0 items-center gap-2.5">

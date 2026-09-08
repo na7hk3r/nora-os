@@ -97,7 +97,7 @@ function hasPluginActivityToday(pluginId: string): boolean {
 }
 
 const NAV_LINK_CLASS = (isActive: boolean) =>
-  `flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all duration-200 ${
+  `flex min-h-[44px] items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all duration-200 ${
     isActive
       ? 'bg-accent/15 text-accent font-semibold'
       : 'text-foreground/75 hover:bg-surface-lighter hover:text-foreground'
@@ -262,7 +262,11 @@ function ModuleGroup({
   )
 }
 
-export function Sidebar() {
+interface SidebarProps {
+  drawerOpen?: boolean
+}
+
+export function Sidebar({ drawerOpen = false }: SidebarProps) {
   const { t, language } = useI18n()
   const sidebarCollapsed = useCoreStore((s) => s.settings.sidebarCollapsed)
   const updateSettings = useCoreStore((s) => s.updateSettings)
@@ -413,9 +417,9 @@ export function Sidebar() {
     <aside
       role="complementary"
       aria-label={t.sidebar.aria}
-      className={`fixed left-0 top-0 z-40 flex h-full flex-col border-r border-border bg-surface-light/95 backdrop-blur-md transition-all duration-200 ${
-        sidebarCollapsed ? 'w-16' : 'w-56'
-      }`}
+      className={`fixed left-0 top-0 z-50 flex h-full flex-col border-r border-border bg-surface-light/95 backdrop-blur-md transition-all duration-200 lg:z-40 ${
+        drawerOpen ? 'translate-x-0' : 'translate-x-[-100%] lg:translate-x-0'
+      } ${sidebarCollapsed ? 'w-16' : 'w-56'}`}
     >
       {/* Header */}
       <div className="flex h-16 items-center justify-between border-b border-border px-4">
@@ -560,7 +564,7 @@ export function Sidebar() {
       )}
 
       {/* Footer */}
-      <div className="border-t border-border p-3 text-center text-xs text-muted">
+      <div className="border-t border-border p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] text-center text-xs text-muted">
         {sidebarCollapsed ? (
           <FeedbackLauncher collapsed />
         ) : (
