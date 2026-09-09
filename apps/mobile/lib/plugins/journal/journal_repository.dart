@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import '../../core/plugins/plugin_storage.dart';
 import 'journal_models.dart';
 
@@ -29,7 +31,7 @@ class JournalRepository {
         entry.promptId,
         entry.title,
         entry.content,
-        entry.tags,
+        jsonEncode(entry.tags),
         entry.wordCount,
         entry.pinned ? 1 : 0,
         entry.createdAt.toIso8601String(),
