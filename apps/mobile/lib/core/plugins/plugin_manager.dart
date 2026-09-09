@@ -28,8 +28,25 @@ class PluginManager {
   PulsoRepository? _pulsoRepository;
 
   /// Se setea en el bootstrap (post-login) y se limpia al hacer logout.
+  ///
+  /// Cambiar de owner (o cerrar sesión) resetea todo el runtime del manager:
+  /// el próximo owner arranca sin páginas/nav/métricas/estado del anterior.
+  /// Los manifests registrados sobreviven (el registro es global y durable).
   void setCurrentOwner(String? ownerId) {
+    if (_currentOwnerId == ownerId) return;
     _currentOwnerId = ownerId;
+    _resetRuntimeState();
+  }
+
+  void _resetRuntimeState() {
+    for (final entry in _plugins.values) {
+      entry.status = PluginStatus.inactive;
+      entry.error = null;
+    }
+    _pagesById.clear();
+    _navItemsById.clear();
+    _metrics.clear();
+    _pulsoRepository = null;
   }
 
   NoraEventBus get eventBus => _eventBus;
@@ -157,7 +174,10 @@ class PluginManager {
   }
 
   /// Construye el [CoreAPI] scopeado para [pluginId] con el owner actual.
-  CoreAPI buildCoreApi(String pluginId) {
+  ///
+  /// [pulsoRepository] permite inyectar un repositorio de Pulso alternativo
+  /// (tests) para no depender de sqflite en host.
+  CoreAPI buildCoreApi(String pluginId, {PulsoRepository? pulsoRepository}) {
     return CoreAPI(
       pluginId: pluginId,
       storage: PluginStorage(
@@ -184,14 +204,22 @@ class PluginManager {
             {required reason, required source, required sourceEvent}) async {
           final owner = _currentOwnerId;
           if (owner == null) return;
-          final repository =
-              _pulsoRepository ??= PulsoRepository(noraLocalStore);
+          final repository = pulsoRepository ??
+              (_pulsoRepository ??= PulsoRepository(noraLocalStore));
           await repository.addExperience(
             ownerId: owner,
             amount: amount,
             reason: reason,
             source: source,
             sourceEvent: sourceEvent,
+          );
+          // Notificar a la UI (dashboard/Pulso) sin duplicar la persistencia:
+          // el repo ya loguea PULSO_XP_ADDED en events_log.
+          _eventBus.emit(
+            PulsoRepository.xpAddedEvent,
+            {'amount': amount, 'reason': reason},
+            source: 'pulso',
+            persist: false,
           );
         },
       ),

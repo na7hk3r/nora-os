@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../features/auth/auth_controller.dart';
+import '../plugins/plugin_event_bus.dart';
 import '../storage/local_store.dart';
 import 'pulso_repository.dart';
 
@@ -11,7 +12,14 @@ final pulsoRepositoryProvider = Provider<PulsoRepository>((ref) {
 final pulsoControllerProvider =
     StateNotifierProvider<PulsoController, AsyncValue<PulsoSnapshot>>((ref) {
   final ownerId = ref.watch(authControllerProvider).user?.id;
-  return PulsoController(ref.watch(pulsoRepositoryProvider), ownerId);
+  final controller =
+      PulsoController(ref.watch(pulsoRepositoryProvider), ownerId);
+  // La XP otorgada por plugins llega vía el bus compartido (desacople
+  // plugins<->features): recargar para que el dashboard refleje el cambio.
+  final unsubscribe = NoraEventBus.instance
+      .on(PulsoRepository.xpAddedEvent, (_) => controller.load());
+  ref.onDispose(unsubscribe);
+  return controller;
 });
 
 class PulsoController extends StateNotifier<AsyncValue<PulsoSnapshot>> {
