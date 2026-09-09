@@ -38,6 +38,10 @@ tmp/
 temp/
 *.tmp
 
+# Development toolchain (local-only state)
+.atl/
+opencode.json
+
 # Flutter / Dart
 **/.dart_tool/
 **/.packages
