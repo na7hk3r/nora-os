@@ -1,10 +1,15 @@
 # Plugin System — Nora Mobile (espejo del Desktop)
 
-> Estado: **v1 — diseño + implementación base + 2 plugins demo (Habits, Journal).**
+> Estado: **early access (Android) — diseño + implementación base + 2 plugins portados (Habits, Journal).**
 
 Este documento describe cómo el modelo de plugins de **Nora OS Desktop** se
 refleja en **Nora Mobile**, qué se conserva idéntico y qué se adapta por
 plataforma. Es la fuente de verdad del port, no una reescritura.
+
+> **Estado: early access (Android).** El núcleo y los plugins `habits` y
+> `journal` son ports completos. El resto de plugins del desktop NO está
+> portado por decisión de producto (móvil = captura rápida, no paridad).
+> Roadmap: [`roadmap/README.md`](./roadmap/README.md).
 
 ---
 
@@ -185,11 +190,11 @@ lib/core/plugins/
   plugin_bootstrap.dart     # importa y registra los plugins bundled
   plugin_icon_mapper.dart   # iconos 'Repeat'/'BookOpen' → IconData (fallback)
 lib/plugins/
-  habits/                   # demo end-to-end (port de desktop/src/plugins/habits)
+  habits/                   # port completo (espejo de desktop/src/plugins/habits)
     index.dart              # manifest + registerHabitsPlugin
     models.dart / repository.dart / store.dart
     pages/…
-  journal/                  # demo end-to-end (port de desktop/src/plugins/journal)
+  journal/                  # port completo (espejo de desktop/src/plugins/journal)
 lib/features/modules/       # pantalla de gestión (UX Módulos)
   modules_screen.dart
 ```

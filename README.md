@@ -453,10 +453,18 @@ Los tokens están reflejados en el tema `default` del app ([apps/desktop/src/ind
 - **Galería de temas** ampliada con theme builder visual.
 - **Mejoras de accesibilidad** continuas (foco visible, navegación por teclado en pantallas restantes).
 
+### Mobile (early access)
+
+La versión móvil (Android) ya existe como **early access**: núcleo local
+completo (auth offline, dashboard, planner, tareas, notificaciones) y los
+plugins **Habits** y **Journal** portados. Los 6 plugins restantes (Work,
+Finance, Fitness, Goals, Knowledge, Tiempo) no están portados por decisión de
+producto — el móvil prioriza la captura rápida, no la paridad de herramientas
+desktop. Detalle y decisiones: `docs/roadmap/README.md` y `docs/PLUGIN_SYSTEM_MOBILE.md`.
+
 ### Lejano
 
 - **Sincronización entre dispositivos** con E2E encryption.
-- **Versión mobile** (cuando el core esté maduro).
 
 ---
 

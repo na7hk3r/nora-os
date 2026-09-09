@@ -2,7 +2,22 @@
 
 Flutter mobile client for Nora OS, built as a native mobile-first app inside the Nora monorepo.
 
-## Current Scope
+> **Estado: early access (Android).** El núcleo local (auth, dashboard,
+> planner, tareas, notificaciones) y los plugins **Habits** y **Journal** están
+> completos. Los 6 plugins restantes del desktop no están portados por decisión
+> de producto (el móvil prioriza captura rápida; el port es a demanda según uso
+> real). Roadmap y decisiones: [`docs/roadmap/README.md`](../../docs/roadmap/README.md).
+
+## Alcance actual
+
+| Área | Estado |
+| --- | --- |
+| Núcleo (auth offline, shell, dashboard, planner, tareas, notificaciones, perfil) | Listo |
+| Plugins: Habits y Journal | Listos (ports completos, eventos/XP/métricas espejo del desktop) |
+| Plugins: Work, Finance, Fitness, Goals, Knowledge, Tiempo | No portados — decisión de producto, port a demanda |
+| iOS | No iniciado — Android primero |
+
+## Scope del núcleo (portado)
 
 - Local offline auth
 - Persistent bottom navigation
@@ -12,6 +27,7 @@ Flutter mobile client for Nora OS, built as a native mobile-first app inside the
 - Notifications center
 - Profile/settings
 - Reusable Nora OS mobile design system
+- Plugins integrados: Habits y Journal (ports completos, ver arriba).
 
 ## Setup
 
