@@ -33,6 +33,7 @@
     "desktop:test": "vitest run --config apps/desktop/vitest.config.ts",
     "desktop:test:watch": "vitest --config apps/desktop/vitest.config.ts",
     "desktop:test:coverage": "vitest run --coverage --config apps/desktop/vitest.config.ts",
+    "desktop:test:critical-coverage": "vitest run --coverage --config apps/desktop/vitest.critical.config.ts",
     "landing:dev": "npm --prefix apps/landing run dev",
     "landing:build": "npm --prefix apps/landing run build",
     "landing:typecheck": "npm --prefix apps/landing run typecheck",

@@ -39,6 +39,9 @@ jobs:
       - name: Coverage
         run: npm run desktop:test:coverage
 
+      - name: Critical coverage
+        run: npm run desktop:test:critical-coverage
+
   landing:
     name: Landing quality
     runs-on: ubuntu-latest
