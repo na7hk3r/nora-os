@@ -75,6 +75,14 @@ class HabitsHomePage extends ConsumerWidget {
                 expand: true,
                 onPressed: () => _showCreateDialog(context, ref),
               ),
+              const SizedBox(height: NoraSpacing.sm),
+              NoraButton(
+                label: 'Ver historial 30 días',
+                icon: Icons.history_rounded,
+                variant: NoraButtonVariant.secondary,
+                expand: true,
+                onPressed: () => context.go('/plugins/habits/history'),
+              ),
             ],
           ],
         );

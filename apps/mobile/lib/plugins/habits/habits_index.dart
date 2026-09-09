@@ -3,6 +3,7 @@ import '../../core/plugins/plugin_manager.dart';
 import '../../core/plugins/plugin_manifest.dart';
 import 'habits_events.dart';
 import 'habits_models.dart';
+import 'habits_pages/habits_history_page.dart';
 import 'habits_pages/habits_home_page.dart';
 import 'habits_pages/habits_manage_page.dart';
 import 'habits_utils.dart';
@@ -65,6 +66,15 @@ final habitsPlugin = PluginManifest(
       order: 40,
     ),
     PluginPageDef(
+      id: 'habits-history',
+      pluginId: 'habits',
+      path: 'history',
+      title: 'Historial',
+      icon: 'History',
+      builder: (_) => const HabitsHistoryPage(),
+      order: 41,
+    ),
+    PluginPageDef(
       id: 'habits-manage',
       pluginId: 'habits',
       path: 'manage',
@@ -82,6 +92,15 @@ final habitsPlugin = PluginManifest(
       icon: 'Repeat',
       path: '',
       order: 40,
+    ),
+    PluginNavItemDef(
+      id: 'habits-history-nav',
+      pluginId: 'habits',
+      label: 'Historial',
+      icon: 'History',
+      path: 'history',
+      order: 41,
+      parentId: 'habits-nav',
     ),
     PluginNavItemDef(
       id: 'habits-manage-nav',

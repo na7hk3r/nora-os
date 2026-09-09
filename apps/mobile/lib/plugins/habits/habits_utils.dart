@@ -140,3 +140,107 @@ Color habitHexToColor(String hex) {
   final value = int.tryParse(clean, radix: 16) ?? 0xFF8B5CF6;
   return Color(value);
 }
+
+/// Claves de fecha de los últimos 30 días hasta [today] inclusive, de más
+/// viejo a más nuevo (hoy al final). Mismo criterio que Desktop.
+List<String> last30DayKeys(DateTime today) {
+  final reference = DateTime(today.year, today.month, today.day);
+  final keys = <String>[];
+  for (var i = 29; i >= 0; i--) {
+    keys.add(noraDateKey(DateTime(reference.year, reference.month,
+        reference.day - i)));
+  }
+  return keys;
+}
+
+/// Una celda del heatmap de historial para un hábito y fecha dados.
+class HabitHistoryCell {
+  const HabitHistoryCell({
+    required this.date,
+    required this.count,
+    required this.target,
+  });
+
+  /// YYYY-MM-DD.
+  final String date;
+
+  /// Cantidad de logs del hábito en esa fecha.
+  final int count;
+
+  /// Meta del hábito por período.
+  final int target;
+
+  /// Intensidad de la celda, espejo del heatmap de Desktop:
+  ///  - `count >= target` → 1.0 (color pleno);
+  ///  - `0 < count < target` → 0.45 (progreso parcial);
+  ///  - `count = 0` → 0 (transparente).
+  double get intensity {
+    if (count >= target) return 1.0;
+    if (count > 0) return 0.45;
+    return 0;
+  }
+
+  bool get completed => count >= target;
+
+  bool get partial => count > 0 && count < target;
+
+  /// Label de accesibilidad equivalente al tooltip/aria de Desktop:
+  /// `'Meditar, 2026-09-09, 2 de 3'`.
+  String semanticsLabel(String habitName) =>
+      '$habitName, $date, $count de $target';
+}
+
+/// Fila del heatmap: un hábito activo con sus 30 celdas y sus estadísticas.
+class HabitHistoryRow {
+  const HabitHistoryRow({
+    required this.habit,
+    required this.cells,
+    required this.stats,
+  });
+
+  final HabitDefinition habit;
+  final List<HabitHistoryCell> cells;
+  final HabitStats stats;
+}
+
+/// Matriz de historial: una fila por hábito activo (no archivado), con las
+/// celdas de los últimos 30 días hasta [today] (hoy al final). Sin IO;
+/// recibe los logs del owner ya cargados por el controller.
+List<HabitHistoryRow> computeHistoryRows(
+  List<HabitDefinition> definitions,
+  List<HabitLog> logs, {
+  DateTime? today,
+}) {
+  final reference = today ?? DateTime.now();
+  final active = definitions.where((habit) => !habit.archived).toList();
+  final keys = last30DayKeys(reference);
+  return [
+    for (final habit in active)
+      _historyRowFor(habit, logs, keys, reference),
+  ];
+}
+
+HabitHistoryRow _historyRowFor(
+  HabitDefinition habit,
+  List<HabitLog> logs,
+  List<String> keys,
+  DateTime reference,
+) {
+  final habitLogs = logs.where((log) => log.habitId == habit.id).toList();
+  final countByDate = <String, int>{
+    for (final log in habitLogs) log.date: log.count,
+  };
+  final cells = [
+    for (final key in keys)
+      HabitHistoryCell(
+        date: key,
+        count: countByDate[key] ?? 0,
+        target: habit.target,
+      ),
+  ];
+  return HabitHistoryRow(
+    habit: habit,
+    cells: cells,
+    stats: computeHabitStats(habit, habitLogs, today: reference),
+  );
+}
