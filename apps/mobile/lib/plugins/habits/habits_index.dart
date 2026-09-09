@@ -100,6 +100,9 @@ final habitsPlugin = PluginManifest(
     api.events.on(HabitsEvents.logged, (_) => _publishHabitsMetrics(api));
     api.events.on(HabitsEvents.unlogged, (_) => _publishHabitsMetrics(api));
     api.events.on(HabitsEvents.goalMet, (_) => _publishHabitsMetrics(api));
+    api.events
+        .on(HabitsEvents.archived, (_) => _publishHabitsMetrics(api));
+    api.events.on(HabitsEvents.deleted, (_) => _publishHabitsMetrics(api));
 
     api.events.on(
       HabitsEvents.logged,

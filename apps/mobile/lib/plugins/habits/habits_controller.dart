@@ -157,7 +157,7 @@ class HabitsController extends StateNotifier<AsyncValue<HabitsState>> {
         logs: current.logs.where((log) => log.habitId != id).toList(),
       ),
     );
-    _emit(HabitsEvents.archived, {'id': id, 'deleted': true});
+    _emit(HabitsEvents.deleted, {'id': id});
   }
 
   // ─── Logs ────────────────────────────────────────────────────────────────
