@@ -7,6 +7,7 @@ import '../../../core/design/nora_spacing.dart';
 import '../../../core/design/widgets/nora_button.dart';
 import '../../../core/design/widgets/nora_card.dart';
 import '../../../core/design/widgets/nora_empty_state.dart';
+import '../../../core/design/widgets/nora_error_state.dart';
 import '../../../core/design/widgets/nora_panel.dart';
 import '../../../core/design/widgets/nora_section_header.dart';
 import '../../habits/habits_controller.dart';
@@ -19,52 +20,65 @@ class HabitsHomePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final asyncState = ref.watch(habitsControllerProvider);
-    final state = asyncState.valueOrNull;
-    final active =
-        state?.definitions.where((d) => !d.archived).toList() ?? const [];
-    final doneToday = active.where((habit) {
-      final stats =
-          computeHabitStats(habit, state?.logsFor(habit.id) ?? const []);
-      return stats.completedThisPeriod;
-    }).length;
 
-    return ListView(
-      children: [
-        if (active.isNotEmpty) ...[
-          _TodaySummary(done: doneToday, total: active.length),
-          const SizedBox(height: NoraSpacing.xl),
-        ],
-        NoraSectionHeader(
-          title: 'Mis hábitos',
-          subtitle: 'Toca para registrar el día',
-          actionLabel: 'Administrar',
-          onAction: () => context.go('/plugins/habits/manage'),
+    return asyncState.when(
+      loading: () => const Center(
+        child: CircularProgressIndicator(color: NoraColors.accent),
+      ),
+      error: (error, _) => Center(
+        child: NoraErrorState(
+          title: 'No se pudieron cargar los hábitos',
+          message: 'Hubo un problema al leer los hábitos. Intentá de nuevo.',
+          onRetry: () => ref.read(habitsControllerProvider.notifier).load(),
         ),
-        const SizedBox(height: NoraSpacing.sm),
-        if (active.isEmpty)
-          NoraEmptyState(
-            icon: Icons.repeat_rounded,
-            title: 'Aún no hay hábitos',
-            message:
-                'Crea tu primer hábito diario o semanal y Nora te ayuda a sostener la racha.',
-            actionLabel: 'Crear hábito',
-            onAction: () => _showCreateDialog(context, ref),
-          )
-        else ...[
-          for (final habit in active) ...[
-            _HabitCard(habit: habit),
+      ),
+      data: (state) {
+        final active =
+            state.definitions.where((d) => !d.archived).toList();
+        final doneToday = active.where((habit) {
+          final stats = computeHabitStats(habit, state.logsFor(habit.id));
+          return stats.completedThisPeriod;
+        }).length;
+
+        return ListView(
+          children: [
+            if (active.isNotEmpty) ...[
+              _TodaySummary(done: doneToday, total: active.length),
+              const SizedBox(height: NoraSpacing.xl),
+            ],
+            NoraSectionHeader(
+              title: 'Mis hábitos',
+              subtitle: 'Toca para registrar el día',
+              actionLabel: 'Administrar',
+              onAction: () => context.go('/plugins/habits/manage'),
+            ),
             const SizedBox(height: NoraSpacing.sm),
+            if (active.isEmpty)
+              NoraEmptyState(
+                icon: Icons.repeat_rounded,
+                title: 'Aún no hay hábitos',
+                message:
+                    'Crea tu primer hábito diario o semanal y Nora te ayuda a sostener la racha.',
+                actionLabel: 'Crear hábito',
+                onAction: () => _showCreateDialog(context, ref),
+              )
+            else ...[
+              for (final habit in active) ...[
+                _HabitCard(habit: habit),
+                const SizedBox(height: NoraSpacing.sm),
+              ],
+              const SizedBox(height: NoraSpacing.sm),
+              NoraButton(
+                label: 'Nuevo hábito',
+                icon: Icons.add_rounded,
+                variant: NoraButtonVariant.secondary,
+                expand: true,
+                onPressed: () => _showCreateDialog(context, ref),
+              ),
+            ],
           ],
-          const SizedBox(height: NoraSpacing.sm),
-          NoraButton(
-            label: 'Nuevo hábito',
-            icon: Icons.add_rounded,
-            variant: NoraButtonVariant.secondary,
-            expand: true,
-            onPressed: () => _showCreateDialog(context, ref),
-          ),
-        ],
-      ],
+        );
+      },
     );
   }
 

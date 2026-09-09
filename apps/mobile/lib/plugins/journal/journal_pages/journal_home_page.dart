@@ -432,10 +432,45 @@ class _EntryDetailSheetState extends ConsumerState<_EntryDetailSheet> {
                 IconButton(
                   tooltip: 'Eliminar entrada',
                   onPressed: () async {
-                    await ref
-                        .read(journalControllerProvider.notifier)
-                        .deleteEntry(entry.id);
-                    if (context.mounted) Navigator.of(context).pop();
+                    final confirmed = await showDialog<bool>(
+                      context: context,
+                      builder: (dialogContext) => AlertDialog(
+                        title: const Text('¿Eliminar entrada?'),
+                        content:
+                            const Text('La entrada se borrará permanentemente.'),
+                        actions: [
+                          TextButton(
+                            onPressed: () =>
+                                Navigator.pop(dialogContext, false),
+                            child: const Text('Cancelar'),
+                          ),
+                          FilledButton(
+                            style: FilledButton.styleFrom(
+                                backgroundColor: NoraColors.danger),
+                            onPressed: () =>
+                                Navigator.pop(dialogContext, true),
+                            child: const Text('Eliminar'),
+                          ),
+                        ],
+                      ),
+                    );
+                    if (confirmed != true) return;
+                    final controller =
+                        ref.read(journalControllerProvider.notifier);
+                    final snapshot = widget.entry;
+                    await controller.deleteEntry(snapshot.id);
+                    if (!context.mounted) return;
+                    Navigator.of(context).pop();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: const Text('Entrada eliminada'),
+                        action: SnackBarAction(
+                          label: 'Deshacer',
+                          onPressed: () =>
+                              controller.restoreEntry(snapshot),
+                        ),
+                      ),
+                    );
                   },
                   icon: const Icon(Icons.delete_outline,
                       color: NoraColors.danger),

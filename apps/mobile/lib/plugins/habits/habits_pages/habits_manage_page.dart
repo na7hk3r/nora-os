@@ -5,6 +5,7 @@ import '../../../core/design/nora_colors.dart';
 import '../../../core/design/nora_spacing.dart';
 import '../../../core/design/widgets/nora_card.dart';
 import '../../../core/design/widgets/nora_empty_state.dart';
+import '../../../core/design/widgets/nora_error_state.dart';
 import '../../../core/design/widgets/nora_section_header.dart';
 import '../../habits/habits_controller.dart';
 import '../../habits/habits_models.dart';
@@ -16,40 +17,54 @@ class HabitsManagePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final asyncState = ref.watch(habitsControllerProvider);
-    final state = asyncState.valueOrNull;
-    final habits = state?.definitions ?? const [];
 
-    return ListView(
-      children: [
-        NoraSectionHeader(
-          title: 'Hábitos',
-          subtitle: '${habits.length} definidos',
-          actionLabel: 'Nuevo',
-          onAction: () => _showCreateDialog(context, ref),
+    return asyncState.when(
+      loading: () => const Center(
+        child: CircularProgressIndicator(color: NoraColors.accent),
+      ),
+      error: (error, _) => Center(
+        child: NoraErrorState(
+          title: 'No se pudieron cargar los hábitos',
+          message: 'Hubo un problema al leer los hábitos. Intentá de nuevo.',
+          onRetry: () => ref.read(habitsControllerProvider.notifier).load(),
         ),
-        const SizedBox(height: NoraSpacing.sm),
-        if (habits.isEmpty)
-          const NoraEmptyState(
-            icon: Icons.repeat_rounded,
-            title: 'Sin hábitos',
-            message: 'Crea tu primer hábito para empezar a medir consistencia.',
-          )
-        else
-          NoraCard(
-            padding: EdgeInsets.zero,
-            child: Column(
-              children: [
-                for (var i = 0; i < habits.length; i++) ...[
-                  _ManageRow(habit: habits[i]),
-                  if (i != habits.length - 1)
-                    Divider(
-                        height: 1,
-                        color: NoraColors.border.withValues(alpha: 0.44)),
-                ],
-              ],
+      ),
+      data: (state) {
+        final habits = state.definitions;
+        return ListView(
+          children: [
+            NoraSectionHeader(
+              title: 'Hábitos',
+              subtitle: '${habits.length} definidos',
+              actionLabel: 'Nuevo',
+              onAction: () => _showCreateDialog(context, ref),
             ),
-          ),
-      ],
+            const SizedBox(height: NoraSpacing.sm),
+            if (habits.isEmpty)
+              const NoraEmptyState(
+                icon: Icons.repeat_rounded,
+                title: 'Sin hábitos',
+                message:
+                    'Crea tu primer hábito para empezar a medir consistencia.',
+              )
+            else
+              NoraCard(
+                padding: EdgeInsets.zero,
+                child: Column(
+                  children: [
+                    for (var i = 0; i < habits.length; i++) ...[
+                      _ManageRow(habit: habits[i]),
+                      if (i != habits.length - 1)
+                        Divider(
+                            height: 1,
+                            color: NoraColors.border.withValues(alpha: 0.44)),
+                    ],
+                  ],
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 
@@ -156,6 +171,39 @@ class _ManageRow extends ConsumerWidget {
             onPressed: () async {
               await controller.archiveHabit(habit.id,
                   archived: !habit.archived);
+            },
+          ),
+          IconButton(
+            tooltip: 'Eliminar',
+            icon: const Icon(Icons.delete_outline,
+                size: 19, color: NoraColors.danger),
+            onPressed: () async {
+              final confirmed = await showDialog<bool>(
+                context: context,
+                builder: (dialogContext) => AlertDialog(
+                  title: const Text('¿Eliminar hábito?'),
+                  content: Text(
+                      'Se eliminará "${habit.name}" y todo su historial.'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(dialogContext, false),
+                      child: const Text('Cancelar'),
+                    ),
+                    FilledButton(
+                      style: FilledButton.styleFrom(
+                          backgroundColor: NoraColors.danger),
+                      onPressed: () => Navigator.pop(dialogContext, true),
+                      child: const Text('Eliminar'),
+                    ),
+                  ],
+                ),
+              );
+              if (confirmed != true) return;
+              await controller.deleteHabit(habit.id);
+              if (!context.mounted) return;
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Hábito eliminado')),
+              );
             },
           ),
         ],

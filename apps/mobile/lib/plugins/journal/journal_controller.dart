@@ -128,6 +128,25 @@ class JournalController extends StateNotifier<AsyncValue<JournalState>> {
     _emit(JournalEvents.entryDeleted, {'id': id});
   }
 
+  /// Restaura una entrada borrada (undo): re-guarda el registro completo con
+  /// su id original para mantener fecha, tags, pinned y createdAt intactos.
+  /// No otorga XP (ya otorgada antes del borrado) pero sí refresca métricas vía
+  /// [JournalEvents.entryRestored].
+  Future<void> restoreEntry(JournalEntry entry) async {
+    final current = state.valueOrNull;
+    if (current == null) return;
+    await _repository.saveEntry(entry);
+    final entries = [...current.entries, entry]
+      ..sort((a, b) {
+        final byDate = b.date.compareTo(a.date);
+        return byDate != 0 ? byDate : b.createdAt.compareTo(a.createdAt);
+      });
+    state = AsyncValue.data(
+      JournalState(entries: entries, prompts: current.prompts),
+    );
+    _emit(JournalEvents.entryRestored, {'id': entry.id, 'date': entry.date});
+  }
+
   /// Registra el uso de un prompt (lo persiste y emite `JOURNAL_PROMPT_USED`).
   /// El id se scopea por owner (`<owner>:<promptId>`) para que el PK global
   /// de `journal_prompts` no colisione entre usuarios locales.

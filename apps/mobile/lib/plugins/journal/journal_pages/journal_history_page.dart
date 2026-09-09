@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/design/nora_colors.dart';
 import '../../../core/design/nora_spacing.dart';
 import '../../../core/design/widgets/nora_card.dart';
+import '../../../core/design/widgets/nora_empty_state.dart';
 import '../journal_controller.dart';
 import '../journal_models.dart';
 import 'journal_home_page.dart' show kMoodEmoji, showJournalEntrySheet;
@@ -26,9 +27,11 @@ class JournalHistoryPage extends ConsumerWidget {
       ),
       data: (data) {
         if (data.entries.isEmpty) {
-          return const Center(
-            child: Text('Todavía no hay entradas.',
-                style: TextStyle(color: NoraColors.muted)),
+          return const NoraEmptyState(
+            icon: Icons.article_outlined,
+            title: 'Sin entradas todavía',
+            message:
+                'Cuando escribas tu primer día, el historial va a aparecer acá.',
           );
         }
         return ListView.separated(

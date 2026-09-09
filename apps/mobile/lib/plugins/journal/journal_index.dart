@@ -101,6 +101,8 @@ final journalPlugin = PluginManifest(
         .on(JournalEvents.entryUpdated, (_) => _publishJournalMetrics(api));
     api.events
         .on(JournalEvents.entryDeleted, (_) => _publishJournalMetrics(api));
+    api.events
+        .on(JournalEvents.entryRestored, (_) => _publishJournalMetrics(api));
     api.events.on(JournalEvents.moodLogged, (_) => _publishJournalMetrics(api));
 
     // XP.
