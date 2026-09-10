@@ -1,5 +1,26 @@
 # Changelog - Nora OS
 
+## [1.20.0] - 2026-09-09
+
+### Mobile (Android)
+
+- Historial de hábitos a 30 días con heatmap en el plugin Hábitos.
+- Borrado con confirmación y undo en Journal, con estados de carga.
+- Corrección del borrado de hábitos: refresca las métricas al archivar.
+- Reset del runtime de plugins entre owners y refresco de Pulso tras XP.
+- Serialización de tags de Journal como JSON al persistir.
+
+### Calidad y CI
+
+- Cobertura mínima exigida en plata crítica (auth, cifrado, sandbox SQL,
+  backups) mediante `vitest.critical.config.ts`.
+- Cobertura unitaria de plata crítica en desktop.
+
+### Docs y repo
+
+- Roadmap de producto definido; narrativa móvil recortada a early access.
+- Se ignora la config local de toolchain.
+
 ## [1.19.0] - 2026-09-07
 
 ### Paridad crypto (POS-BAK1 / POS-PRF1)
