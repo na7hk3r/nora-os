@@ -692,7 +692,7 @@ export function KanbanBoard() {
   // El layout equitativo deformaba columnas al competir con el botón "Nueva
   // columna" (w-44 fijo) y al achicar el viewport con sidebar+copilot abiertos.
   const trackClass = 'scrollbar-kanban flex items-start gap-4 overflow-x-auto overflow-y-hidden pb-4'
-  const columnSizingClass = 'work-kanban-column flex flex-shrink-0 flex-col overflow-hidden w-[280px] md:w-[300px] 2xl:w-[320px]'
+  const columnSizingClass = 'work-kanban-column flex flex-shrink-0 h-[420px] flex-col overflow-hidden w-[280px] md:w-[300px] 2xl:w-[320px]'
 
   return (
     <>

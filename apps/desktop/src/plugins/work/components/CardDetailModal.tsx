@@ -1,6 +1,6 @@
 import { type KeyboardEvent as ReactKeyboardEvent, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import type { Card, CardPriority, ChecklistItem } from '../types'
+import type { Card, CardPriority, ChecklistItem, Project } from '../types'
 import { useWorkStore } from '../store'
 import { eventBus } from '@core/events/EventBus'
 import { WORK_EVENTS } from '../events'
@@ -11,8 +11,11 @@ import {
   resumeWorkFocusSession,
   startWorkFocusSession,
 } from '../focus'
+import { linkEntity, unlinkEntityLinks, unlinkLink } from '../projects'
 import { GlobalTagPicker, type TagSelection } from '@core/ui/components/GlobalTagPicker'
 import { TAG_ENTITY_TYPES, tagsService } from '@core/services/tagsService'
+import { ProjectPicker } from './ProjectPicker'
+import { InlineProjectForm } from './InlineProjectForm'
 
 interface Props {
   card: Card
@@ -28,6 +31,7 @@ const PRIORITIES: Array<{ value: CardPriority; label: string; className: string 
 
 export function CardDetailModal({ card, onClose }: Props) {
   const { updateCard, deleteCard, currentFocusSession } = useWorkStore()
+  const projects = useWorkStore((s) => s.projects)
   const [title, setTitle] = useState(card.title)
   const [content, setContent] = useState(card.content ?? '')
   const [description, setDescription] = useState(card.description ?? '')
@@ -39,8 +43,21 @@ export function CardDetailModal({ card, onClose }: Props) {
   const [newChecklistText, setNewChecklistText] = useState('')
   const [saving, setSaving] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [project, setProject] = useState<Project | null>(null)
+  const [showProjectForm, setShowProjectForm] = useState(false)
   const overlayRef = useRef<HTMLDivElement>(null)
   const isActiveFocusTask = currentFocusSession?.taskId === card.id
+  const nonArchivedProjects = projects.filter((p) => !p.archived)
+
+  // Deriva el proyecto vinculado a la tarjeta desde los links del store.
+  useEffect(() => {
+    const store = useWorkStore.getState()
+    const link = store.projectLinks.find(
+      (l) => l.entityType === 'work_card' && l.entityId === card.id,
+    )
+    if (!link) return
+    setProject(store.projects.find((p) => p.id === link.projectId) ?? null)
+  }, [card.id])
 
   useEffect(() => {
     let cancelled = false
@@ -145,8 +162,16 @@ export function CardDetailModal({ card, onClose }: Props) {
       await window.storage.execute(`DELETE FROM work_cards WHERE id = ?`, [card.id])
     }
     await tagsService.unlinkEntity(TAG_ENTITY_TYPES.WORK_CARD, card.id)
+    await unlinkEntityLinks('work_card', card.id)
     eventBus.emit(WORK_EVENTS.TASK_DELETED, { taskId: card.id, title: card.title })
     onClose()
+  }
+
+  const handleProjectChange = async (next: Project | null) => {
+    const prev = project
+    if (prev) await unlinkLink(prev.id, 'work_card', card.id)
+    if (next) await linkEntity(next.id, 'work_card', card.id)
+    setProject(next)
   }
 
   // Renderizamos en un portal sobre `document.body` para evitar que un
@@ -332,6 +357,30 @@ export function CardDetailModal({ card, onClose }: Props) {
             label="Tags globales"
             placeholder="Buscar o crear tag para esta tarea"
           />
+
+          <div className="rounded-xl border border-border bg-surface-light/50 p-4">
+            <label className="mb-2 block text-xs uppercase tracking-[0.16em] text-muted">
+              Proyecto
+            </label>
+            <ProjectPicker
+              value={project}
+              projects={nonArchivedProjects}
+              onChange={(next) => void handleProjectChange(next)}
+              onCreate={() => setShowProjectForm(true)}
+            />
+            {showProjectForm && (
+              <div className="mt-3">
+                <InlineProjectForm
+                  onCreated={(created) => {
+                    setProject(created)
+                    setShowProjectForm(false)
+                    void linkEntity(created.id, 'work_card', card.id)
+                  }}
+                  onCancel={() => setShowProjectForm(false)}
+                />
+              </div>
+            )}
+          </div>
 
           <div className="rounded-xl border border-border bg-surface-light/50 p-4">
             <div className="flex items-center justify-between gap-3">
