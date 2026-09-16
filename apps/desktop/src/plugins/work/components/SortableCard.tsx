@@ -154,7 +154,7 @@ export function SortableCard({
       style={style}
       {...attributes}
       {...listeners}
-      className={`group flex min-h-[92px] flex-col rounded-lg border border-l-4 border-border/50 bg-surface p-3 animate-fade-in select-none touch-none ${
+      className={`group flex min-h-[116px] flex-col rounded-lg border border-l-4 border-border/50 bg-surface p-3 animate-fade-in select-none touch-none ${
         priorityStyle?.cardClass ?? 'border-l-border/60'
       }`}
       onClick={(e) => {
@@ -164,7 +164,7 @@ export function SortableCard({
       }}
     >
       <div className="flex items-start justify-between gap-2">
-        <p className="line-clamp-1 text-sm leading-snug">{card.title}</p>
+        <p className="line-clamp-2 text-sm leading-snug">{card.title}</p>
         <button
           data-delete="true"
           onClick={handleDeleteClick}
@@ -180,18 +180,18 @@ export function SortableCard({
       </div>
 
       {card.description && (
-        <p className="mt-1 line-clamp-1 text-xs text-muted">{card.description}</p>
+        <p className="mt-1 line-clamp-2 text-xs text-muted">{card.description}</p>
       )}
 
       {card.content && (
         <div className="mt-2 flex items-center gap-1 text-xs text-muted/60">
           <FileText size={12} />
-          <span className="truncate">{card.content.slice(0, 24)}</span>
+          <span className="truncate">{card.content.slice(0, 40)}</span>
         </div>
       )}
 
       {(visibleLabels.length > 0 || due || focusSessionCount > 0 || priorityStyle || card.estimateMinutes || checklistTotal > 0) && (
-        <div className="mt-2 flex max-h-[2.5rem] flex-wrap items-center gap-1 overflow-hidden">
+        <div className="mt-2 flex max-h-[3.75rem] flex-wrap items-center gap-1 overflow-hidden">
           {priorityStyle && (
             <span
               className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-micro ${priorityStyle.chipClass}`}
@@ -261,7 +261,7 @@ export function SortableCard({
         </div>
       )}
 
-      <div className="mt-auto flex items-center justify-between gap-2 pt-2">
+      <div className="mt-auto flex items-center justify-between gap-2 pt-3">
         <span className={`text-micro uppercase tracking-[0.16em] ${isFocusActive ? 'text-success' : 'text-muted/40'}`}>
           {isFocusActive ? 'En foco' : 'Listo para foco'}
         </span>
