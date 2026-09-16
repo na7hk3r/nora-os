@@ -6,7 +6,7 @@ import { WorkDashboard } from './pages/WorkDashboard'
 import { NotesPage } from './pages/NotesPage'
 import { WorkSummaryWidget } from './components/WorkSummaryWidget'
 import { startWorkFocusSession } from './focus'
-import type { Board, Column, Card, Note, Link, FocusSession } from './types'
+import type { Board, Column, Card, Note, Link, FocusSession, Project, ProjectLink } from './types'
 import { TAG_ENTITY_TYPES, tagsService } from '@core/services/tagsService'
 
 async function migrateEntityTags(entityType: string, entityId: string, names: string[]): Promise<void> {
@@ -144,6 +144,31 @@ const workPlugin: PluginManifest = {
            AND (LOWER(name) LIKE '%hecho%' OR LOWER(name) LIKE '%done%' OR LOWER(name) LIKE '%completad%');
       `,
     },
+    {
+      version: 9,
+      up: `
+        CREATE TABLE IF NOT EXISTS work_projects (
+          id TEXT PRIMARY KEY,
+          name TEXT NOT NULL,
+          color TEXT NOT NULL DEFAULT '#60a5fa',
+          description TEXT DEFAULT '',
+          archived INTEGER NOT NULL DEFAULT 0,
+          archived_at INTEGER,
+          created_at TEXT NOT NULL DEFAULT (datetime('now'))
+        );
+        CREATE INDEX IF NOT EXISTS idx_work_projects_archived ON work_projects(archived);
+        CREATE TABLE IF NOT EXISTS work_project_links (
+          id TEXT PRIMARY KEY,
+          project_id TEXT NOT NULL,
+          entity_type TEXT NOT NULL,
+          entity_id TEXT NOT NULL,
+          created_at TEXT NOT NULL DEFAULT (datetime('now')),
+          UNIQUE (project_id, entity_type, entity_id)
+        );
+        CREATE INDEX IF NOT EXISTS idx_wpl_project ON work_project_links(project_id);
+        CREATE INDEX IF NOT EXISTS idx_wpl_entity ON work_project_links(entity_type, entity_id);
+      `,
+    },
   ],
 
   widgets: [
@@ -192,6 +217,8 @@ const workPlugin: PluginManifest = {
     const notesRaw = await api.storage.query('SELECT * FROM work_notes ORDER BY updated_at DESC')
     const links = await api.storage.query('SELECT * FROM work_links')
     const focusSessionsRaw = await api.storage.query('SELECT * FROM work_focus_sessions ORDER BY start_time DESC')
+    const projectsRaw = await api.storage.query('SELECT * FROM work_projects ORDER BY created_at DESC')
+    const projectLinksRaw = await api.storage.query('SELECT * FROM work_project_links')
 
     const cards: Card[] = Array.isArray(cardsRaw)
       ? cardsRaw.map((raw) => {
@@ -236,6 +263,34 @@ const workPlugin: PluginManifest = {
           createdAt: row.created_at as string,
           updatedAt: row.updated_at as string,
           pinned: Boolean(row.pinned),
+        }
+      })
+      : []
+
+    const projects: Project[] = Array.isArray(projectsRaw)
+      ? projectsRaw.map((raw) => {
+        const row = raw as Record<string, unknown>
+        return {
+          id: row.id as string,
+          name: row.name as string,
+          color: row.color as string,
+          description: (row.description ?? '') as string,
+          archived: Boolean(row.archived),
+          createdAt: row.created_at as string,
+          archivedAt: row.archived_at == null ? null : Number(row.archived_at),
+        }
+      })
+      : []
+
+    const projectLinks: ProjectLink[] = Array.isArray(projectLinksRaw)
+      ? projectLinksRaw.map((raw) => {
+        const row = raw as Record<string, unknown>
+        return {
+          id: row.id as string,
+          projectId: row.project_id as string,
+          entityType: row.entity_type as ProjectLink['entityType'],
+          entityId: row.entity_id as string,
+          createdAt: row.created_at as string,
         }
       })
       : []
@@ -311,6 +366,8 @@ const workPlugin: PluginManifest = {
     store.setNotes(notesWithGlobalTags)
     store.setLinks(links as Link[])
     store.setFocusSessions(focusSessions)
+    store.setProjects(projects)
+    store.setProjectLinks(projectLinks)
 
     api.events.on(WORK_EVENTS.TASK_COMPLETED, () => {
       api.gamification.addPoints(10, 'Tarea completada')
