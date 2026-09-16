@@ -87,6 +87,7 @@ describe('ActiveProjectsSection', () => {
     renderSection()
 
     expect(screen.getByText('Lanzamiento')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: /expandir proyecto lanzamiento/i }))
     expect(screen.getByText(/1 tarjetas/)).toBeInTheDocument()
     await waitFor(() => {
       expect(screen.getByText(/1 menciones/)).toBeInTheDocument()
@@ -99,6 +100,7 @@ describe('ActiveProjectsSection', () => {
 
     renderSection()
 
+    fireEvent.click(screen.getByRole('button', { name: /expandir proyecto lanzamiento/i }))
     fireEvent.click(screen.getByRole('button', { name: /archivar proyecto lanzamiento/i }))
 
     await waitFor(() => expect(archiveSpy).toHaveBeenCalledWith('proj_1'))
@@ -112,6 +114,7 @@ describe('ActiveProjectsSection', () => {
 
     renderSection()
 
+    fireEvent.click(screen.getByRole('button', { name: /expandir proyecto lanzamiento/i }))
     fireEvent.click(screen.getByRole('button', { name: /eliminar proyecto lanzamiento/i }))
 
     await waitFor(() => expect(deleteSpy).toHaveBeenCalledWith('proj_1'))

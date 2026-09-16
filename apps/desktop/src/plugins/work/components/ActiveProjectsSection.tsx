@@ -96,7 +96,7 @@ export function ActiveProjectsSection() {
   }
 
   return (
-    <section className="plugin-panel flex flex-col gap-4">
+    <section className="plugin-panel flex flex-col gap-4 p-5">
       {selectedProject ? (
         <ProjectDetailPanel
           project={selectedProject}
@@ -140,9 +140,11 @@ export function ActiveProjectsSection() {
           )}
 
           {activeProjects.length === 0 ? (
-            <p className="text-sm text-muted">No hay proyectos todavía. Crea uno para organizar tu trabajo.</p>
+            <div className="rounded-xl border border-dashed border-border/60 bg-surface/40 px-4 py-6 text-center text-sm text-muted">
+              No hay proyectos todavía. Crea uno para organizar tu trabajo.
+            </div>
           ) : (
-            <ul className="flex flex-col">
+            <ul className="flex flex-col gap-2">
               {activeProjects.map((project) => (
                 <li key={project.id}>
                   <ProjectCard
