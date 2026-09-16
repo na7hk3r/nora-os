@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Card } from '../types'
 import { useWorkStore } from '../store'
 import { CardDetailModal } from './CardDetailModal'
+import * as projectsService from '../projects'
 
 const baseCard: Card = {
   id: 'card_1',
@@ -25,6 +26,10 @@ describe('CardDetailModal', () => {
       cards: [baseCard],
       currentFocusSession: null,
       focusSessions: [],
+      projects: [],
+      projectLinks: [],
+      selectedProjectId: null,
+      notes: [],
     })
   })
 
@@ -62,5 +67,20 @@ describe('CardDetailModal', () => {
     expect(onClose).not.toHaveBeenCalled()
     expect(executeSpy).not.toHaveBeenCalled()
     expect(await screen.findByText('Primer paso')).toBeInTheDocument()
+  })
+
+  it('desvincula la tarjeta de su proyecto al eliminarla', async () => {
+    const onClose = vi.fn()
+    const unlinkSpy = vi.spyOn(projectsService, 'unlinkEntityLinks').mockResolvedValue()
+
+    render(<CardDetailModal card={baseCard} onClose={onClose} />)
+
+    fireEvent.click(screen.getByRole('button', { name: /eliminar tarea/i }))
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: /confirmar eliminación/i })).toBeInTheDocument(),
+    )
+    fireEvent.click(screen.getByRole('button', { name: /confirmar eliminación/i }))
+
+    await waitFor(() => expect(unlinkSpy).toHaveBeenCalledWith('work_card', 'card_1'))
   })
 })

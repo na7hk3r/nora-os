@@ -15,6 +15,7 @@ import {
 } from '../focus'
 import { WORK_EVENTS } from '../events'
 import { KanbanBoard } from '../components/KanbanBoard'
+import { ActiveProjectsSection } from '../components/ActiveProjectsSection'
 import { useFocusNudge } from '../components/useFocusNudge'
 import { CheckCircle2, ClipboardList, ExternalLink, History, KanbanSquare, ListChecks, NotebookPen, Sparkles, TimerReset, Play, Pause, Square, XCircle } from 'lucide-react'
 import { BrandIcon } from '@core/ui/components/BrandIcon'
@@ -574,6 +575,8 @@ export function WorkDashboard() {
           <p className="mt-1 text-xs text-muted">{todayMetrics.sessionsToday.length} sesiones, {todayMetrics.efficiency}% eficiencia</p>
         </div>
       </div>
+
+      <ActiveProjectsSection />
 
       <div>
         <div className="mb-3 flex items-center gap-2 border-l-4 border-l-sky-400/60 pl-3">
