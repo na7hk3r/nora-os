@@ -1,5 +1,19 @@
 # Changelog - Nora OS
 
+## [1.21.0] - 2026-09-16
+
+### Plugin Work (Desktop y Web)
+
+- Active Projects: modelo de datos con persistencia propia (tabla `work_projects`,
+  migración v9) y agregación de tarjetas, notas y sesiones de foco vinculadas.
+- Sección "Proyectos activos" en el dashboard: creación inline (nombre + color),
+  cards colapsables con expandir, panel de detalle con edición de nombre y
+  descripción, archivar/restaurar y eliminar con confirmación y undo.
+- Vínculo de tarjetas, notas y sesiones a proyectos desde el detalle/editor.
+- Recuento de menciones por entidad desde el event log del plugin.
+- Pulido de UI: empty state consistente con el resto de la app, cards de
+  proyecto compactas, y columnas del kanban con alto fijo y scroll interno.
+
 ## [1.20.0] - 2026-09-09
 
 ### Mobile (Android)
