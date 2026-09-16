@@ -76,3 +76,23 @@ export interface Link {
   url: string
   category: string
 }
+
+export interface Project {
+  id: string
+  name: string
+  color: string
+  description: string
+  archived: boolean
+  createdAt: string
+  archivedAt?: number | null
+}
+
+export type ProjectEntityType = 'work_card' | 'work_note' | 'work_focus_session'
+
+export interface ProjectLink {
+  id: string
+  projectId: string
+  entityType: ProjectEntityType
+  entityId: string
+  createdAt: string
+}

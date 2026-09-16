@@ -65,6 +65,8 @@ const ALLOWED_TABLE_COLUMNS: Record<string, Set<string>> = {
     'paused_at',
     'paused_total',
   ]),
+  work_projects: new Set(['id', 'name', 'color', 'description', 'archived', 'archived_at', 'created_at']),
+  work_project_links: new Set(['id', 'project_id', 'entity_type', 'entity_id', 'created_at']),
   core_tags: new Set(['id', 'name', 'color', 'created_at']),
   core_tag_links: new Set(['tag_id', 'entity_type', 'entity_id', 'created_at']),
   core_templates: new Set(['id', 'plugin_id', 'name', 'kind', 'content', 'created_at', 'updated_at']),
