@@ -152,6 +152,50 @@ describe('computeProjectStats', () => {
     expect(s.sessionCount).toBe(1)
   })
 
+  it('computes focusMs from sessions of a linked card via taskId', () => {
+    const project = makeProject({ id: 'p1' })
+    const links = [makeLink({ id: 'l1', projectId: 'p1', entityType: 'work_card', entityId: 'c1' })]
+    const cards = [makeCard({ id: 'c1' })]
+    const sessions = [
+      makeSession({ id: 'f1', taskId: 'c1', duration: 1_200_000, endTime: 5_000_000, interrupted: false }),
+      makeSession({ id: 'f2', taskId: 'c1', duration: 2_000_000, endTime: 6_000_000, interrupted: true }),
+      makeSession({ id: 'f3', taskId: 'c2', duration: 9_000_000, endTime: 7_000_000, interrupted: false }),
+    ]
+
+    const stats = computeProjectStats([project], links, cards, [], sessions, [])
+    const s = stats.get('p1')!
+    expect(s.focusMs).toBe(1_200_000)
+    expect(s.sessionCount).toBe(1)
+  })
+
+  it('counts mentions for sessions derived from linked cards', () => {
+    const project = makeProject({ id: 'p1' })
+    const links = [makeLink({ id: 'l1', projectId: 'p1', entityType: 'work_card', entityId: 'c1' })]
+    const cards = [makeCard({ id: 'c1' })]
+    const sessions = [makeSession({ id: 'f1', taskId: 'c1' })]
+    const events = [
+      makeEvent({ id: 1, event_type: 'WORK_FOCUS_COMPLETED', payload: JSON.stringify({ taskId: 'f1' }) }),
+    ]
+
+    const stats = computeProjectStats([project], links, cards, [], sessions, events)
+    expect(stats.get('p1')!.mentionCount).toBe(1)
+  })
+
+  it('no duplica sesiones alcanzadas por tarjeta y vínculo explícito a la vez', () => {
+    const project = makeProject({ id: 'p1' })
+    const links = [
+      makeLink({ id: 'l1', projectId: 'p1', entityType: 'work_card', entityId: 'c1' }),
+      makeLink({ id: 'l2', projectId: 'p1', entityType: 'work_focus_session', entityId: 'f1' }),
+    ]
+    const cards = [makeCard({ id: 'c1' })]
+    const sessions = [makeSession({ id: 'f1', taskId: 'c1', duration: 1_500_000, interrupted: false })]
+
+    const stats = computeProjectStats([project], links, cards, [], sessions, [])
+    const s = stats.get('p1')!
+    expect(s.sessionCount).toBe(1)
+    expect(s.focusMs).toBe(1_500_000)
+  })
+
   it('falls back to endTime - startTime when duration is undefined', () => {
     const project = makeProject({ id: 'p1' })
     const links = [

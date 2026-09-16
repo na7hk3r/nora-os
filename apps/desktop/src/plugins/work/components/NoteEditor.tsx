@@ -20,6 +20,7 @@ import { useToast } from '@core/ui/components/ToastProvider'
 import { messages } from '@core/ui/messages'
 import { useI18n } from '@core/i18n'
 import { noteExtractionService } from '../noteExtractionService'
+import { unlinkEntityLinks } from '../projects'
 import { GlobalTagChip, GlobalTagPicker, type TagSelection } from '@core/ui/components/GlobalTagPicker'
 import { TAG_ENTITY_TYPES, tagsService } from '@core/services/tagsService'
 
@@ -419,6 +420,7 @@ export function NoteEditor() {
     deleteNote(id)
     void window.storage.execute('DELETE FROM work_notes WHERE id = ?', [id])
     void tagsService.unlinkEntity(TAG_ENTITY_TYPES.WORK_NOTE, id)
+    void unlinkEntityLinks('work_note', id)
     if (selectedId === id) {
       setSelectedId(null)
       setTitle('')

@@ -54,10 +54,18 @@ export function computeProjectStats(
     const linkedNotes = notes.filter((note) =>
       projectLinks.some((l) => l.entityType === 'work_note' && l.entityId === note.id),
     )
+    const linkedCardIds = linkedCards.map((c) => c.id)
     const linkedSessionIds = projectLinks
       .filter((l) => l.entityType === 'work_focus_session')
       .map((l) => l.entityId)
-    const linkedSessions = sessions.filter((s) => linkedSessionIds.includes(s.id))
+
+    // Las sesiones de foco pertenecen al proyecto por su tarjeta (taskId es
+    // el id de la tarjeta vinculada) o por un vínculo explícito
+    // work_focus_session (camino reservado para el futuro).
+    const sessionIdSet = new Set<string>([...linkedCardIds, ...linkedSessionIds])
+    const linkedSessions = sessions.filter(
+      (s) => sessionIdSet.has(s.taskId ?? '') || sessionIdSet.has(s.id),
+    )
 
     let focusMs = 0
     let sessionCount = 0
@@ -67,11 +75,14 @@ export function computeProjectStats(
       sessionCount += 1
     }
 
-    const mentionEntityIds = [
-      ...linkedCards.map((c) => c.id),
-      ...linkedNotes.map((n) => n.id),
-      ...linkedSessionIds,
-    ]
+    const mentionEntityIds = Array.from(
+      new Set([
+        ...linkedCards.map((c) => c.id),
+        ...linkedNotes.map((n) => n.id),
+        ...linkedSessions.map((s) => s.id),
+        ...linkedSessionIds,
+      ]),
+    )
     let mentionCount = 0
     for (const entityId of mentionEntityIds) {
       mentionCount += mentions.get(entityId) ?? 0
