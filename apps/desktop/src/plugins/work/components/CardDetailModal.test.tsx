@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { Card } from '../types'
+import type { Card, Project } from '../types'
 import { useWorkStore } from '../store'
 import { CardDetailModal } from './CardDetailModal'
 import * as projectsService from '../projects'
@@ -17,6 +17,23 @@ const baseCard: Card = {
   priority: null,
   estimateMinutes: null,
   checklist: [],
+}
+
+const project: Project = {
+  id: 'proj_1',
+  name: 'Alpha',
+  color: '#60a5fa',
+  description: '',
+  archived: false,
+  createdAt: '2026-09-01T10:00:00.000Z',
+  archivedAt: null,
+}
+
+function optionButton(name: RegExp | string): HTMLButtonElement {
+  const option = screen.getByRole('option', { name })
+  const button = option.querySelector('button')
+  if (!button) throw new Error(`No button inside option ${name}`)
+  return button
 }
 
 describe('CardDetailModal', () => {
@@ -82,5 +99,18 @@ describe('CardDetailModal', () => {
     fireEvent.click(screen.getByRole('button', { name: /confirmar eliminación/i }))
 
     await waitFor(() => expect(unlinkSpy).toHaveBeenCalledWith('work_card', 'card_1'))
+  })
+
+  it('vincula la tarjeta al proyecto elegido en el picker', async () => {
+    const onClose = vi.fn()
+    const linkSpy = vi.spyOn(projectsService, 'linkEntity').mockResolvedValue()
+    useWorkStore.setState({ projects: [project] })
+
+    render(<CardDetailModal card={baseCard} onClose={onClose} />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Proyecto' }))
+    fireEvent.click(optionButton('Alpha'))
+
+    await waitFor(() => expect(linkSpy).toHaveBeenCalledWith('proj_1', 'work_card', 'card_1'))
   })
 })

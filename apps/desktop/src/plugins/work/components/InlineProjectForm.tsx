@@ -10,7 +10,7 @@ interface Props {
   onCancel: () => void
 }
 
-const COLOR_PRESETS: string[] = [
+export const PROJECT_COLOR_PRESETS: string[] = [
   '#60a5fa',
   '#34d399',
   '#fbbf24',
@@ -30,7 +30,7 @@ const DEFAULT_NAME = 'Nuevo proyecto'
  */
 export function InlineProjectForm({ onCreated, onCancel }: Props) {
   const [name, setName] = useState('')
-  const [color, setColor] = useState(COLOR_PRESETS[0])
+  const [color, setColor] = useState(PROJECT_COLOR_PRESETS[0])
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -74,7 +74,7 @@ export function InlineProjectForm({ onCreated, onCancel }: Props) {
           Color
         </legend>
         <div className="flex flex-wrap gap-2">
-          {COLOR_PRESETS.map((preset) => (
+          {PROJECT_COLOR_PRESETS.map((preset) => (
             <button
               key={preset}
               type="button"

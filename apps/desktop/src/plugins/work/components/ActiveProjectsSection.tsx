@@ -3,7 +3,7 @@ import { FolderKanban, Plus } from 'lucide-react'
 import { storageAPI } from '@core/storage/StorageAPI'
 import { eventBus } from '@core/events/EventBus'
 import type { EventLogEntry } from '@core/types'
-import { archiveProject, createProject, deleteProject, linkEntity } from '../projects'
+import { archiveProject, createProject, deleteProject, linkEntity, updateProject } from '../projects'
 import { computeProjectStats } from '../projectsAggregation'
 import { useWorkStore } from '../store'
 import { WORK_EVENTS } from '../events'
@@ -66,7 +66,13 @@ export function ActiveProjectsSection() {
   const handleArchive = async (projectId: string) => {
     await archiveProject(projectId)
     if (selectedProjectId === projectId) setSelectedProjectId(null)
-    toast.success('Proyecto archivado')
+    toast.undo({
+      message: 'Proyecto archivado',
+      onUndo: async () => {
+        await updateProject(projectId, { archived: false, archivedAt: null })
+        toast.success('Proyecto restaurado')
+      },
+    })
   }
 
   const handleDelete = async (projectId: string) => {

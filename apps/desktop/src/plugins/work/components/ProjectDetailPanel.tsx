@@ -1,6 +1,10 @@
-import { Link2, X } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Link2, Palette, X } from 'lucide-react'
 import type { Card, Note, Project, ProjectLink } from '../types'
 import type { ProjectStats } from '../projectsAggregation'
+import { updateProject } from '../projects'
+import { useToast } from '@core/ui/components/ToastProvider'
+import { PROJECT_COLOR_PRESETS } from './InlineProjectForm'
 
 interface Props {
   project: Project
@@ -63,22 +67,138 @@ export function ProjectDetailPanel({
   onArchive,
   onDelete,
 }: Props) {
+  const { toast } = useToast()
+  const [editing, setEditing] = useState(false)
+  const [name, setName] = useState(project.name)
+  const [color, setColor] = useState(project.color)
+  const [description, setDescription] = useState(project.description)
+  const [saving, setSaving] = useState(false)
+
+  // Sincroniza el formulario cuando cambia el proyecto seleccionado.
+  useEffect(() => {
+    setName(project.name)
+    setColor(project.color)
+    setDescription(project.description)
+    setEditing(false)
+  }, [project.id, project.name, project.color, project.description])
+
+  const handleSave = async () => {
+    if (saving || !name.trim()) return
+    setSaving(true)
+    try {
+      await updateProject(project.id, { name: name.trim(), color, description })
+      toast.success('Proyecto actualizado')
+      setEditing(false)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleCancel = () => {
+    setName(project.name)
+    setColor(project.color)
+    setDescription(project.description)
+    setEditing(false)
+  }
+
   return (
     <aside className="plugin-panel flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4">
       <div className="flex items-start justify-between gap-2">
-        <div className="flex min-w-0 flex-1 items-start gap-2">
-          <span
-            className="mt-0.5 h-3 w-3 shrink-0 rounded-full"
-            style={{ backgroundColor: project.color }}
-            aria-hidden="true"
-          />
-          <div className="min-w-0 flex-1">
-            <h4 className="truncate text-sm font-semibold text-white">{project.name}</h4>
-            {project.description && (
-              <p className="mt-0.5 line-clamp-2 text-xs text-muted">{project.description}</p>
-            )}
+        {editing ? (
+          <form
+            onSubmit={(event) => {
+              event.preventDefault()
+              void handleSave()
+            }}
+            className="flex min-w-0 flex-1 flex-col gap-3"
+            aria-label="Editar proyecto"
+          >
+            <label className="flex flex-col gap-1">
+              <span className="text-xs text-muted">Nombre</span>
+              <input
+                type="text"
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                autoFocus
+                className="rounded-xl border border-border bg-surface px-3 py-2 text-sm text-white placeholder:text-muted focus:border-accent/60 focus:outline-none"
+              />
+            </label>
+
+            <fieldset className="flex flex-col gap-1.5">
+              <legend className="flex items-center gap-1.5 text-xs text-muted">
+                <Palette size={12} aria-hidden="true" />
+                Color
+              </legend>
+              <div className="flex flex-wrap gap-2">
+                {PROJECT_COLOR_PRESETS.map((preset) => (
+                  <button
+                    key={preset}
+                    type="button"
+                    onClick={() => setColor(preset)}
+                    aria-label={`Color ${preset}`}
+                    aria-pressed={color === preset}
+                    className={`h-6 w-6 rounded-full transition-transform ${
+                      color === preset ? 'scale-110 ring-2 ring-white/70' : 'hover:scale-105'
+                    }`}
+                    style={{ backgroundColor: preset }}
+                  />
+                ))}
+              </div>
+            </fieldset>
+
+            <label className="flex flex-col gap-1">
+              <span className="text-xs text-muted">Descripción</span>
+              <textarea
+                value={description}
+                onChange={(event) => setDescription(event.target.value)}
+                rows={2}
+                placeholder="Descripción opcional..."
+                className="resize-none rounded-xl border border-border bg-surface px-3 py-2 text-sm text-white placeholder:text-muted focus:border-accent/60 focus:outline-none"
+              />
+            </label>
+
+            <div className="flex items-center justify-end gap-2">
+              <button
+                type="button"
+                onClick={handleCancel}
+                className="rounded-xl border border-border px-3 py-2 text-sm text-muted transition-colors hover:border-accent/40 hover:text-white"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                disabled={saving || !name.trim()}
+                className="rounded-xl bg-accent px-3 py-2 text-sm font-medium text-white transition-opacity disabled:opacity-50"
+              >
+                {saving ? 'Guardando...' : 'Guardar'}
+              </button>
+            </div>
+          </form>
+        ) : (
+          <div className="flex min-w-0 flex-1 items-start gap-2">
+            <span
+              className="mt-0.5 h-3 w-3 shrink-0 rounded-full"
+              style={{ backgroundColor: project.color }}
+              aria-hidden="true"
+            />
+            <div className="min-w-0 flex-1">
+              <h4 className="truncate text-sm font-semibold text-white">{project.name}</h4>
+              {project.description && (
+                <p className="mt-0.5 line-clamp-2 text-xs text-muted">{project.description}</p>
+              )}
+            </div>
           </div>
-        </div>
+        )}
+        {!editing && (
+          <button
+            type="button"
+            onClick={() => setEditing(true)}
+            aria-label="Editar proyecto"
+            className="shrink-0 rounded-lg border border-border px-2 py-1.5 text-xs text-muted transition-colors hover:border-accent/40 hover:text-white focus:outline-none"
+          >
+            Editar
+          </button>
+        )}
         <button
           type="button"
           title="Cerrar detalle"

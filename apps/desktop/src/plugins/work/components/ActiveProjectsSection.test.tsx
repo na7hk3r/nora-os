@@ -117,4 +117,31 @@ describe('ActiveProjectsSection', () => {
     await waitFor(() => expect(deleteSpy).toHaveBeenCalledWith('proj_1'))
     expect(screen.getByText(/proyecto eliminado/i)).toBeInTheDocument()
   })
+
+  it('crea un proyecto desde el formulario inline y lo muestra en la lista', async () => {
+    const createSpy = vi
+      .spyOn(projectsService, 'createProject')
+      .mockImplementation(async (input) => {
+        const created: Project = {
+          ...project,
+          id: 'proj_2',
+          name: input.name,
+          color: input.color,
+        }
+        useWorkStore.getState().addProject(created)
+        return created
+      })
+
+    renderSection()
+
+    fireEvent.click(screen.getByRole('button', { name: /nuevo proyecto/i }))
+    const nameInput = screen.getByPlaceholderText(/nuevo proyecto/i)
+    fireEvent.change(nameInput, { target: { value: 'Proyecto nuevo' } })
+    fireEvent.click(screen.getByRole('button', { name: /crear/i }))
+
+    await waitFor(() =>
+      expect(createSpy).toHaveBeenCalledWith(expect.objectContaining({ name: 'Proyecto nuevo' })),
+    )
+    expect(await screen.findByText('Proyecto nuevo')).toBeInTheDocument()
+  })
 })
