@@ -331,7 +331,7 @@ export function CommandPalette({ onShortcutHandled }: CommandPaletteProps) {
     if (!showHint) return null
     return (
       <div
-        className="fixed bottom-4 left-1/2 z-[90] -translate-x-1/2 animate-pulse rounded-full border border-accent/40 bg-surface-light/95 px-4 py-2 text-xs text-foreground shadow-2xl backdrop-blur"
+        className="fixed bottom-4 left-1/2 z-[90] -translate-x-1/2 rounded-full bg-surface-light/90 px-4 py-2 text-xs text-foreground backdrop-blur"
         role="status"
       >
         <span>
@@ -357,7 +357,7 @@ export function CommandPalette({ onShortcutHandled }: CommandPaletteProps) {
       aria-label={t.commandPalette.aria}
     >
       <div
-        className="w-full max-w-2xl overflow-hidden rounded-2xl border border-border bg-surface-light shadow-2xl"
+        className="w-full max-w-2xl overflow-hidden rounded-2xl bg-surface-light shadow-2xl"
         onClick={(e) => e.stopPropagation()}
         onKeyDown={onKeyDown}
       >
@@ -419,7 +419,7 @@ export function CommandPalette({ onShortcutHandled }: CommandPaletteProps) {
                     <p className="truncate text-sm">{r.title}</p>
                     {r.subtitle && <p className="truncate text-xs text-muted">{r.subtitle}</p>}
                   </div>
-                  <span className="shrink-0 rounded bg-surface-lighter px-1.5 py-0.5 text-micro uppercase tracking-wider text-muted">
+                  <span className="shrink-0 rounded bg-surface-lighter px-1.5 py-0.5 text-micro uppercase tracking-eyebrow text-muted">
                     {t.commandPalette.kinds[r.kind]}
                   </span>
                 </button>
@@ -428,7 +428,7 @@ export function CommandPalette({ onShortcutHandled }: CommandPaletteProps) {
           )}
         </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-t border-border px-4 py-2 text-micro uppercase tracking-wider text-muted">
+        <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 border-t border-border px-4 py-2 text-micro uppercase tracking-eyebrow text-muted">
           <span><kbd className="rounded bg-surface-lighter px-1">↑</kbd> <kbd className="rounded bg-surface-lighter px-1">↓</kbd> {t.commandPalette.footerNavigate}</span>
           <span><kbd className="rounded bg-surface-lighter px-1">Enter</kbd> {t.commandPalette.footerOpen}</span>
           <span><kbd className="rounded bg-surface-lighter px-1">Ctrl</kbd>+<kbd className="rounded bg-surface-lighter px-1">/</kbd> {t.commandPalette.footerOpenBeside}</span>

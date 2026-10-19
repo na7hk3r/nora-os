@@ -88,8 +88,8 @@ export function FeedbackLauncher({
         aria-haspopup="dialog"
         className={
           collapsed
-            ? 'mx-auto inline-flex h-9 w-9 items-center justify-center rounded-md border border-border bg-surface text-muted transition-colors hover:border-accent/40 hover:text-accent-light'
-            : 'flex w-full items-center justify-center gap-2 rounded-md border border-border bg-surface px-2 py-1.5 text-xs text-muted transition-colors hover:border-accent/40 hover:text-white'
+            ? 'mx-auto inline-flex h-9 w-9 items-center justify-center rounded-md text-muted transition-colors hover:bg-surface-lighter hover:text-accent-light'
+            : 'flex w-full items-center justify-center gap-2 rounded-md px-2 py-1.5 text-xs text-muted transition-colors hover:bg-surface-lighter hover:text-white'
         }
         title="Enviar feedback beta"
       >

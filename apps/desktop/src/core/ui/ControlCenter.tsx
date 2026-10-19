@@ -447,7 +447,7 @@ export function ControlCenter() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <section className="relative overflow-hidden rounded-2xl border border-border bg-surface-light/90 p-6 shadow-xl">
+      <section className="relative overflow-hidden rounded-2xl bg-surface-light/90 p-6">
         {/* Decoración de marca */}
         <BrandIcon
           name="Tools"
@@ -457,8 +457,8 @@ export function ControlCenter() {
         />
         <div className="relative flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
           <div className="min-w-0">
-            <p className="text-xs uppercase tracking-[0.24em] text-muted">{t.control.eyebrow}</p>
-            <h1 className="mt-2 flex items-center gap-3 text-3xl font-semibold text-white">
+            <p className="text-xs uppercase tracking-eyebrow text-muted">{t.control.eyebrow}</p>
+            <h1 className="mt-2 flex items-center gap-3 text-display font-semibold text-white">
               {t.control.title}
               <AuditHeaderBadge />
             </h1>
@@ -480,7 +480,7 @@ export function ControlCenter() {
         </div>
       </section>
 
-      <nav className="rounded-2xl border border-border bg-surface-light/95 px-3 py-2 shadow-lg backdrop-blur">
+      <nav className="rounded-2xl px-3 py-2">
         <div className="flex flex-wrap items-center gap-2">
           {[
             ['profile', t.control.nav.profile],
@@ -511,29 +511,29 @@ export function ControlCenter() {
 
       {/* KPIs */}
       <section className="workspace-auto-grid-sm gap-4">
-        <article className="flex items-center gap-4 rounded-2xl border border-border bg-surface-light/80 p-5">
+        <article className="flex items-center gap-4 rounded-2xl bg-surface-light/80 p-5">
           <BrandIcon name="Chip" size={40} />
           <div className="min-w-0">
-            <p className="truncate text-xs uppercase tracking-wide text-muted">{t.control.kpis.activeModules}</p>
-            <p className="mt-1 text-3xl font-semibold">{activePlugins}</p>
+            <p className="truncate text-xs uppercase tracking-label text-muted">{t.control.kpis.activeModules}</p>
+            <p className="mt-1 text-display font-semibold">{activePlugins}</p>
             <p className="mt-0.5 truncate text-sm text-muted">{t.control.kpis.registered(plugins.length)}</p>
           </div>
         </article>
-        <article className="flex items-center gap-4 rounded-2xl border border-border bg-surface-light/80 p-5">
+        <article className="flex items-center gap-4 rounded-2xl bg-surface-light/80 p-5">
           <BrandIcon name="Cards" size={40} />
           <div className="min-w-0">
-            <p className="truncate text-xs uppercase tracking-wide text-muted">{t.control.kpis.dashboardWidgets}</p>
-            <p className="mt-1 text-3xl font-semibold">{metrics.widgets}</p>
+            <p className="truncate text-xs uppercase tracking-label text-muted">{t.control.kpis.dashboardWidgets}</p>
+            <p className="mt-1 text-display font-semibold">{metrics.widgets}</p>
             <p className="mt-0.5 truncate text-sm text-muted">{t.control.kpis.connectedReady}</p>
           </div>
         </article>
-        <article className="flex items-center gap-4 rounded-2xl border border-border bg-surface-light/80 p-5">
+        <article className="flex items-center gap-4 rounded-2xl bg-surface-light/80 p-5">
           <BrandIcon name="TomeAtlas" size={40} />
           <div className="min-w-0">
-            <p className="truncate text-xs uppercase tracking-wide text-muted">
+            <p className="truncate text-xs uppercase tracking-label text-muted">
               {language === 'en' ? 'Operation routes' : 'Rutas de operacion'}
             </p>
-            <p className="mt-1 text-3xl font-semibold">{metrics.pages}</p>
+            <p className="mt-1 text-display font-semibold">{metrics.pages}</p>
             <p className="mt-0.5 truncate text-sm text-muted">
               {language === 'en'
                 ? `${metrics.navItems} nav entries`

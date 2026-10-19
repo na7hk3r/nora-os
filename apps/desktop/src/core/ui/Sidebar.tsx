@@ -417,12 +417,12 @@ export function Sidebar({ drawerOpen = false }: SidebarProps) {
     <aside
       role="complementary"
       aria-label={t.sidebar.aria}
-      className={`fixed left-0 top-0 z-50 flex h-full flex-col border-r border-border bg-surface-light/95 backdrop-blur-md transition-all duration-200 lg:z-40 ${
+      className={`fixed left-0 top-0 z-50 flex h-full flex-col bg-surface-light/95 backdrop-blur-md transition-all duration-200 lg:z-40 ${
         drawerOpen ? 'translate-x-0' : 'translate-x-[-100%] lg:translate-x-0'
       } ${sidebarCollapsed ? 'w-16' : 'w-56'}`}
     >
       {/* Header */}
-      <div className="flex h-16 items-center justify-between border-b border-border px-4">
+      <div className="flex h-16 items-center justify-between px-4">
         {!sidebarCollapsed && (
           <div className="flex min-w-0 items-center gap-2.5">
             {/* Logo oficial Nora OS - ver visual-id/. */}
@@ -531,12 +531,12 @@ export function Sidebar({ drawerOpen = false }: SidebarProps) {
       {!sidebarCollapsed && (
         <WorkspaceNavLink
           to="/review"
-          className="mx-2 mb-2 block rounded-xl border border-border bg-surface/60 p-2.5 transition-colors hover:border-accent/40"
+          className="mx-2 mb-2 block rounded-xl bg-surface/60 p-2.5 transition-colors hover:bg-surface/80"
           title={t.sidebar.progressTitle(level, points)}
         >
           <div className="flex items-center gap-2">
             <div className="relative -ml-1 flex h-14 w-14 shrink-0 items-end justify-center">
-              <div className="absolute bottom-1 h-2 w-9 rounded-[50%] bg-black/35 blur-xs" aria-hidden />
+              <div className="absolute bottom-1 h-2 w-9 rounded-[50%] bg-black/20 blur-xs" aria-hidden />
               <NoriSprite level={level} size="md" decorative className="relative z-10 -mb-1" />
             </div>
             <div className="min-w-0 flex-1">
@@ -549,7 +549,7 @@ export function Sidebar({ drawerOpen = false }: SidebarProps) {
                   </span>
                 )}
               </div>
-              <p className="truncate text-[10px] uppercase tracking-eyebrow text-muted">
+              <p className="truncate text-micro uppercase tracking-eyebrow text-muted">
                 {t.gamification.stages[noriStage.id]?.title ?? noriStage.title}
               </p>
               <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-surface-lighter">
@@ -564,7 +564,7 @@ export function Sidebar({ drawerOpen = false }: SidebarProps) {
       )}
 
       {/* Footer */}
-      <div className="border-t border-border p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] text-center text-xs text-muted">
+      <div className="p-2 pt-9 pb-[calc(0.75rem+env(safe-area-inset-bottom))] text-center text-xs text-muted">
         {sidebarCollapsed ? (
           <FeedbackLauncher collapsed />
         ) : (
@@ -573,10 +573,10 @@ export function Sidebar({ drawerOpen = false }: SidebarProps) {
               <WorkspaceNavLink
                 to="/control"
                 className={({ isActive }) =>
-                  `flex flex-1 items-center justify-center gap-2 rounded-md border px-2 py-1.5 text-xs transition-colors ${
+                  `flex flex-1 items-center justify-center gap-2 rounded-md px-2 py-1.5 text-xs transition-colors ${
                     isActive
-                      ? 'border-accent/60 bg-accent/15 text-accent-light'
-                      : 'border-border bg-surface text-muted hover:border-accent/40 hover:text-white'
+                      ? 'bg-accent/15 text-accent-light'
+                      : 'text-muted hover:bg-surface-lighter hover:text-white'
                   }`
                 }
                 title={t.common.settings}
@@ -587,7 +587,7 @@ export function Sidebar({ drawerOpen = false }: SidebarProps) {
               <SystemSuggestions />
               <button
                 onClick={() => void logout()}
-                className="flex items-center justify-center gap-2 rounded-md border border-border bg-surface px-2 py-1.5 text-xs text-muted transition-colors hover:border-accent/40 hover:text-white"
+                className="flex items-center justify-center gap-2 rounded-md px-2 py-1.5 text-xs text-muted transition-colors hover:bg-surface-lighter hover:text-white"
                 title={t.sidebar.logout}
                 aria-label={t.sidebar.logout}
               >
@@ -597,7 +597,7 @@ export function Sidebar({ drawerOpen = false }: SidebarProps) {
             <FeedbackLauncher />
             <WorkspaceNavLink
               to="/shortcuts"
-              className="flex w-full items-center justify-center gap-2 rounded-md border border-border bg-surface px-2 py-1.5 text-xs text-muted transition-colors hover:border-accent/40 hover:text-white"
+              className="flex w-full items-center justify-center gap-2 rounded-md px-2 py-1.5 text-xs text-muted transition-colors hover:bg-surface-lighter hover:text-white"
               title={t.routes['core-shortcuts']}
             >
               <Keyboard size={14} />

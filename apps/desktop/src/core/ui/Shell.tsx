@@ -132,7 +132,7 @@ export function Shell({ onGlobalShortcut }: ShellProps) {
             onClick={goBack}
             aria-label={t.shell.goBackAria}
             title={t.shell.goBackAria}
-            className={`fixed top-4 z-30 inline-flex items-center gap-2 rounded-full border border-border bg-surface-light/90 px-3 py-2 text-xs font-medium text-muted shadow-lg shadow-black/20 backdrop-blur transition-all hover:border-accent/50 hover:text-white ${
+            className={`fixed top-4 z-30 inline-flex items-center gap-2 rounded-full bg-surface-light/80 px-3 py-2 text-xs font-medium text-muted backdrop-blur transition-all hover:bg-surface-light hover:text-white ${
               sidebarCollapsed ? 'left-20' : 'left-60'
             }`}
           >

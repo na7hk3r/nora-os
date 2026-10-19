@@ -65,14 +65,14 @@ export function CollapsibleSection({
 
   return (
     <section
-      className={`overflow-hidden rounded-2xl border border-border bg-surface-light/85 ${className}`}
+      className={`overflow-hidden rounded-2xl bg-surface-light/50 ${className}`}
     >
       <button
         type="button"
         onClick={() => setOpen((prev) => !prev)}
         aria-expanded={open}
         aria-controls={`cc-section-${id}`}
-        className="group flex w-full items-center gap-3 px-6 py-4 text-left transition-colors hover:bg-surface-light"
+        className="group flex w-full items-center gap-3 px-6 py-3 text-left transition-colors hover:bg-surface-light"
       >
         {icon && <span className="shrink-0 text-accent-light">{icon}</span>}
         <div className="min-w-0 flex-1">
@@ -98,7 +98,7 @@ export function CollapsibleSection({
         />
       </button>
       {open && (
-        <div id={`cc-section-${id}`} className="px-6 pb-6 pt-2">
+        <div id={`cc-section-${id}`} className="px-6 pb-5 pt-2">
           {children}
         </div>
       )}
