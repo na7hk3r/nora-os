@@ -120,7 +120,7 @@ export function ProjectDetailPanel({
                 value={name}
                 onChange={(event) => setName(event.target.value)}
                 autoFocus
-                className="rounded-xl border border-border bg-surface px-3 py-2 text-sm text-white placeholder:text-muted focus:border-accent/60 focus:outline-none"
+                className="rounded-xl border border-border bg-surface px-3 py-2 text-sm text-white placeholder:text-muted focus:border-accent/60 focus:outline-hidden"
               />
             </label>
 
@@ -153,7 +153,7 @@ export function ProjectDetailPanel({
                 onChange={(event) => setDescription(event.target.value)}
                 rows={2}
                 placeholder="Descripción opcional..."
-                className="resize-none rounded-xl border border-border bg-surface px-3 py-2 text-sm text-white placeholder:text-muted focus:border-accent/60 focus:outline-none"
+                className="resize-none rounded-xl border border-border bg-surface px-3 py-2 text-sm text-white placeholder:text-muted focus:border-accent/60 focus:outline-hidden"
               />
             </label>
 
@@ -194,7 +194,7 @@ export function ProjectDetailPanel({
             type="button"
             onClick={() => setEditing(true)}
             aria-label="Editar proyecto"
-            className="shrink-0 rounded-lg border border-border px-2 py-1.5 text-xs text-muted transition-colors hover:border-accent/40 hover:text-white focus:outline-none"
+            className="shrink-0 rounded-lg border border-border px-2 py-1.5 text-xs text-muted transition-colors hover:border-accent/40 hover:text-white focus:outline-hidden"
           >
             Editar
           </button>
@@ -204,7 +204,7 @@ export function ProjectDetailPanel({
           title="Cerrar detalle"
           aria-label="Cerrar detalle"
           onClick={onDeselect}
-          className="shrink-0 rounded-lg p-1.5 text-muted transition-colors hover:bg-surface-light hover:text-white focus:outline-none"
+          className="shrink-0 rounded-lg p-1.5 text-muted transition-colors hover:bg-surface-light hover:text-white focus:outline-hidden"
         >
           <X size={14} aria-hidden="true" />
         </button>

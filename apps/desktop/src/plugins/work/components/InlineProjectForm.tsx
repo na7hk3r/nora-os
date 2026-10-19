@@ -64,7 +64,7 @@ export function InlineProjectForm({ onCreated, onCancel }: Props) {
           onChange={(event) => setName(event.target.value)}
           placeholder={DEFAULT_NAME}
           autoFocus
-          className="rounded-xl border border-border bg-surface px-3 py-2 text-sm text-white placeholder:text-muted focus:border-accent/60 focus:outline-none"
+          className="rounded-xl border border-border bg-surface px-3 py-2 text-sm text-white placeholder:text-muted focus:border-accent/60 focus:outline-hidden"
         />
       </label>
 

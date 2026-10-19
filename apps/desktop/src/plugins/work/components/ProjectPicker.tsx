@@ -73,7 +73,7 @@ export function ProjectPicker({ value, projects, onChange, onCreate }: Props) {
         aria-label="Proyecto"
         onClick={() => setOpen((prev) => !prev)}
         onKeyDown={handleKeyDown}
-        className="flex w-full items-center gap-2 rounded-xl border border-border bg-surface px-3 py-2 text-sm text-white transition-colors hover:border-accent/40 focus:border-accent/60 focus:outline-none"
+        className="flex w-full items-center gap-2 rounded-xl border border-border bg-surface px-3 py-2 text-sm text-white transition-colors hover:border-accent/40 focus:border-accent/60 focus:outline-hidden"
       >
         {value ? (
           <>

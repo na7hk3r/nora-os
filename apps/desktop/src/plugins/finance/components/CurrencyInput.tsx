@@ -37,7 +37,7 @@ export function CurrencyInput({
           const next = event.target.value
           onChange(next === CUSTOM_VALUE ? raw || normalized : next)
         }}
-        className={`min-w-0 rounded-lg border border-border bg-surface px-2 py-2 text-sm text-white outline-none focus:border-accent ${selectClassName}`}
+        className={`min-w-0 rounded-lg border border-border bg-surface px-2 py-2 text-sm text-white outline-hidden focus:border-accent ${selectClassName}`}
       >
         {options.map((currency) => (
           <option key={currency} value={currency}>{currency}</option>
@@ -50,7 +50,7 @@ export function CurrencyInput({
           onChange={(event) => onChange(event.target.value.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 3))}
           maxLength={3}
           placeholder="ABC"
-          className={`w-20 rounded-lg border border-border bg-surface px-2 py-2 text-sm uppercase text-white outline-none focus:border-accent ${inputClassName}`}
+          className={`w-20 rounded-lg border border-border bg-surface px-2 py-2 text-sm uppercase text-white outline-hidden focus:border-accent ${inputClassName}`}
         />
       )}
     </div>

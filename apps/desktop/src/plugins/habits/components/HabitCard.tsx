@@ -60,7 +60,7 @@ export function HabitCard({ habit }: Props) {
       } disabled:opacity-50`}
     >
       <span
-        className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl text-base font-semibold ${
+        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-base font-semibold ${
           completed ? 'text-white' : 'text-white/70'
         }`}
         style={{ backgroundColor: completed ? color : `${color}33`, border: `1px solid ${color}66` }}

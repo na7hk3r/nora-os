@@ -300,7 +300,7 @@ export function AuthScreen() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               placeholder={t.auth.username}
-              className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm outline-none focus:border-accent"
+              className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm outline-hidden focus:border-accent"
               autoComplete="username"
               required
             />
@@ -338,7 +338,7 @@ export function AuthScreen() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               placeholder={t.auth.username}
-              className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm outline-none focus:border-accent"
+              className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm outline-hidden focus:border-accent"
               autoComplete="username"
               required
             />
@@ -354,14 +354,14 @@ export function AuthScreen() {
               value={registerQuestion}
               onChange={(e) => setRegisterQuestion(e.target.value)}
               placeholder={t.auth.recoveryQuestion}
-              className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm outline-none focus:border-accent"
+              className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm outline-hidden focus:border-accent"
               required
             />
             <input
               value={registerAnswer}
               onChange={(e) => setRegisterAnswer(e.target.value)}
               placeholder={t.auth.recoveryAnswerPrivate}
-              className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm outline-none focus:border-accent"
+              className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm outline-hidden focus:border-accent"
               required
             />
             <button
@@ -381,7 +381,7 @@ export function AuthScreen() {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder={t.auth.username}
-                className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm outline-none focus:border-accent"
+                className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm outline-hidden focus:border-accent"
                 required
               />
               <button
@@ -402,7 +402,7 @@ export function AuthScreen() {
                   value={recoveryAnswer}
                   onChange={(e) => setRecoveryAnswer(e.target.value)}
                   placeholder={t.auth.recoveryAnswer}
-                  className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm outline-none focus:border-accent"
+                  className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm outline-hidden focus:border-accent"
                   required
                 />
                 <PasswordField
@@ -433,12 +433,12 @@ export function AuthScreen() {
           }`}>
             {error ? (
               <>
-                <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-red-400" />
+                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-400" />
                 <p className="text-red-200">{error}</p>
               </>
             ) : (
               <>
-                <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0 text-emerald-400" />
+                <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />
                 <p className="text-emerald-200">{recoveryMessage}</p>
               </>
             )}
@@ -491,7 +491,7 @@ function PasswordField({
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
         type={visible ? 'text' : 'password'}
-        className="w-full rounded-lg border border-border bg-surface px-3 py-2 pr-10 text-sm outline-none focus:border-accent"
+        className="w-full rounded-lg border border-border bg-surface px-3 py-2 pr-10 text-sm outline-hidden focus:border-accent"
         autoComplete={autoComplete}
         required
       />
@@ -500,7 +500,7 @@ function PasswordField({
         onClick={onToggle}
         aria-label={visible ? t.auth.hidePassword : t.auth.showPassword}
         title={visible ? t.auth.hidePassword : t.auth.showPassword}
-        className="absolute inset-y-0 right-0 flex w-10 items-center justify-center rounded-r-lg text-muted transition-colors hover:text-white focus:outline-none focus:ring-1 focus:ring-accent/40"
+        className="absolute inset-y-0 right-0 flex w-10 items-center justify-center rounded-r-lg text-muted transition-colors hover:text-white focus:outline-hidden focus:ring-1 focus:ring-accent/40"
       >
         {visible ? <EyeOff size={16} aria-hidden /> : <Eye size={16} aria-hidden />}
       </button>

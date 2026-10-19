@@ -72,7 +72,7 @@ export function StepFitnessConfig({ initial, onNext }: Props) {
               value={config.currentWeight}
               onChange={(e) => setConfig((c) => ({ ...c, currentWeight: e.target.value }))}
               placeholder="70"
-              className="w-full rounded-xl border border-border bg-surface/80 px-4 py-2.5 text-sm placeholder:text-muted/40 focus:border-accent/60 focus:outline-none focus:ring-1 focus:ring-accent/20"
+              className="w-full rounded-xl border border-border bg-surface/80 px-4 py-2.5 text-sm placeholder:text-muted/40 focus:border-accent/60 focus:outline-hidden focus:ring-1 focus:ring-accent/20"
             />
           </div>
           {requiresWeightGoal && (
@@ -83,7 +83,7 @@ export function StepFitnessConfig({ initial, onNext }: Props) {
                 value={config.weightGoal}
                 onChange={(e) => setConfig((c) => ({ ...c, weightGoal: e.target.value }))}
                 placeholder="65"
-                className="w-full rounded-xl border border-border bg-surface/80 px-4 py-2.5 text-sm placeholder:text-muted/40 focus:border-accent/60 focus:outline-none focus:ring-1 focus:ring-accent/20"
+                className="w-full rounded-xl border border-border bg-surface/80 px-4 py-2.5 text-sm placeholder:text-muted/40 focus:border-accent/60 focus:outline-hidden focus:ring-1 focus:ring-accent/20"
               />
             </div>
           )}
@@ -109,7 +109,7 @@ export function StepFitnessConfig({ initial, onNext }: Props) {
             <p className="text-xs text-muted mt-0.5">Activa registro y meta diaria de reduccion.</p>
           </div>
           <span
-            className={`flex-shrink-0 h-5 w-5 rounded-full border-2 flex items-center justify-center transition-all ${
+            className={`shrink-0 h-5 w-5 rounded-full border-2 flex items-center justify-center transition-all ${
               config.smokingTracker ? 'border-warning bg-warning' : 'border-border'
             }`}
           >

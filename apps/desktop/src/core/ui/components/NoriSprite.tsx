@@ -40,7 +40,7 @@ export function NoriSprite({
         aria-label={decorative ? undefined : label}
         aria-hidden={decorative || undefined}
         title={decorative ? undefined : label}
-        className={`${SIZE_CLASS[size]} relative flex shrink-0 items-center justify-center overflow-hidden rounded-full border border-accent/35 bg-gradient-to-br from-surface-lighter via-surface-light to-surface shadow-[0_18px_34px_rgba(139,92,246,0.28)] ${className}`}
+        className={`${SIZE_CLASS[size]} relative flex shrink-0 items-center justify-center overflow-hidden rounded-full border border-accent/35 bg-linear-to-br from-surface-lighter via-surface-light to-surface shadow-[0_18px_34px_rgba(139,92,246,0.28)] ${className}`}
       >
         <div className="absolute inset-2 rounded-full border border-white/10 bg-accent/10" />
         <div className="relative text-center leading-none">

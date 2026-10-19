@@ -81,7 +81,7 @@ export function Navbar() {
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
         scrolled
-          ? 'backdrop-blur-md bg-base/75 border-b border-border/70 shadow-sm'
+          ? 'backdrop-blur-md bg-base/75 border-b border-border/70 shadow-xs'
           : 'bg-transparent border-b border-transparent'
       }`}
     >
@@ -129,7 +129,7 @@ export function Navbar() {
               value={language}
               onChange={(event) => setLanguage(event.target.value as typeof language)}
               aria-label={t.language.label}
-              className="h-7 w-12 appearance-none rounded-md border border-border/70 bg-surface/60 pl-2 pr-4 text-[10px] font-semibold text-muted transition-colors hover:bg-surface-light hover:text-foreground focus:border-border/70 focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 sm:h-8 sm:w-14 sm:pl-2.5 sm:pr-5 sm:text-[11px]"
+              className="h-7 w-12 appearance-none rounded-md border border-border/70 bg-surface/60 pl-2 pr-4 text-[10px] font-semibold text-muted transition-colors hover:bg-surface-light hover:text-foreground focus:border-border/70 focus:outline-hidden focus-visible:ring-0 focus-visible:ring-offset-0 sm:h-8 sm:w-14 sm:pl-2.5 sm:pr-5 sm:text-[11px]"
             >
               {languageOptions.map((option) => (
                 <option key={option.code} value={option.code}>

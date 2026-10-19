@@ -47,13 +47,13 @@ export function JournalHistoryPage() {
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Buscar por texto, título o tag"
             aria-label="Buscar entradas"
-            className="flex-1 bg-transparent text-sm text-white outline-none"
+            className="flex-1 bg-transparent text-sm text-white outline-hidden"
           />
         </label>
         <select
           value={tagFilter ?? ''}
           onChange={(e) => setTagFilter(e.target.value || null)}
-          className="rounded-md border border-border bg-surface px-2 py-1.5 text-sm text-white outline-none focus:border-accent"
+          className="rounded-md border border-border bg-surface px-2 py-1.5 text-sm text-white outline-hidden focus:border-accent"
           aria-label="Filtrar por tag"
         >
           <option value="">Todos los tags</option>

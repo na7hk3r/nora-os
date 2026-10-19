@@ -114,7 +114,7 @@ export function Shell({ onGlobalShortcut }: ShellProps) {
       </button>
       {drawerOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm lg:hidden"
+          className="fixed inset-0 z-40 bg-black/50 backdrop-blur-xs lg:hidden"
           onClick={() => setDrawerOpen(false)}
           aria-hidden="true"
         />

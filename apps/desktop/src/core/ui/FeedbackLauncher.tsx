@@ -102,7 +102,7 @@ export function FeedbackLauncher({
           role="dialog"
           aria-modal="true"
           aria-labelledby="feedback-title"
-          className="fixed inset-0 z-[90] flex items-center justify-center bg-black/60 px-4 backdrop-blur-sm"
+          className="fixed inset-0 z-[90] flex items-center justify-center bg-black/60 px-4 backdrop-blur-xs"
           onClick={() => setOpen(false)}
         >
           <section

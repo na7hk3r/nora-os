@@ -187,13 +187,13 @@ export function FinanceDashboard() {
                   return (
                     <li key={tx.id} className="flex items-center justify-between gap-3 rounded-md px-2 py-1.5 text-sm hover:bg-surface/60">
                       <div className="flex min-w-0 items-center gap-2">
-                        <span className={`flex-shrink-0 ${tx.kind === 'income' ? 'text-emerald-300' : 'text-rose-300'}`}>
+                        <span className={`shrink-0 ${tx.kind === 'income' ? 'text-emerald-300' : 'text-rose-300'}`}>
                           {tx.kind === 'income' ? <ArrowDownRight size={14} /> : <ArrowUpRight size={14} />}
                         </span>
                         <span className="truncate text-white">{cat?.name ?? 'Sin categoria'}</span>
                         {tx.note && <span className="truncate text-xs text-muted">- {tx.note}</span>}
                       </div>
-                      <div className="flex flex-shrink-0 items-center gap-2 text-xs text-muted">
+                      <div className="flex shrink-0 items-center gap-2 text-xs text-muted">
                         {budget && <span title="Presupuesto definido" className="text-amber-300/70">*</span>}
                         <span>{acc?.name}</span>
                         <span className={`font-mono font-medium ${tx.kind === 'income' ? 'text-emerald-200' : 'text-rose-200'}`}>

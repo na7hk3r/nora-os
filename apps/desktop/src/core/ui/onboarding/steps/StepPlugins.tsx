@@ -66,7 +66,7 @@ export function StepPlugins({ initial, onNext }: Props) {
                   <div className="flex items-center justify-between gap-2">
                     <p className="font-semibold text-white">{plugin.title}</p>
                     <span
-                      className={`flex-shrink-0 h-5 w-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                      className={`shrink-0 h-5 w-5 rounded-full border-2 flex items-center justify-center transition-all ${
                         active ? 'border-success bg-success' : 'border-border'
                       }`}
                     >

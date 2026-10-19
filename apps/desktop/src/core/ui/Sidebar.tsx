@@ -536,7 +536,7 @@ export function Sidebar({ drawerOpen = false }: SidebarProps) {
         >
           <div className="flex items-center gap-2">
             <div className="relative -ml-1 flex h-14 w-14 shrink-0 items-end justify-center">
-              <div className="absolute bottom-1 h-2 w-9 rounded-[50%] bg-black/35 blur-sm" aria-hidden />
+              <div className="absolute bottom-1 h-2 w-9 rounded-[50%] bg-black/35 blur-xs" aria-hidden />
               <NoriSprite level={level} size="md" decorative className="relative z-10 -mb-1" />
             </div>
             <div className="min-w-0 flex-1">
@@ -554,7 +554,7 @@ export function Sidebar({ drawerOpen = false }: SidebarProps) {
               </p>
               <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-surface-lighter">
                 <div
-                  className="h-1.5 rounded-full bg-gradient-to-r from-accent to-accent-light transition-all duration-500"
+                  className="h-1.5 rounded-full bg-linear-to-r from-accent to-accent-light transition-all duration-500"
                   style={{ width: `${noriProgress.percent}%` }}
                 />
               </div>

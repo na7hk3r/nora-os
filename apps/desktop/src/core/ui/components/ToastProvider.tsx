@@ -198,13 +198,13 @@ function ToastItem({ toast, onDismiss }: { toast: Toast; onDismiss: (id: string)
       aria-atomic="true"
       className={`pointer-events-auto flex items-start gap-3 rounded-xl border ${palette.border} ${palette.bg} px-3.5 py-2.5 text-sm text-white shadow-xl backdrop-blur-md animate-fade-in`}
     >
-      <span className="mt-0.5 flex-shrink-0">{palette.icon}</span>
+      <span className="mt-0.5 shrink-0">{palette.icon}</span>
       <p className="flex-1 leading-snug">{message}</p>
       {variant === 'undo' && onUndo && (
         <button
           type="button"
           onClick={handleUndo}
-          className="flex-shrink-0 rounded-md border border-amber-400/40 bg-amber-500/15 px-2.5 py-1 text-xs font-medium text-amber-100 hover:bg-amber-500/25"
+          className="shrink-0 rounded-md border border-amber-400/40 bg-amber-500/15 px-2.5 py-1 text-xs font-medium text-amber-100 hover:bg-amber-500/25"
         >
           {undoLabel ?? 'Deshacer'}
         </button>
@@ -213,7 +213,7 @@ function ToastItem({ toast, onDismiss }: { toast: Toast; onDismiss: (id: string)
         type="button"
         onClick={() => onDismiss(id)}
         aria-label="Cerrar notificación"
-        className="flex-shrink-0 rounded p-0.5 text-muted hover:text-white"
+        className="shrink-0 rounded p-0.5 text-muted hover:text-white"
       >
         <X size={14} />
       </button>

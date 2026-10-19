@@ -183,7 +183,7 @@ export function CardDetailModal({ card, onClose }: Props) {
       role="dialog"
       aria-modal="true"
       aria-label="Detalle de tarea"
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-fade-in"
       onClick={(e) => e.target === overlayRef.current && onClose()}
     >
       <div className="w-full max-w-lg rounded-2xl border border-border bg-surface shadow-2xl flex flex-col max-h-[80vh]">
@@ -210,7 +210,7 @@ export function CardDetailModal({ card, onClose }: Props) {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               onKeyDown={saveOnEnter}
-              className="w-full rounded-xl border border-border bg-surface-light/60 px-4 py-2.5 text-sm font-medium text-white placeholder:text-muted/40 focus:border-accent/60 focus:outline-none focus:ring-1 focus:ring-accent/20"
+              className="w-full rounded-xl border border-border bg-surface-light/60 px-4 py-2.5 text-sm font-medium text-white placeholder:text-muted/40 focus:border-accent/60 focus:outline-hidden focus:ring-1 focus:ring-accent/20"
             />
           </div>
 
@@ -223,7 +223,7 @@ export function CardDetailModal({ card, onClose }: Props) {
               onChange={(e) => setDescription(e.target.value)}
               onKeyDown={saveOnEnter}
               placeholder="Descripción opcional..."
-              className="w-full rounded-xl border border-border bg-surface-light/60 px-4 py-2.5 text-sm text-white/80 placeholder:text-muted/40 focus:border-accent/60 focus:outline-none focus:ring-1 focus:ring-accent/20"
+              className="w-full rounded-xl border border-border bg-surface-light/60 px-4 py-2.5 text-sm text-white/80 placeholder:text-muted/40 focus:border-accent/60 focus:outline-hidden focus:ring-1 focus:ring-accent/20"
             />
           </div>
 
@@ -272,7 +272,7 @@ export function CardDetailModal({ card, onClose }: Props) {
                 }}
                 onKeyDown={saveOnEnter}
                 placeholder="e.g. 30"
-                className="w-full rounded-xl border border-border bg-surface-light/60 px-3 py-2 text-sm text-white/80 placeholder:text-muted/40 focus:border-accent/60 focus:outline-none focus:ring-1 focus:ring-accent/20"
+                className="w-full rounded-xl border border-border bg-surface-light/60 px-3 py-2 text-sm text-white/80 placeholder:text-muted/40 focus:border-accent/60 focus:outline-hidden focus:ring-1 focus:ring-accent/20"
               />
             </div>
             <div>
@@ -283,7 +283,7 @@ export function CardDetailModal({ card, onClose }: Props) {
                   value={dueDate ?? ''}
                   onChange={(e) => setDueDate(e.target.value || null)}
                   onKeyDown={saveOnEnter}
-                  className="flex-1 rounded-xl border border-border bg-surface-light/60 px-3 py-2 text-sm text-white/80 focus:border-accent/60 focus:outline-none focus:ring-1 focus:ring-accent/20"
+                  className="flex-1 rounded-xl border border-border bg-surface-light/60 px-3 py-2 text-sm text-white/80 focus:border-accent/60 focus:outline-hidden focus:ring-1 focus:ring-accent/20"
                 />
                 {dueDate && (
                   <button
@@ -338,7 +338,7 @@ export function CardDetailModal({ card, onClose }: Props) {
                 onChange={(e) => setNewChecklistText(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && addChecklistItem()}
                 placeholder="Agregar ítem..."
-                className="flex-1 rounded-lg border border-border bg-surface px-3 py-1.5 text-sm placeholder:text-muted/40 focus:border-accent/60 focus:outline-none"
+                className="flex-1 rounded-lg border border-border bg-surface px-3 py-1.5 text-sm placeholder:text-muted/40 focus:border-accent/60 focus:outline-hidden"
               />
               <button
                 type="button"
@@ -447,7 +447,7 @@ export function CardDetailModal({ card, onClose }: Props) {
               onChange={(e) => setContent(e.target.value)}
               placeholder="Escribí los detalles, pasos, ideas..."
               rows={8}
-              className="w-full rounded-xl border border-border bg-surface-light/60 px-4 py-3 text-sm text-white/80 placeholder:text-muted/40 focus:border-accent/60 focus:outline-none focus:ring-1 focus:ring-accent/20 resize-none leading-relaxed"
+              className="w-full rounded-xl border border-border bg-surface-light/60 px-4 py-3 text-sm text-white/80 placeholder:text-muted/40 focus:border-accent/60 focus:outline-hidden focus:ring-1 focus:ring-accent/20 resize-none leading-relaxed"
             />
           </div>
         </div>

@@ -42,14 +42,14 @@ export function TimeProjectsPage() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Nombre del proyecto"
-            className="rounded-lg border border-border bg-surface/80 px-3 py-2 text-sm focus:border-accent/60 focus:outline-none"
+            className="rounded-lg border border-border bg-surface/80 px-3 py-2 text-sm focus:border-accent/60 focus:outline-hidden"
           />
           <input
             type="text"
             value={client}
             onChange={(e) => setClient(e.target.value)}
             placeholder="Cliente (opcional)"
-            className="rounded-lg border border-border bg-surface/80 px-3 py-2 text-sm focus:border-accent/60 focus:outline-none"
+            className="rounded-lg border border-border bg-surface/80 px-3 py-2 text-sm focus:border-accent/60 focus:outline-hidden"
           />
           <input
             type="number"
@@ -58,7 +58,7 @@ export function TimeProjectsPage() {
             value={hourlyRate}
             onChange={(e) => setHourlyRate(e.target.value)}
             placeholder="Tarifa/h"
-            className="rounded-lg border border-border bg-surface/80 px-3 py-2 text-sm focus:border-accent/60 focus:outline-none"
+            className="rounded-lg border border-border bg-surface/80 px-3 py-2 text-sm focus:border-accent/60 focus:outline-hidden"
           />
           <button
             onClick={submit}
@@ -94,7 +94,7 @@ export function TimeProjectsPage() {
                       const v = e.target.value.trim()
                       if (v && v !== project.name) void updateProject(project.id, { name: v })
                     }}
-                    className="font-medium bg-transparent border-none px-0 focus:outline-none focus:ring-0 w-full"
+                    className="font-medium bg-transparent border-none px-0 focus:outline-hidden focus:ring-0 w-full"
                   />
                   <p className="text-xs text-muted">
                     {project.client ?? 'Sin cliente'}

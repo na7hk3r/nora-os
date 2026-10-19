@@ -220,7 +220,7 @@ export function GlobalTagChip({
   return (
     <span
       ref={rootRef}
-      className={`inline-flex max-w-full items-center gap-1.5 rounded-full border bg-surface px-2 py-1 text-caption font-medium shadow-sm transition-colors ${
+      className={`inline-flex max-w-full items-center gap-1.5 rounded-full border bg-surface px-2 py-1 text-caption font-medium shadow-xs transition-colors ${
         selected ? 'ring-1 ring-white/30' : ''
       } ${onClick || canInspect ? 'hover:bg-surface-lighter' : ''} ${className}`}
       style={borderColor ? { borderColor, color: borderColor } : undefined}
@@ -385,7 +385,7 @@ export function GlobalTagPicker({
                 else if (canCreate) void createTag()
               }}
               placeholder={placeholder}
-              className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted/50"
+              className="min-w-0 flex-1 bg-transparent text-sm outline-hidden placeholder:text-muted/50"
             />
             {canCreate && (
               <button

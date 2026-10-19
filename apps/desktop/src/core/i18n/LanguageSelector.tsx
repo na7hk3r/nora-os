@@ -21,7 +21,7 @@ export function LanguageSelector({ compact = false, className = '' }: LanguageSe
         value={language}
         onChange={(event) => setLanguage(event.target.value as AppLanguage)}
         aria-label={t.language.aria}
-        className={`${compact ? 'w-auto' : 'min-w-[7.5rem] flex-1 sm:flex-none'} max-w-full rounded-lg border border-border bg-surface px-2.5 py-1.5 text-xs text-white outline-none focus:border-accent`}
+        className={`${compact ? 'w-auto' : 'min-w-[7.5rem] flex-1 sm:flex-none'} max-w-full rounded-lg border border-border bg-surface px-2.5 py-1.5 text-xs text-white outline-hidden focus:border-accent`}
       >
         {languageOptions.map((option) => (
           <option key={option.code} value={option.code}>

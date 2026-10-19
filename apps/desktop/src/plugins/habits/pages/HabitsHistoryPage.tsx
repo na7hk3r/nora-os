@@ -72,7 +72,7 @@ export function HabitsHistoryPage() {
                     return (
                       <td key={c.date} className="px-0.5 py-1">
                         <span
-                          className="block h-4 w-4 rounded-sm border border-border/40"
+                          className="block h-4 w-4 rounded-xs border border-border/40"
                           style={{ backgroundColor: intensity > 0 ? color : 'transparent', opacity: intensity || 1 }}
                           title={`${c.date}: ${c.count}/${habit.target}`}
                           aria-label={`${habit.name}, ${c.date}, ${c.count} de ${habit.target}`}

@@ -569,7 +569,7 @@ export function NoteEditor() {
             aria-hidden="true"
             className={`flex h-4 w-4 items-center justify-center rounded border transition-colors ${
               isChecked
-                ? 'border-accent bg-accent text-white shadow-sm shadow-accent/20'
+                ? 'border-accent bg-accent text-white shadow-xs shadow-accent/20'
                 : 'border-border bg-surface text-transparent hover:border-accent/60'
             } peer-focus-visible:ring-2 peer-focus-visible:ring-accent/35`}
           >
@@ -629,7 +629,7 @@ export function NoteEditor() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Buscar texto o #tag..."
-              className="w-full rounded-lg border border-border bg-surface/80 py-2 pl-7 pr-2 text-xs placeholder:text-muted/50 focus:border-accent/60 focus:outline-none focus:ring-1 focus:ring-accent/30"
+              className="w-full rounded-lg border border-border bg-surface/80 py-2 pl-7 pr-2 text-xs placeholder:text-muted/50 focus:border-accent/60 focus:outline-hidden focus:ring-1 focus:ring-accent/30"
             />
           </div>
           <div className="grid grid-cols-2 gap-1 rounded-lg border border-border/60 bg-surface/50 p-1">
@@ -827,7 +827,7 @@ export function NoteEditor() {
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     onBlur={() => void handleSave()}
-                    className="w-full bg-transparent text-2xl font-semibold leading-tight text-white outline-none placeholder:text-muted/45"
+                    className="w-full bg-transparent text-2xl font-semibold leading-tight text-white outline-hidden placeholder:text-muted/45"
                     placeholder="Título"
                   />
                   <GlobalTagPicker
@@ -849,7 +849,7 @@ export function NoteEditor() {
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
                     onBlur={() => void handleSave()}
-                    className="workspace-document-column h-full min-h-[430px] flex-1 resize-none bg-transparent px-6 py-5 text-[15px] leading-7 text-white/90 outline-none placeholder:text-muted/50"
+                    className="workspace-document-column h-full min-h-[430px] flex-1 resize-none bg-transparent px-6 py-5 text-[15px] leading-7 text-white/90 outline-hidden placeholder:text-muted/50"
                     placeholder="Escribí la nota…"
                   />
                 </div>

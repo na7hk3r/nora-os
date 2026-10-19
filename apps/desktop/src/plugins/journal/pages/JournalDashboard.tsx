@@ -50,7 +50,7 @@ export function JournalDashboard() {
             value={selectedDate}
             onChange={(e) => setSelectedDate(e.target.value)}
             aria-label="Cambiar fecha de la entrada"
-            className="rounded-full border border-border bg-surface px-3 py-1.5 text-white outline-none focus:border-accent"
+            className="rounded-full border border-border bg-surface px-3 py-1.5 text-white outline-hidden focus:border-accent"
           />
           <button
             type="button"

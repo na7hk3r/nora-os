@@ -423,7 +423,7 @@ export function WorkDashboard() {
                 <select
                   value={pomodoroGoalMin}
                   onChange={(e) => setPomodoroGoalMin(Number.parseInt(e.target.value, 10))}
-                  className="rounded bg-surface-light border border-border px-1 py-0.5 text-xs text-white focus:border-accent/60 focus:outline-none"
+                  className="rounded bg-surface-light border border-border px-1 py-0.5 text-xs text-white focus:border-accent/60 focus:outline-hidden"
                 >
                   <option value={15}>15m</option>
                   <option value={25}>25m</option>
@@ -632,7 +632,7 @@ export function WorkDashboard() {
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
                         <p className="line-clamp-2 min-w-0 break-words text-sm font-medium text-white">{card.title}</p>
-                        <span className={`flex-shrink-0 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-micro uppercase tracking-wide ${stateClass}`}>
+                        <span className={`shrink-0 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-micro uppercase tracking-wide ${stateClass}`}>
                           {isFocusedPaused ? <Pause size={10} /> : isFocused ? <Play size={10} /> : <ListChecks size={10} />}
                           {stateLabel}
                           {isFocused && (
@@ -642,7 +642,7 @@ export function WorkDashboard() {
                       </div>
                       {card.description && <p className="mt-1 text-xs text-muted line-clamp-2">{card.description}</p>}
                     </div>
-                    <div className="flex flex-shrink-0 flex-wrap items-center gap-1.5">
+                    <div className="flex shrink-0 flex-wrap items-center gap-1.5">
                       <button
                         onClick={() => completeWorkTask(card.id)}
                         title="Completar tarea (mueve a Hecho y detiene el foco)"
@@ -731,7 +731,7 @@ export function WorkDashboard() {
                         </p>
                       )}
                     </div>
-                    <span className="flex-shrink-0 text-xs text-muted">{formatRelative(entry.created_at)}</span>
+                    <span className="shrink-0 text-xs text-muted">{formatRelative(entry.created_at)}</span>
                   </div>
                 </div>
               )

@@ -83,7 +83,7 @@ export function CategoriesPage() {
             onChange={(e) => setName(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && void (editingId ? onSave() : onCreate())}
             placeholder="Nombre de categoria"
-            className="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-white outline-none focus:border-accent"
+            className="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-white outline-hidden focus:border-accent"
           />
           <div className="inline-flex items-center gap-1 rounded-lg border border-border bg-surface p-1 text-xs">
             <button type="button" onClick={() => setKind('expense')}

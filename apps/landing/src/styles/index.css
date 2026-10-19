@@ -4,9 +4,107 @@
  */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+/* Tailwind v4: el dark mode por atributo que v3 resolvía con
+ * darkMode: ['class', '[data-theme="dark"]'] en tailwind.config.ts ahora es
+ * una variante explícita. Opera con ancestro [data-theme="dark"] (html). */
+@custom-variant dark ([data-theme="dark"] &);
+
+/* Escaneo de fuentes de clases (CSS-first, v3: content.files del config). */
+@source "../../index.html";
+@source "../**/*.{ts,tsx}";
+
+/* ========== THEME — migrado desde tailwind.config.ts (v3 → v4 @theme) ========== */
+@theme {
+  --font-sans: 'Inter', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', sans-serif;
+  --font-display: 'Space Grotesk', 'Inter', 'system-ui', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Menlo', 'Consolas', monospace;
+
+  --shadow-glow: 0 0 0 1px rgb(var(--color-glow) / 0.2),
+    0 14px 50px -10px rgb(var(--color-glow) / 0.45);
+  --shadow-glow-sm: 0 0 0 1px rgb(var(--color-glow) / 0.15),
+    0 6px 24px -6px rgb(var(--color-glow) / 0.35);
+
+  --animate-fade-in: fadeIn 0.3s ease-out both;
+  --animate-slide-up: slideUp 0.4s ease-out both;
+  --animate-floaty: floaty 4s ease-in-out infinite;
+  --animate-gradient-shift: gradientShift 8s ease-in-out infinite;
+  --animate-glow-pulse: glowPulse 4s ease-in-out infinite;
+  --animate-marquee: marquee 30s linear infinite;
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes slideUp {
+    from {
+      transform: translateY(10px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  @keyframes floaty {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-6px);
+    }
+  }
+  @keyframes gradientShift {
+    0%,
+    100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+  @keyframes glowPulse {
+    0%,
+    100% {
+      opacity: 0.55;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.85;
+      transform: scale(1.05);
+    }
+  }
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+}
+
+/* Colores temables vía CSS vars (valores RGB crudos en :root más abajo) —
+ * `inline` evita la colisión circular de nombrar la var del tema igual que la
+ * cruda y habilita /opacidad con color-mix. `base` está expuesto como color
+ * (bg-base, text-base) igual que en v3. */
+@theme inline {
+  --color-base: rgb(var(--color-base));
+  --color-surface: rgb(var(--color-surface));
+  --color-surface-light: rgb(var(--color-surface-light));
+  --color-surface-lighter: rgb(var(--color-surface-lighter));
+  --color-accent: rgb(var(--color-accent));
+  --color-accent-light: rgb(var(--color-accent-light));
+  --color-muted: rgb(var(--color-muted));
+  --color-border: rgb(var(--color-border));
+  --color-foreground: rgb(var(--color-text));
+}
 
 /* ===== DESIGN TOKENS — DARK (default, identidad oficial) ===== */
 :root,
@@ -93,7 +191,7 @@ button {
 
 /* Smooth focus ring para accesibilidad */
 :focus-visible {
-  @apply outline-none ring-2 ring-accent ring-offset-2 ring-offset-base;
+  @apply outline-hidden ring-2 ring-accent ring-offset-2 ring-offset-base;
 }
 
 /* Scrollbar */

@@ -50,7 +50,7 @@ export function HabitQuickAdd({ onCreated }: { onCreated?: () => void }) {
           onChange={(e) => setName(e.target.value)}
           placeholder="Leer 20 minutos"
           maxLength={60}
-          className="block w-full rounded-md border border-border bg-surface px-2 py-1.5 text-sm text-white outline-none focus:border-accent"
+          className="block w-full rounded-md border border-border bg-surface px-2 py-1.5 text-sm text-white outline-hidden focus:border-accent"
         />
       </div>
       <div>
@@ -59,7 +59,7 @@ export function HabitQuickAdd({ onCreated }: { onCreated?: () => void }) {
           id="habit-new-kind"
           value={kind}
           onChange={(e) => setKind(e.target.value as HabitKind)}
-          className="block rounded-md border border-border bg-surface px-2 py-1.5 text-sm text-white outline-none focus:border-accent"
+          className="block rounded-md border border-border bg-surface px-2 py-1.5 text-sm text-white outline-hidden focus:border-accent"
         >
           <option value="positive">Hacer</option>
           <option value="negative">Evitar</option>
@@ -71,7 +71,7 @@ export function HabitQuickAdd({ onCreated }: { onCreated?: () => void }) {
           id="habit-new-period"
           value={period}
           onChange={(e) => setPeriod(e.target.value as HabitPeriod)}
-          className="block rounded-md border border-border bg-surface px-2 py-1.5 text-sm text-white outline-none focus:border-accent"
+          className="block rounded-md border border-border bg-surface px-2 py-1.5 text-sm text-white outline-hidden focus:border-accent"
         >
           <option value="daily">Diario</option>
           <option value="weekly">Semanal</option>
@@ -86,7 +86,7 @@ export function HabitQuickAdd({ onCreated }: { onCreated?: () => void }) {
           max={99}
           value={target}
           onChange={(e) => setTarget(Math.max(1, Number.parseInt(e.target.value, 10) || 1))}
-          className="block w-16 rounded-md border border-border bg-surface px-2 py-1.5 text-sm text-white outline-none focus:border-accent"
+          className="block w-16 rounded-md border border-border bg-surface px-2 py-1.5 text-sm text-white outline-hidden focus:border-accent"
         />
       </div>
       <button

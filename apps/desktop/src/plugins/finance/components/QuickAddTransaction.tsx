@@ -245,20 +245,20 @@ export function QuickAddTransaction() {
         value={amount}
         onChange={(e) => setAmount(e.target.value)}
         placeholder={mode === 'transfer' || mode === 'withdrawal' ? `Sale ${account?.currency ?? ''}` : 'Monto'}
-        className="min-w-0 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-white outline-none focus:border-accent"
+        className="min-w-0 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-white outline-hidden focus:border-accent"
         autoFocus
       />
       <input
         type="date"
         value={occurredAt}
         onChange={(e) => setOccurredAt(e.target.value)}
-        className="min-w-0 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-white outline-none focus:border-accent"
+        className="min-w-0 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-white outline-hidden focus:border-accent"
       />
       {mode === 'transfer' || mode === 'withdrawal' ? (
         <select
           value={toAccountId}
           onChange={(e) => setToAccountId(e.target.value)}
-          className="min-w-0 rounded-lg border border-border bg-surface px-2 py-2 text-sm text-white outline-none focus:border-accent"
+          className="min-w-0 rounded-lg border border-border bg-surface px-2 py-2 text-sm text-white outline-hidden focus:border-accent"
         >
           {targetAccounts.length === 0 ? (
             <option value="">{mode === 'withdrawal' ? 'Crea una cuenta efectivo' : 'Sin cuenta destino'}</option>
@@ -270,7 +270,7 @@ export function QuickAddTransaction() {
         <select
           value={categoryId}
           onChange={(e) => setCategoryId(e.target.value)}
-          className="min-w-0 rounded-lg border border-border bg-surface px-2 py-2 text-sm text-white outline-none focus:border-accent"
+          className="min-w-0 rounded-lg border border-border bg-surface px-2 py-2 text-sm text-white outline-hidden focus:border-accent"
         >
           <option value="">Sin categoria</option>
           {filteredCategories.map((c) => (
@@ -281,7 +281,7 @@ export function QuickAddTransaction() {
       <select
         value={accountId}
         onChange={(e) => setAccountId(e.target.value)}
-        className="min-w-0 rounded-lg border border-border bg-surface px-2 py-2 text-sm text-white outline-none focus:border-accent"
+        className="min-w-0 rounded-lg border border-border bg-surface px-2 py-2 text-sm text-white outline-hidden focus:border-accent"
       >
         {accounts.map((a) => (
           <option key={a.id} value={a.id}>{mode === 'transfer' || mode === 'withdrawal' ? `Desde ${a.name}` : `${a.name} (${a.currency})`}</option>
@@ -295,7 +295,7 @@ export function QuickAddTransaction() {
             value={toAmount}
             onChange={(e) => setToAmount(e.target.value)}
             placeholder={`Entra ${targetAccount?.currency ?? ''}`}
-            className="min-w-0 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-white outline-none focus:border-accent"
+            className="min-w-0 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-white outline-hidden focus:border-accent"
           />
         ) : (
           <input
@@ -303,7 +303,7 @@ export function QuickAddTransaction() {
             value={note}
             onChange={(e) => setNote(e.target.value)}
             placeholder="Nota (opcional)"
-            className="min-w-0 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-white outline-none focus:border-accent"
+            className="min-w-0 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-white outline-hidden focus:border-accent"
           />
         )
       ) : (
@@ -319,7 +319,7 @@ export function QuickAddTransaction() {
             value={note}
             onChange={(e) => setNote(e.target.value)}
             placeholder="Nota (opcional)"
-            className="min-w-0 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-white outline-none focus:border-accent"
+            className="min-w-0 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-white outline-hidden focus:border-accent"
           />
         </>
       )}
@@ -329,7 +329,7 @@ export function QuickAddTransaction() {
           value={note}
           onChange={(e) => setNote(e.target.value)}
           placeholder="Nota (opcional)"
-          className="min-w-0 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-white outline-none focus:border-accent"
+          className="min-w-0 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-white outline-hidden focus:border-accent"
         />
       )}
       <button

@@ -207,7 +207,7 @@ export function OnboardingWizard() {
       role="dialog"
       aria-modal="true"
       aria-label="Bienvenida y configuración inicial"
-      className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-surface/95 backdrop-blur-sm p-6"
+      className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-surface/95 backdrop-blur-xs p-6"
     >
       {/* Progress dots */}
       {step !== 'welcome' && (

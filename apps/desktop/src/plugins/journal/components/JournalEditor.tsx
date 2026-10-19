@@ -129,7 +129,7 @@ export function JournalEditor({ date = todayISO(), onAfterSave }: Props) {
         placeholder="Título (opcional)"
         maxLength={120}
         aria-label="Título de la entrada"
-        className="block w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-white outline-none focus:border-accent"
+        className="block w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-white outline-hidden focus:border-accent"
       />
 
       <div className="flex flex-wrap items-center gap-2 text-xs">
@@ -138,7 +138,7 @@ export function JournalEditor({ date = todayISO(), onAfterSave }: Props) {
           id="journal-mood"
           value={mood ?? ''}
           onChange={(e) => setMood(e.target.value === '' ? null : Number.parseInt(e.target.value, 10))}
-          className="rounded-md border border-border bg-surface px-2 py-1 text-white outline-none focus:border-accent"
+          className="rounded-md border border-border bg-surface px-2 py-1 text-white outline-hidden focus:border-accent"
         >
           <option value="">Sin registrar</option>
           <option value="1">{moodLabel(1)}</option>
@@ -153,7 +153,7 @@ export function JournalEditor({ date = todayISO(), onAfterSave }: Props) {
           id="journal-prompt"
           value={promptId ?? ''}
           onChange={(e) => handlePromptApply(e.target.value)}
-          className="rounded-md border border-border bg-surface px-2 py-1 text-white outline-none focus:border-accent"
+          className="rounded-md border border-border bg-surface px-2 py-1 text-white outline-hidden focus:border-accent"
         >
           <option value="">Sin prompt</option>
           {prompts.map((p) => (
@@ -169,7 +169,7 @@ export function JournalEditor({ date = todayISO(), onAfterSave }: Props) {
         placeholder="Escribí lo que tengas en la cabeza."
         rows={12}
         aria-label="Contenido de la entrada"
-        className="block w-full resize-y rounded-md border border-border bg-surface px-3 py-2 text-sm text-white outline-none focus:border-accent"
+        className="block w-full resize-y rounded-md border border-border bg-surface px-3 py-2 text-sm text-white outline-hidden focus:border-accent"
       />
 
       <input
@@ -178,7 +178,7 @@ export function JournalEditor({ date = todayISO(), onAfterSave }: Props) {
         onChange={(e) => setTagsInput(e.target.value)}
         placeholder="#tag1 #tag2 (opcional, separados por coma o espacio)"
         aria-label="Tags de la entrada"
-        className="block w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-white outline-none focus:border-accent"
+        className="block w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-white outline-hidden focus:border-accent"
       />
 
       {error && <p className="text-xs text-rose-300" role="alert">{error}</p>}

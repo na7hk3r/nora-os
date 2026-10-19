@@ -238,7 +238,7 @@ export function ScreenshotTabs({
               onClick={() => setActiveId(t.id)}
               className={`rounded-lg border px-3 py-2 text-sm font-medium leading-snug transition-colors sm:px-4 ${
                 isActive
-                  ? 'bg-accent text-white border-accent shadow-sm'
+                  ? 'bg-accent text-white border-accent shadow-xs'
                   : 'bg-surface/60 text-muted border-border hover:text-foreground hover:border-accent/40'
               }`}
             >
@@ -253,7 +253,7 @@ export function ScreenshotTabs({
         role="tabpanel"
         id={`shot-panel-${active.id}`}
         aria-labelledby={`shot-tab-${active.id}`}
-        className="group animate-fade-in overflow-hidden rounded-xl border border-border/70 bg-surface/55 p-2 shadow-glow-sm backdrop-blur-sm"
+        className="group animate-fade-in overflow-hidden rounded-xl border border-border/70 bg-surface/55 p-2 shadow-glow-sm backdrop-blur-xs"
       >
         {active.compareSrc ? (
           <ThemeCompare key={active.id} tab={active} missingLabel={missingLabel} />

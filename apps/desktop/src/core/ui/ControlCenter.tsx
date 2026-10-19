@@ -1214,7 +1214,7 @@ export function ControlCenter() {
       </CollapsibleSection>
 
       {leaveGuardOpen && (
-        <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
           <div className="w-full max-w-md rounded-2xl border border-border bg-surface-light p-5 shadow-2xl">
             <h2 className="text-lg font-semibold text-white">{t.control.leaveGuard.title}</h2>
             <p className="mt-2 text-sm text-muted">

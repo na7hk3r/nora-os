@@ -43,7 +43,7 @@ const variantClasses: Record<Variant, string> = {
 }
 
 const baseClasses =
-  'inline-flex max-w-full items-center justify-center gap-2 whitespace-normal rounded-lg text-center font-medium leading-snug transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-base disabled:opacity-50 disabled:cursor-not-allowed'
+  'inline-flex max-w-full items-center justify-center gap-2 whitespace-normal rounded-lg text-center font-medium leading-snug transition-all duration-200 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-base disabled:opacity-50 disabled:cursor-not-allowed'
 
 export function Button(props: ButtonProps | AnchorProps) {
   const { variant = 'primary', size = 'md', leftIcon, rightIcon, children, className = '' } = props

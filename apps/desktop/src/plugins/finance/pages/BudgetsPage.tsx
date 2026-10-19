@@ -132,7 +132,7 @@ export function BudgetsPage() {
                     onChange={(e) => setDrafts((d) => ({ ...d, [c.id]: e.target.value }))}
                     onKeyDown={(e) => e.key === 'Enter' && void save(c.id)}
                     placeholder={budget ? `Actual: ${formatCents(limit, currency)}` : 'Definir límite mensual'}
-                    className="flex-1 rounded-lg border border-border bg-surface-light px-2 py-1.5 text-xs text-white outline-none focus:border-accent"
+                    className="flex-1 rounded-lg border border-border bg-surface-light px-2 py-1.5 text-xs text-white outline-hidden focus:border-accent"
                   />
                   <button type="button" onClick={() => void save(c.id)}
                     className="inline-flex items-center gap-1 rounded-lg border border-border px-2 py-1.5 text-xs text-muted hover:text-white">

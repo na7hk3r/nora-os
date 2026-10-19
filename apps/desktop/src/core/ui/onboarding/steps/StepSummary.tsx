@@ -62,7 +62,7 @@ export function StepSummary({ name, bigGoal, plugins, fitnessGoal, firstAction, 
       <div className="w-full max-w-sm bg-surface-light/60 border border-border rounded-2xl divide-y divide-border overflow-hidden">
         {items.map((item) => (
           <div key={item.label} className="flex items-center justify-between px-5 py-3.5 text-sm gap-3">
-            <span className="text-muted flex-shrink-0">{item.label}</span>
+            <span className="text-muted shrink-0">{item.label}</span>
             <span className="text-white font-medium text-right truncate max-w-[60%]">{item.value}</span>
           </div>
         ))}

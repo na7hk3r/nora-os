@@ -31,7 +31,7 @@ export function StepName({ initialName, initialBigGoal = '', onNext }: Props) {
           onChange={(e) => setName(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && submit()}
           placeholder="Tu nombre"
-          className="w-full rounded-xl border border-border bg-surface/80 px-5 py-3.5 text-lg text-center placeholder:text-muted/40 focus:border-accent/60 focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all"
+          className="w-full rounded-xl border border-border bg-surface/80 px-5 py-3.5 text-lg text-center placeholder:text-muted/40 focus:border-accent/60 focus:outline-hidden focus:ring-2 focus:ring-accent/20 transition-all"
         />
 
         <div className="text-left space-y-1">
@@ -46,7 +46,7 @@ export function StepName({ initialName, initialBigGoal = '', onNext }: Props) {
             }}
             placeholder="Ej: terminar la carrera, sostener foco profundo cada mañana…"
             rows={2}
-            className="w-full rounded-xl border border-border bg-surface/80 px-4 py-3 text-sm placeholder:text-muted/40 focus:border-accent/60 focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all resize-none"
+            className="w-full rounded-xl border border-border bg-surface/80 px-4 py-3 text-sm placeholder:text-muted/40 focus:border-accent/60 focus:outline-hidden focus:ring-2 focus:ring-accent/20 transition-all resize-none"
           />
           <p className="text-caption text-muted/70">
             Tu copiloto lo va a recordar y te lo va a devolver cuando te disperses.

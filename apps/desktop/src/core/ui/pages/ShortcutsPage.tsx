@@ -81,7 +81,7 @@ export function ShortcutsPage() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={language === 'en' ? 'Search by key or action' : 'Buscar por tecla o acción'}
-          className="w-full bg-transparent text-sm text-white placeholder:text-muted focus:outline-none"
+          className="w-full bg-transparent text-sm text-white placeholder:text-muted focus:outline-hidden"
         />
       </label>
 

@@ -87,8 +87,8 @@ function KpiCardsContent({ settings, density }: { settings: FitnessPluginSetting
     ? 'grid grid-cols-[repeat(auto-fit,minmax(124px,1fr))] gap-2'
     : 'grid grid-cols-[repeat(auto-fit,minmax(155px,1fr))] gap-3'
   const cardClass = isCompact
-    ? 'min-h-[78px] rounded-lg border border-border bg-surface px-2.5 py-2 shadow-sm'
-    : 'min-h-[112px] rounded-xl border border-border bg-surface px-3.5 py-3 shadow-sm'
+    ? 'min-h-[78px] rounded-lg border border-border bg-surface px-2.5 py-2 shadow-xs'
+    : 'min-h-[112px] rounded-xl border border-border bg-surface px-3.5 py-3 shadow-xs'
   const iconWrapClass = isCompact
     ? 'flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-surface-light'
     : 'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-surface-light'

@@ -169,7 +169,7 @@ export function SortableCard({
           data-delete="true"
           onClick={handleDeleteClick}
           title={confirmDelete ? 'Confirmar eliminación' : 'Eliminar tarea'}
-          className={`mt-0.5 flex-shrink-0 rounded px-1 text-micro font-medium transition-all duration-150 ${
+          className={`mt-0.5 shrink-0 rounded px-1 text-micro font-medium transition-all duration-150 ${
             confirmDelete
               ? 'bg-red-500/20 text-red-300 opacity-100'
               : 'text-muted opacity-0 group-hover:opacity-100 hover:bg-red-500/15 hover:text-red-400'

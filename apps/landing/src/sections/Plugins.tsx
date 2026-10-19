@@ -32,7 +32,7 @@ export function Plugins() {
             >
               <div
                 aria-hidden="true"
-                className={`absolute -right-12 -top-12 h-44 w-44 rounded-full bg-gradient-to-br ${accent} pointer-events-none opacity-70 blur-2xl transition-opacity duration-500 group-hover:opacity-100`}
+                className={`absolute -right-12 -top-12 h-44 w-44 rounded-full bg-linear-to-br ${accent} pointer-events-none opacity-70 blur-2xl transition-opacity duration-500 group-hover:opacity-100`}
               />
               <BrandIcon
                 name={brandArt}

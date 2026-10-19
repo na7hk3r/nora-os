@@ -168,21 +168,21 @@ export function LinkManager() {
             onChange={(event) => setTitle(event.target.value)}
             aria-label="Titulo del enlace"
             placeholder="Titulo opcional"
-            className="min-w-0 rounded-lg border border-border/70 bg-surface/75 px-3 py-2 text-sm focus:border-accent/60 focus:outline-none"
+            className="min-w-0 rounded-lg border border-border/70 bg-surface/75 px-3 py-2 text-sm focus:border-accent/60 focus:outline-hidden"
           />
           <input
             value={url}
             onChange={(event) => setUrl(event.target.value)}
             aria-label="URL del enlace"
             placeholder="URL"
-            className="min-w-0 rounded-lg border border-border/70 bg-surface/75 px-3 py-2 text-sm focus:border-accent/60 focus:outline-none"
+            className="min-w-0 rounded-lg border border-border/70 bg-surface/75 px-3 py-2 text-sm focus:border-accent/60 focus:outline-hidden"
           />
           <input
             value={category}
             onChange={(event) => setCategory(event.target.value)}
             aria-label="Categoria del enlace"
             placeholder="Categoria"
-            className="min-w-0 rounded-lg border border-border/70 bg-surface/75 px-3 py-2 text-sm focus:border-accent/60 focus:outline-none"
+            className="min-w-0 rounded-lg border border-border/70 bg-surface/75 px-3 py-2 text-sm focus:border-accent/60 focus:outline-hidden"
           />
           <button
             type="button"
@@ -206,7 +206,7 @@ export function LinkManager() {
               onChange={(event) => setSearch(event.target.value)}
               aria-label="Buscar enlaces"
               placeholder="Buscar enlaces..."
-              className="w-full rounded-lg border border-border/70 bg-surface/70 py-2 pl-9 pr-3 text-sm placeholder:text-muted/50 focus:border-accent/60 focus:outline-none"
+              className="w-full rounded-lg border border-border/70 bg-surface/70 py-2 pl-9 pr-3 text-sm placeholder:text-muted/50 focus:border-accent/60 focus:outline-hidden"
             />
           </div>
 
@@ -384,21 +384,21 @@ function LinkRow({
             onChange={(event) => onEditDraftChange({ ...editDraft, title: event.target.value })}
             aria-label="Editar titulo del enlace"
             placeholder="Titulo opcional"
-            className="min-w-0 rounded border border-border bg-surface-light px-2 py-1.5 text-sm focus:border-accent/60 focus:outline-none"
+            className="min-w-0 rounded border border-border bg-surface-light px-2 py-1.5 text-sm focus:border-accent/60 focus:outline-hidden"
           />
           <input
             value={editDraft.url}
             onChange={(event) => onEditDraftChange({ ...editDraft, url: event.target.value })}
             aria-label="Editar URL del enlace"
             placeholder="URL"
-            className="min-w-0 rounded border border-border bg-surface-light px-2 py-1.5 text-sm focus:border-accent/60 focus:outline-none"
+            className="min-w-0 rounded border border-border bg-surface-light px-2 py-1.5 text-sm focus:border-accent/60 focus:outline-hidden"
           />
           <input
             value={editDraft.category}
             onChange={(event) => onEditDraftChange({ ...editDraft, category: event.target.value })}
             aria-label="Editar categoria del enlace"
             placeholder="Categoria"
-            className="min-w-0 rounded border border-border bg-surface-light px-2 py-1.5 text-sm focus:border-accent/60 focus:outline-none"
+            className="min-w-0 rounded border border-border bg-surface-light px-2 py-1.5 text-sm focus:border-accent/60 focus:outline-hidden"
           />
         </div>
         <div className="flex items-center justify-end gap-2">

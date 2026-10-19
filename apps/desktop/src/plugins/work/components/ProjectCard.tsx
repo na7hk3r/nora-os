@@ -47,7 +47,7 @@ export function ProjectCard({ project, stats, selected, onSelect, onArchive, onD
         <button
           type="button"
           onClick={() => onSelect(project)}
-          className="flex min-w-0 flex-1 items-center gap-2.5 rounded-xl text-left focus:outline-none"
+          className="flex min-w-0 flex-1 items-center gap-2.5 rounded-xl text-left focus:outline-hidden"
           aria-label={`Ver detalle del proyecto ${project.name}`}
         >
           <span
@@ -79,7 +79,7 @@ export function ProjectCard({ project, stats, selected, onSelect, onArchive, onD
             e.stopPropagation()
             setExpanded((value) => !value)
           }}
-          className="rounded-lg p-1.5 text-muted transition-colors hover:bg-surface hover:text-white focus:outline-none"
+          className="rounded-lg p-1.5 text-muted transition-colors hover:bg-surface hover:text-white focus:outline-hidden"
         >
           {expanded ? <ChevronUp size={14} aria-hidden="true" /> : <ChevronDown size={14} aria-hidden="true" />}
         </button>
@@ -133,7 +133,7 @@ export function ProjectCard({ project, stats, selected, onSelect, onArchive, onD
               title="Archivar proyecto"
               aria-label={`Archivar proyecto ${project.name}`}
               onClick={() => onArchive(project)}
-              className="rounded-lg p-1.5 text-muted transition-colors hover:bg-surface hover:text-white focus:outline-none"
+              className="rounded-lg p-1.5 text-muted transition-colors hover:bg-surface hover:text-white focus:outline-hidden"
             >
               <Archive size={14} aria-hidden="true" />
             </button>
@@ -142,7 +142,7 @@ export function ProjectCard({ project, stats, selected, onSelect, onArchive, onD
               title="Eliminar proyecto"
               aria-label={`Eliminar proyecto ${project.name}`}
               onClick={() => onDelete(project)}
-              className="rounded-lg p-1.5 text-muted transition-colors hover:bg-danger/10 hover:text-danger focus:outline-none"
+              className="rounded-lg p-1.5 text-muted transition-colors hover:bg-danger/10 hover:text-danger focus:outline-hidden"
             >
               <Trash2 size={14} aria-hidden="true" />
             </button>

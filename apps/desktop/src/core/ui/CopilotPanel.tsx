@@ -274,7 +274,7 @@ export function CopilotPanel({ collapsed, onToggle }: CopilotPanelProps) {
             onKeyDown={handleKeyDown}
             rows={2}
             placeholder="Escribí algo… (Enter envía, Shift+Enter salto)"
-            className="min-w-0 flex-1 resize-none bg-transparent text-xs text-white placeholder:text-muted focus:outline-none"
+            className="min-w-0 flex-1 resize-none bg-transparent text-xs text-white placeholder:text-muted focus:outline-hidden"
             disabled={sending}
           />
           <button

@@ -67,7 +67,7 @@ export function StepFirstAction({ available, onNext }: Props) {
                 onChange={(e) => setTask(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && submit()}
                 placeholder="Ej: revisar mails de la mañana"
-                className="mt-3 w-full rounded-lg border border-border bg-surface/80 px-3 py-2 text-sm placeholder:text-muted/40 focus:border-accent/60 focus:outline-none focus:ring-1 focus:ring-accent/20"
+                className="mt-3 w-full rounded-lg border border-border bg-surface/80 px-3 py-2 text-sm placeholder:text-muted/40 focus:border-accent/60 focus:outline-hidden focus:ring-1 focus:ring-accent/20"
               />
             )}
           </ActionCard>
@@ -88,7 +88,7 @@ export function StepFirstAction({ available, onNext }: Props) {
                 onChange={(e) => setWeight(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && submit()}
                 placeholder="70"
-                className="mt-3 w-full rounded-lg border border-border bg-surface/80 px-3 py-2 text-sm placeholder:text-muted/40 focus:border-accent/60 focus:outline-none focus:ring-1 focus:ring-accent/20"
+                className="mt-3 w-full rounded-lg border border-border bg-surface/80 px-3 py-2 text-sm placeholder:text-muted/40 focus:border-accent/60 focus:outline-hidden focus:ring-1 focus:ring-accent/20"
               />
             )}
           </ActionCard>
@@ -142,7 +142,7 @@ function ActionCard({
       }`}
     >
       <div className="flex items-start gap-3">
-        <span className="mt-0.5 flex-shrink-0 text-accent-light">
+        <span className="mt-0.5 shrink-0 text-accent-light">
           {active ? <CheckCircle2 size={18} /> : <Sparkles size={18} className="opacity-60" />}
         </span>
         <div className="flex-1">

@@ -108,7 +108,7 @@ export function ProfilePage() {
       {/* Status banner */}
       {status.kind === 'success' && (
         <div className="flex items-start gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-100">
-          <CheckCircle2 size={18} className="mt-0.5 flex-shrink-0" />
+          <CheckCircle2 size={18} className="mt-0.5 shrink-0" />
           <div className="space-y-0.5">
             <p className="font-medium">{status.message}</p>
             {status.detail && <p className="text-xs text-emerald-200/80">{status.detail}</p>}
@@ -117,7 +117,7 @@ export function ProfilePage() {
       )}
       {status.kind === 'error' && (
         <div className="flex items-start gap-3 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">
-          <AlertTriangle size={18} className="mt-0.5 flex-shrink-0" />
+          <AlertTriangle size={18} className="mt-0.5 shrink-0" />
           <p>{status.message}</p>
         </div>
       )}
@@ -137,7 +137,7 @@ export function ProfilePage() {
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full rounded-lg border border-border bg-surface/80 px-4 py-2.5 text-sm focus:border-accent/60 focus:outline-none focus:ring-2 focus:ring-accent/20"
+              className="w-full rounded-lg border border-border bg-surface/80 px-4 py-2.5 text-sm focus:border-accent/60 focus:outline-hidden focus:ring-2 focus:ring-accent/20"
             />
           </div>
           <div className="space-y-1">
@@ -149,7 +149,7 @@ export function ProfilePage() {
               onChange={(e) => setBigGoal(e.target.value)}
               rows={2}
               placeholder="Lo que tu copiloto debería recordar cuando te dispersás."
-              className="w-full rounded-lg border border-border bg-surface/80 px-4 py-2.5 text-sm resize-none focus:border-accent/60 focus:outline-none focus:ring-2 focus:ring-accent/20"
+              className="w-full rounded-lg border border-border bg-surface/80 px-4 py-2.5 text-sm resize-none focus:border-accent/60 focus:outline-hidden focus:ring-2 focus:ring-accent/20"
             />
           </div>
           <button
@@ -200,7 +200,7 @@ export function ProfilePage() {
       {/* Export */}
       <section className="space-y-4 rounded-2xl border border-border bg-surface-light/40 p-6">
         <div className="flex items-start gap-3">
-          <Download size={20} className="mt-0.5 text-accent-light flex-shrink-0" />
+          <Download size={20} className="mt-0.5 text-accent-light shrink-0" />
           <div className="space-y-1">
             <h2 className="text-lg font-semibold">Exportar perfil</h2>
             <p className="text-sm text-muted">
@@ -224,7 +224,7 @@ export function ProfilePage() {
               value={exportPass}
               onChange={(e) => setExportPass(e.target.value)}
               placeholder="Passphrase (mín 8)"
-              className="w-full rounded-lg border border-border bg-surface/80 px-3 py-2 text-sm focus:border-accent/60 focus:outline-none focus:ring-2 focus:ring-accent/20"
+              className="w-full rounded-lg border border-border bg-surface/80 px-3 py-2 text-sm focus:border-accent/60 focus:outline-hidden focus:ring-2 focus:ring-accent/20"
             />
             <button
               disabled={!isAvailable || exportPass.length < 8 || status.kind === 'busy'}
@@ -242,7 +242,7 @@ export function ProfilePage() {
       {/* Import */}
       <section className="space-y-4 rounded-2xl border border-border bg-surface-light/40 p-6">
         <div className="flex items-start gap-3">
-          <Upload size={20} className="mt-0.5 text-accent-light flex-shrink-0" />
+          <Upload size={20} className="mt-0.5 text-accent-light shrink-0" />
           <div className="space-y-1">
             <h2 className="text-lg font-semibold">Importar perfil</h2>
             <p className="text-sm text-muted">
@@ -266,7 +266,7 @@ export function ProfilePage() {
               value={importPass}
               onChange={(e) => setImportPass(e.target.value)}
               placeholder="Passphrase del archivo"
-              className="w-full rounded-lg border border-border bg-surface/80 px-3 py-2 text-sm focus:border-accent/60 focus:outline-none focus:ring-2 focus:ring-accent/20"
+              className="w-full rounded-lg border border-border bg-surface/80 px-3 py-2 text-sm focus:border-accent/60 focus:outline-hidden focus:ring-2 focus:ring-accent/20"
             />
             <button
               disabled={!isAvailable || importPass.length < 1 || status.kind === 'busy'}

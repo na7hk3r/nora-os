@@ -154,7 +154,7 @@ export function FeedbackPage({ feedbackEndpoint = getFeedbackEndpoint() }: Feedb
                     type="text"
                     autoComplete="name"
                     placeholder="Opcional"
-                    className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-foreground outline-none placeholder:text-muted/70 focus:border-accent"
+                    className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-foreground outline-hidden placeholder:text-muted/70 focus:border-accent"
                   />
                 </label>
 
@@ -165,7 +165,7 @@ export function FeedbackPage({ feedbackEndpoint = getFeedbackEndpoint() }: Feedb
                     type="text"
                     autoComplete="email"
                     placeholder="Email, Discord, Telegram..."
-                    className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-foreground outline-none placeholder:text-muted/70 focus:border-accent"
+                    className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-foreground outline-hidden placeholder:text-muted/70 focus:border-accent"
                   />
                 </label>
               </div>
@@ -176,7 +176,7 @@ export function FeedbackPage({ feedbackEndpoint = getFeedbackEndpoint() }: Feedb
                   <select
                     name="kind"
                     defaultValue="opinion"
-                    className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-foreground outline-none focus:border-accent"
+                    className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-foreground outline-hidden focus:border-accent"
                   >
                     <option value="opinion">Opinion general</option>
                     <option value="bug">Algo fallo</option>
@@ -190,7 +190,7 @@ export function FeedbackPage({ feedbackEndpoint = getFeedbackEndpoint() }: Feedb
                   <select
                     name="rating"
                     defaultValue=""
-                    className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-foreground outline-none focus:border-accent"
+                    className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-sm text-foreground outline-hidden focus:border-accent"
                   >
                     <option value="">Sin puntaje</option>
                     <option value="5">5 - Muy bien</option>
@@ -210,7 +210,7 @@ export function FeedbackPage({ feedbackEndpoint = getFeedbackEndpoint() }: Feedb
                   rows={7}
                   maxLength={4000}
                   placeholder="Ej: me costo encontrar..., me gusto..., cuando toque... paso..."
-                  className="w-full resize-y rounded-lg border border-border bg-surface px-3 py-2.5 text-sm leading-relaxed text-foreground outline-none placeholder:text-muted/70 focus:border-accent"
+                  className="w-full resize-y rounded-lg border border-border bg-surface px-3 py-2.5 text-sm leading-relaxed text-foreground outline-hidden placeholder:text-muted/70 focus:border-accent"
                 />
               </label>
 

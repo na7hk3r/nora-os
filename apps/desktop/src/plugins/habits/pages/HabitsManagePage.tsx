@@ -106,30 +106,30 @@ function HabitEditRow({ habit, onArchive, onUnarchive, onAskDelete }: RowProps) 
           value={name}
           onChange={(e) => setName(e.target.value)}
           maxLength={60}
-          className="block w-full rounded-md border border-border bg-surface px-2 py-1.5 text-sm text-white outline-none focus:border-accent"
+          className="block w-full rounded-md border border-border bg-surface px-2 py-1.5 text-sm text-white outline-hidden focus:border-accent"
         />
       </div>
       <div>
         <label className="text-micro uppercase tracking-wider text-muted" htmlFor={`kind-${habit.id}`}>Tipo</label>
-        <select id={`kind-${habit.id}`} value={kind} onChange={(e) => setKind(e.target.value as HabitKind)} className="block rounded-md border border-border bg-surface px-2 py-1.5 text-sm text-white outline-none focus:border-accent">
+        <select id={`kind-${habit.id}`} value={kind} onChange={(e) => setKind(e.target.value as HabitKind)} className="block rounded-md border border-border bg-surface px-2 py-1.5 text-sm text-white outline-hidden focus:border-accent">
           <option value="positive">Hacer</option>
           <option value="negative">Evitar</option>
         </select>
       </div>
       <div>
         <label className="text-micro uppercase tracking-wider text-muted" htmlFor={`period-${habit.id}`}>Período</label>
-        <select id={`period-${habit.id}`} value={period} onChange={(e) => setPeriod(e.target.value as HabitPeriod)} className="block rounded-md border border-border bg-surface px-2 py-1.5 text-sm text-white outline-none focus:border-accent">
+        <select id={`period-${habit.id}`} value={period} onChange={(e) => setPeriod(e.target.value as HabitPeriod)} className="block rounded-md border border-border bg-surface px-2 py-1.5 text-sm text-white outline-hidden focus:border-accent">
           <option value="daily">Diario</option>
           <option value="weekly">Semanal</option>
         </select>
       </div>
       <div>
         <label className="text-micro uppercase tracking-wider text-muted" htmlFor={`target-${habit.id}`}>Meta</label>
-        <input id={`target-${habit.id}`} type="number" min={1} max={99} value={target} onChange={(e) => setTarget(Math.max(1, Number.parseInt(e.target.value, 10) || 1))} className="block w-16 rounded-md border border-border bg-surface px-2 py-1.5 text-sm text-white outline-none focus:border-accent" />
+        <input id={`target-${habit.id}`} type="number" min={1} max={99} value={target} onChange={(e) => setTarget(Math.max(1, Number.parseInt(e.target.value, 10) || 1))} className="block w-16 rounded-md border border-border bg-surface px-2 py-1.5 text-sm text-white outline-hidden focus:border-accent" />
       </div>
       <div>
         <label className="text-micro uppercase tracking-wider text-muted" htmlFor={`color-${habit.id}`}>Color</label>
-        <input id={`color-${habit.id}`} type="text" value={color} onChange={(e) => setColor(e.target.value)} placeholder="#60a5fa" className="block w-24 rounded-md border border-border bg-surface px-2 py-1.5 text-sm text-white outline-none focus:border-accent" />
+        <input id={`color-${habit.id}`} type="text" value={color} onChange={(e) => setColor(e.target.value)} placeholder="#60a5fa" className="block w-24 rounded-md border border-border bg-surface px-2 py-1.5 text-sm text-white outline-hidden focus:border-accent" />
       </div>
       <div className="flex items-end gap-1">
         {dirty && (

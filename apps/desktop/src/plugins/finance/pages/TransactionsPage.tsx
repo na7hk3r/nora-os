@@ -206,7 +206,7 @@ export function TransactionsPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Buscar nota, cuenta o categoria"
-              className="min-w-0 flex-1 bg-transparent text-white outline-none placeholder:text-muted md:w-52"
+              className="min-w-0 flex-1 bg-transparent text-white outline-hidden placeholder:text-muted md:w-52"
             />
           </label>
         </div>
@@ -233,21 +233,21 @@ export function TransactionsPage() {
                 className={`flex-1 rounded-md px-2 py-1 ${draft.kind === 'income' ? 'bg-emerald-500/20 text-emerald-100' : 'text-muted'}`}>Ingreso</button>
             </div>
             <input value={draft.amount} onChange={(e) => setDraft((prev) => prev && { ...prev, amount: e.target.value })} inputMode="decimal"
-              className="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-white outline-none focus:border-accent" />
+              className="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-white outline-hidden focus:border-accent" />
             <CurrencyInput value={draft.currency} onChange={(currency) => setDraft((prev) => prev && { ...prev, currency })} />
             <input type="date" value={draft.occurredAt} onChange={(e) => setDraft((prev) => prev && { ...prev, occurredAt: e.target.value })}
-              className="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-white outline-none focus:border-accent" />
+              className="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-white outline-hidden focus:border-accent" />
             <select value={draft.accountId} onChange={(e) => setDraft((prev) => prev && { ...prev, accountId: e.target.value })}
-              className="rounded-lg border border-border bg-surface px-2 py-2 text-sm text-white outline-none focus:border-accent">
+              className="rounded-lg border border-border bg-surface px-2 py-2 text-sm text-white outline-hidden focus:border-accent">
               {activeAccounts.map((a) => <option key={a.id} value={a.id}>{a.name} ({a.currency})</option>)}
             </select>
             <select value={draft.categoryId} onChange={(e) => setDraft((prev) => prev && { ...prev, categoryId: e.target.value })}
-              className="rounded-lg border border-border bg-surface px-2 py-2 text-sm text-white outline-none focus:border-accent">
+              className="rounded-lg border border-border bg-surface px-2 py-2 text-sm text-white outline-hidden focus:border-accent">
               <option value="">Sin categoria</option>
               {draftCategories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
             <input value={draft.note} onChange={(e) => setDraft((prev) => prev && { ...prev, note: e.target.value })} placeholder="Nota"
-              className="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-white outline-none focus:border-accent md:col-span-2 xl:col-span-1" />
+              className="rounded-lg border border-border bg-surface px-3 py-2 text-sm text-white outline-hidden focus:border-accent md:col-span-2 xl:col-span-1" />
             <button type="button" onClick={() => void saveEdit()}
               className="inline-flex items-center justify-center gap-1 rounded-lg border border-accent bg-accent/15 px-3 py-2 text-sm text-accent-light hover:bg-accent/25 md:col-span-2 xl:col-span-1">
               <Save size={14} /> Guardar

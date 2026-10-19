@@ -127,7 +127,7 @@ export function Docs() {
               placeholder={t.docs.searchPlaceholder}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="w-full rounded-lg border border-border bg-base/60 py-2 pl-9 pr-3 text-sm text-foreground placeholder:text-muted focus:border-accent focus:outline-none"
+              className="w-full rounded-lg border border-border bg-base/60 py-2 pl-9 pr-3 text-sm text-foreground placeholder:text-muted focus:border-accent focus:outline-hidden"
             />
           </label>
           <nav aria-label={t.docs.navLabel}>

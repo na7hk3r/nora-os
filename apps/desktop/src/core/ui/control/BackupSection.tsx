@@ -192,7 +192,7 @@ export function BackupSection() {
           role="dialog"
           aria-modal="true"
           aria-labelledby="backup-passphrase-title"
-          className="fixed inset-0 z-[90] flex items-center justify-center bg-black/60 px-4 backdrop-blur-sm"
+          className="fixed inset-0 z-[90] flex items-center justify-center bg-black/60 px-4 backdrop-blur-xs"
           onClick={closePassphraseDialog}
         >
           <form
@@ -236,7 +236,7 @@ export function BackupSection() {
                     setPassphraseError('')
                   }}
                   autoComplete={dialogCopy.autoComplete}
-                  className="min-w-0 flex-1 bg-transparent text-sm text-white outline-none"
+                  className="min-w-0 flex-1 bg-transparent text-sm text-white outline-hidden"
                   placeholder={language === 'en' ? 'Minimum 8 characters' : 'Minimo 8 caracteres'}
                   autoFocus
                 />
@@ -273,7 +273,7 @@ export function BackupSection() {
           role="dialog"
           aria-modal="true"
           aria-labelledby="backup-restore-title"
-          className="fixed inset-0 z-[90] flex items-center justify-center bg-black/60 px-4 backdrop-blur-sm"
+          className="fixed inset-0 z-[90] flex items-center justify-center bg-black/60 px-4 backdrop-blur-xs"
           onClick={() => !busy && setConfirmPlainRestore(false)}
         >
           <section

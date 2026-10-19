@@ -350,7 +350,7 @@ export function CommandPalette({ onShortcutHandled }: CommandPaletteProps) {
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-start justify-center bg-black/60 px-4 pt-24 backdrop-blur-sm"
+      className="fixed inset-0 z-[100] flex items-start justify-center bg-black/60 px-4 pt-24 backdrop-blur-xs"
       onClick={() => setOpen(false)}
       role="dialog"
       aria-modal="true"
@@ -374,7 +374,7 @@ export function CommandPalette({ onShortcutHandled }: CommandPaletteProps) {
             aria-controls="command-palette-listbox"
             aria-activedescendant={visibleResults[activeIndex] ? `cmd-result-${visibleResults[activeIndex].id}` : undefined}
             aria-autocomplete="list"
-            className="flex-1 bg-transparent text-sm text-white outline-none placeholder:text-muted/70"
+            className="flex-1 bg-transparent text-sm text-white outline-hidden placeholder:text-muted/70"
           />
           <button
             onClick={() => setOpen(false)}

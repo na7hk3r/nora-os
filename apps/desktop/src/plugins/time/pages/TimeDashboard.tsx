@@ -98,7 +98,7 @@ export function TimeDashboard() {
             return (
               <div key={entry.id} className="flex items-center gap-3 px-4 py-3 text-sm">
                 <span
-                  className="h-2.5 w-2.5 flex-shrink-0 rounded-full"
+                  className="h-2.5 w-2.5 shrink-0 rounded-full"
                   style={{ backgroundColor: project?.color ?? '#475569' }}
                 />
                 <div className="flex-1 min-w-0">
@@ -202,7 +202,7 @@ function RunningPanel({
         <select
           value={projectId}
           onChange={(e) => setProjectId(e.target.value)}
-          className="rounded-lg border border-border bg-surface/80 px-3 py-2 text-sm focus:border-accent/60 focus:outline-none"
+          className="rounded-lg border border-border bg-surface/80 px-3 py-2 text-sm focus:border-accent/60 focus:outline-hidden"
         >
           <option value="">Sin proyecto</option>
           {projects.map((p) => (
@@ -214,7 +214,7 @@ function RunningPanel({
           value={note}
           onChange={(e) => setNote(e.target.value)}
           placeholder="Nota (opcional)"
-          className="rounded-lg border border-border bg-surface/80 px-3 py-2 text-sm focus:border-accent/60 focus:outline-none"
+          className="rounded-lg border border-border bg-surface/80 px-3 py-2 text-sm focus:border-accent/60 focus:outline-hidden"
         />
         <button
           onClick={() => {
@@ -280,7 +280,7 @@ function ManualEntryForm({
         <select
           value={projectId}
           onChange={(e) => setProjectId(e.target.value)}
-          className="rounded-lg border border-border bg-surface/80 px-3 py-2 text-sm focus:border-accent/60 focus:outline-none"
+          className="rounded-lg border border-border bg-surface/80 px-3 py-2 text-sm focus:border-accent/60 focus:outline-hidden"
         >
           <option value="">Sin proyecto</option>
           {projects.map((p) => (
@@ -291,20 +291,20 @@ function ManualEntryForm({
           type="datetime-local"
           value={start}
           onChange={(e) => setStart(e.target.value)}
-          className="rounded-lg border border-border bg-surface/80 px-3 py-2 text-sm focus:border-accent/60 focus:outline-none"
+          className="rounded-lg border border-border bg-surface/80 px-3 py-2 text-sm focus:border-accent/60 focus:outline-hidden"
         />
         <input
           type="datetime-local"
           value={end}
           onChange={(e) => setEnd(e.target.value)}
-          className="rounded-lg border border-border bg-surface/80 px-3 py-2 text-sm focus:border-accent/60 focus:outline-none"
+          className="rounded-lg border border-border bg-surface/80 px-3 py-2 text-sm focus:border-accent/60 focus:outline-hidden"
         />
         <input
           type="text"
           value={note}
           onChange={(e) => setNote(e.target.value)}
           placeholder="Nota"
-          className="rounded-lg border border-border bg-surface/80 px-3 py-2 text-sm focus:border-accent/60 focus:outline-none"
+          className="rounded-lg border border-border bg-surface/80 px-3 py-2 text-sm focus:border-accent/60 focus:outline-hidden"
         />
         <button
           onClick={submit}

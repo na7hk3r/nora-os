@@ -106,7 +106,7 @@ export function GlobalProgress() {
             <button
               type="button"
               onClick={() => setEvolutionsOpen(true)}
-              className="relative z-10 -mb-2 rounded-full outline-none transition-transform hover:scale-[1.03] focus-visible:ring-2 focus-visible:ring-accent/70 sm:-ml-3"
+              className="relative z-10 -mb-2 rounded-full outline-hidden transition-transform hover:scale-[1.03] focus-visible:ring-2 focus-visible:ring-accent/70 sm:-ml-3"
               aria-label="Ver evoluciones de Nori"
               title="Ver evoluciones de Nori"
             >
@@ -136,7 +136,7 @@ export function GlobalProgress() {
               <div className="flex items-center gap-3">
                 <div className="relative h-3 min-w-0 flex-1 overflow-hidden rounded-full bg-surface">
                   <div
-                    className="progress-bar-fill h-3 rounded-full bg-gradient-to-r from-accent via-violet-400 to-accent-light transition-all duration-500"
+                    className="progress-bar-fill h-3 rounded-full bg-linear-to-r from-accent via-violet-400 to-accent-light transition-all duration-500"
                     style={{ width: `${progress.percent}%` }}
                   >
                     <span className="absolute inset-0 progress-shimmer" />
@@ -153,7 +153,7 @@ export function GlobalProgress() {
                   className="relative flex h-16 w-14 shrink-0 items-center justify-center"
                   title={progress.isMaxLevel ? (language === 'en' ? 'Final evolution unlocked' : 'Evolución final desbloqueada') : (language === 'en' ? `Next evolution: level ${nextNoriLevel}` : `Siguiente evolución: nivel ${nextNoriLevel}`)}
                 >
-                  <div className="absolute bottom-1 h-2 w-10 rounded-[50%] bg-black/35 blur-sm" aria-hidden />
+                  <div className="absolute bottom-1 h-2 w-10 rounded-[50%] bg-black/35 blur-xs" aria-hidden />
                   <NoriSprite
                     level={progress.isMaxLevel ? progress.level : nextNoriLevel}
                     size="md"
@@ -161,7 +161,7 @@ export function GlobalProgress() {
                     className={progress.isMaxLevel ? 'relative z-10' : 'relative z-10 opacity-35 grayscale brightness-75 blur-[0.6px]'}
                   />
                   {!progress.isMaxLevel && (
-                    <span className="absolute right-0 top-1 inline-flex h-5 w-5 items-center justify-center rounded-full border border-border bg-surface-light/90 text-muted shadow">
+                    <span className="absolute right-0 top-1 inline-flex h-5 w-5 items-center justify-center rounded-full border border-border bg-surface-light/90 text-muted shadow-sm">
                       <LockKeyhole size={11} />
                     </span>
                   )}
@@ -315,7 +315,7 @@ export function GlobalProgress() {
                       <div className="mt-2 space-y-1">
                         <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-lighter">
                           <div
-                            className="h-1.5 rounded-full bg-gradient-to-r from-warning to-xp-gold transition-all duration-500"
+                            className="h-1.5 rounded-full bg-linear-to-r from-warning to-xp-gold transition-all duration-500"
                             style={{ width: `${achievementProgress.percent}%` }}
                           />
                         </div>
@@ -392,7 +392,7 @@ function NoriEvolutionsDialog({
       role="dialog"
       aria-modal="true"
       aria-label={language === 'en' ? 'Nori evolutions' : 'Evoluciones de Nori'}
-      className="fixed inset-0 z-[70] flex items-center justify-center bg-black/55 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-[70] flex items-center justify-center bg-black/55 p-4 backdrop-blur-xs"
       onClick={onClose}
     >
       <section
@@ -438,7 +438,7 @@ function NoriEvolutionsDialog({
                       <td className="px-3 py-3 align-middle">
                         <div className="flex items-center gap-3">
                           <div className="relative flex h-16 w-16 shrink-0 items-center justify-center">
-                            <div className="absolute bottom-1 h-2 w-10 rounded-[50%] bg-black/35 blur-sm" aria-hidden />
+                            <div className="absolute bottom-1 h-2 w-10 rounded-[50%] bg-black/35 blur-xs" aria-hidden />
                             <NoriSprite
                               level={row.level}
                               size="md"
@@ -446,7 +446,7 @@ function NoriEvolutionsDialog({
                               className={row.unlocked ? 'relative z-10' : 'relative z-10 opacity-35 grayscale brightness-75 blur-[0.6px]'}
                             />
                             {!row.unlocked && (
-                              <span className="absolute right-0 top-1 inline-flex h-5 w-5 items-center justify-center rounded-full border border-border bg-surface-light/90 text-muted shadow">
+                              <span className="absolute right-0 top-1 inline-flex h-5 w-5 items-center justify-center rounded-full border border-border bg-surface-light/90 text-muted shadow-sm">
                                 <LockKeyhole size={11} />
                               </span>
                             )}

@@ -692,7 +692,7 @@ export function KanbanBoard() {
   // El layout equitativo deformaba columnas al competir con el botón "Nueva
   // columna" (w-44 fijo) y al achicar el viewport con sidebar+copilot abiertos.
   const trackClass = 'scrollbar-kanban flex items-start gap-4 overflow-x-auto overflow-y-hidden pb-4'
-  const columnSizingClass = 'work-kanban-column flex flex-shrink-0 h-[420px] flex-col overflow-hidden w-[280px] md:w-[300px] 2xl:w-[320px]'
+  const columnSizingClass = 'work-kanban-column flex shrink-0 h-[420px] flex-col overflow-hidden w-[280px] md:w-[300px] 2xl:w-[320px]'
 
   return (
     <>
@@ -874,7 +874,7 @@ export function KanbanBoard() {
                           if (e.key === 'Escape') cancelEditColumn()
                         }}
                         placeholder="Nombre"
-                        className="flex-1 rounded border border-border bg-surface px-2 py-1 text-sm focus:border-accent/60 focus:outline-none"
+                        className="flex-1 rounded border border-border bg-surface px-2 py-1 text-sm focus:border-accent/60 focus:outline-hidden"
                       />
                       <input
                         type="number"
@@ -886,7 +886,7 @@ export function KanbanBoard() {
                           if (e.key === 'Escape') cancelEditColumn()
                         }}
                         placeholder="WIP"
-                        className="w-14 rounded border border-border bg-surface px-2 py-1 text-xs focus:border-accent/60 focus:outline-none"
+                        className="w-14 rounded border border-border bg-surface px-2 py-1 text-xs focus:border-accent/60 focus:outline-hidden"
                       />
                       <button
                         onClick={saveEditColumn}
@@ -1024,11 +1024,11 @@ export function KanbanBoard() {
                         setNewCardTitle((prev) => ({ ...prev, [col.id]: e.target.value }))
                       }
                       onKeyDown={(e) => e.key === 'Enter' && handleAddCard(col.id)}
-                      className="min-w-0 flex-1 rounded border border-border bg-surface px-2 py-1.5 text-sm placeholder:text-muted/50 focus:border-accent/60 focus:outline-none focus:ring-1 focus:ring-accent/30"
+                      className="min-w-0 flex-1 rounded border border-border bg-surface px-2 py-1.5 text-sm placeholder:text-muted/50 focus:border-accent/60 focus:outline-hidden focus:ring-1 focus:ring-accent/30"
                     />
                     <button
                       onClick={() => handleAddCard(col.id)}
-                      className="flex-shrink-0 rounded bg-accent/20 px-2.5 py-1.5 text-sm font-bold text-accent-light transition-colors hover:bg-accent/35 active:scale-95"
+                      className="shrink-0 rounded bg-accent/20 px-2.5 py-1.5 text-sm font-bold text-accent-light transition-colors hover:bg-accent/35 active:scale-95"
                     >
                       +
                     </button>
@@ -1039,7 +1039,7 @@ export function KanbanBoard() {
           })}
 
           {/* Botón / formulario para añadir nueva columna (placeholder angosto, no compite por ancho) */}
-          <div className="flex-shrink-0 w-44 rounded-xl border border-dashed border-border/60 bg-surface/40 p-2 self-start">
+          <div className="shrink-0 w-44 rounded-xl border border-dashed border-border/60 bg-surface/40 p-2 self-start">
             {creatingColumn ? (
               <div className="flex flex-col gap-2 p-2">
                 <input
@@ -1054,7 +1054,7 @@ export function KanbanBoard() {
                     }
                   }}
                   placeholder="Nombre de la columna"
-                  className="rounded border border-border bg-surface px-2 py-1.5 text-sm focus:border-accent/60 focus:outline-none"
+                  className="rounded border border-border bg-surface px-2 py-1.5 text-sm focus:border-accent/60 focus:outline-hidden"
                 />
                 <div className="flex gap-2">
                   <button

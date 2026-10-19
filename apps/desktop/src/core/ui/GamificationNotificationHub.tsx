@@ -198,7 +198,7 @@ export function GamificationNotificationHub() {
               return (
                 <div
                   key={item.id}
-                  className="animate-achievement-slide rounded-2xl border border-xp-gold/70 bg-gradient-to-r from-[#3a2a09]/90 to-[#5b3f0f]/90 px-4 py-3 text-amber-100 shadow-2xl"
+                  className="animate-achievement-slide rounded-2xl border border-xp-gold/70 bg-linear-to-r from-[#3a2a09]/90 to-[#5b3f0f]/90 px-4 py-3 text-amber-100 shadow-2xl"
                 >
                   <div className="flex items-start gap-3">
                     <div className="mt-0.5 text-2xl">{ICON_LABEL_MAP[item.icon] ?? '🏅'}</div>

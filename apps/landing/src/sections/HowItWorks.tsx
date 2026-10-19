@@ -18,7 +18,7 @@ export function HowItWorks() {
       <div className="relative">
         <div
           aria-hidden="true"
-          className="absolute left-[16.66%] right-[16.66%] top-12 hidden h-px bg-gradient-to-r from-transparent via-accent/40 to-transparent md:block"
+          className="absolute left-[16.66%] right-[16.66%] top-12 hidden h-px bg-linear-to-r from-transparent via-accent/40 to-transparent md:block"
         />
 
         <ol className="relative grid grid-cols-1 gap-8 md:grid-cols-3 md:gap-6">
@@ -43,7 +43,7 @@ export function HowItWorks() {
                     {Icon && <Icon className="h-7 w-7 text-accent sm:h-8 sm:w-8" aria-hidden="true" />}
                     <span
                       aria-hidden="true"
-                      className="absolute -right-2 -top-2 rounded-full bg-accent px-2 py-0.5 font-mono text-xs font-bold text-white shadow"
+                      className="absolute -right-2 -top-2 rounded-full bg-accent px-2 py-0.5 font-mono text-xs font-bold text-white shadow-sm"
                     >
                       {number}
                     </span>

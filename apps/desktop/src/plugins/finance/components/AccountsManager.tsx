@@ -149,13 +149,13 @@ export function AccountsManager() {
             value={draft.name}
             onChange={(e) => setDraft((prev) => ({ ...prev, name: e.target.value }))}
             placeholder="Nombre"
-            className="min-w-0 rounded-lg border border-border bg-surface-light px-2 py-1.5 text-sm text-white outline-none focus:border-accent sm:col-span-2 lg:col-span-1"
+            className="min-w-0 rounded-lg border border-border bg-surface-light px-2 py-1.5 text-sm text-white outline-hidden focus:border-accent sm:col-span-2 lg:col-span-1"
             autoFocus
           />
           <select
             value={draft.type}
             onChange={(e) => setDraft((prev) => ({ ...prev, type: e.target.value as AccountType }))}
-            className="min-w-0 rounded-lg border border-border bg-surface-light px-2 py-1.5 text-sm text-white outline-none focus:border-accent"
+            className="min-w-0 rounded-lg border border-border bg-surface-light px-2 py-1.5 text-sm text-white outline-hidden focus:border-accent"
           >
             {(Object.keys(TYPE_LABELS) as AccountType[]).map((type) => (
               <option key={type} value={type}>{TYPE_LABELS[type]}</option>
@@ -172,7 +172,7 @@ export function AccountsManager() {
             onChange={(e) => setDraft((prev) => ({ ...prev, initial: e.target.value }))}
             placeholder="Saldo inicial"
             inputMode="decimal"
-            className="w-full rounded-lg border border-border bg-surface-light px-2 py-1.5 text-sm text-white outline-none focus:border-accent lg:w-32"
+            className="w-full rounded-lg border border-border bg-surface-light px-2 py-1.5 text-sm text-white outline-hidden focus:border-accent lg:w-32"
           />
           <input
             type="color"

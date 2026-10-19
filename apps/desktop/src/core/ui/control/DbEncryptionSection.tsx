@@ -192,7 +192,7 @@ export function DbEncryptionSection() {
               type="password"
               value={pass}
               onChange={(e) => setPass(e.target.value)}
-              className="mt-1 w-full rounded border border-border bg-surface-light px-2 py-1.5 text-sm text-white focus:border-accent focus:outline-none"
+              className="mt-1 w-full rounded border border-border bg-surface-light px-2 py-1.5 text-sm text-white focus:border-accent focus:outline-hidden"
               autoComplete="new-password"
             />
           </label>
@@ -202,7 +202,7 @@ export function DbEncryptionSection() {
               type="password"
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
-              className="mt-1 w-full rounded border border-border bg-surface-light px-2 py-1.5 text-sm text-white focus:border-accent focus:outline-none"
+              className="mt-1 w-full rounded border border-border bg-surface-light px-2 py-1.5 text-sm text-white focus:border-accent focus:outline-hidden"
               autoComplete="new-password"
             />
           </label>
