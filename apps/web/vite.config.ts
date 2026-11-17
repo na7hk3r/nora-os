@@ -49,12 +49,23 @@ export default defineConfig({
         manualChunks(id) {
           if (!id.includes('node_modules')) return undefined
           if (id.includes('/recharts/') || id.includes('/d3-') || id.includes('/victory-vendor/') || id.includes('recharts-')) return 'charts'
-          if (id.includes('/react-markdown/') || id.includes('/remark-') || id.includes('/mdast-') || id.includes('/unist-') || id.includes('/micromark/')) return 'markdown'
+          // ⚠️ NO agrupar markdown en un solo chunk: react-markdown + remark/mdast/micromark
+          // tienen imports circulares internos y rolldown (Vite 8) los linealiza en un orden
+          // que provoca "Cannot access before initialization" en producción. Se deja que el
+          // bundler los divida naturalmente.
           if (id.includes('/sql.js/') || id.includes('/dexie/')) return 'sql'
           if (id.includes('/lucide-react/')) return 'icons'
           if (id.includes('/react/') || id.includes('/react-dom/') || id.includes('/react-router') || id.includes('/zustand/')) return 'react'
           return 'vendor'
         },
+      },
+    },
+    // Red de seguridad: garantiza el orden de inicialización de los módulos
+    // (envuelve cada módulo en una init function). Evita TDZ con deps circulares,
+    // a costa de un bundle un poco más grande.
+    rolldownOptions: {
+      output: {
+        strictExecutionOrder: true,
       },
     },
   },
